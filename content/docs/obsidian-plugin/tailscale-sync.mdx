@@ -1,0 +1,57 @@
+---
+title: Tailscale Sync
+description: Multi-agent vault collaboration over Tailscale.
+---
+
+# Tailscale Sync
+
+ClawVault vaults can share data over your Tailscale network. Multiple agents on different machines can search each other's vaults, forward observations, and maintain shared context.
+
+## How It Works
+
+Each machine runs `clawvault serve` which starts an HTTP API bound to the Tailscale IP (`100.x.x.x`). Only devices on your Tailnet can reach it.
+
+```bash
+# Start the vault server
+clawvault serve
+# → Listening on 100.64.31.68:7283
+```
+
+## Discovering Peers
+
+```bash
+# List known vault peers
+clawvault peers
+
+# Add a peer
+clawvault peers add eli-mac --host 100.70.233.52 --trust read
+```
+
+### Trust Levels
+
+| Level | What It Allows |
+|-------|---------------|
+| `read` | Search and read vault files |
+| `read-write` | Read + write observations |
+| `full` | Full vault access |
+
+## Cross-Vault Search
+
+Search across all connected vaults:
+
+```bash
+clawvault net-search "database migration decision"
+```
+
+Results show which vault each result comes from, with relevance scores.
+
+## Observation Forwarding
+
+When an agent observes a conversation that mentions entities in another vault, the observation can be forwarded automatically. The receiving vault stores it in `ledger/observations/` with attribution.
+
+## Security
+
+- Server binds to Tailscale IP only — never exposed to the public internet
+- Optional bearer token authentication
+- Trust levels control what each peer can do
+- No data leaves your Tailnet

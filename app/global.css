@@ -1,0 +1,20 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+
+.dark {
+  --color-fd-primary: #e8a430;
+  --color-fd-primary-foreground: #0a0a0a;
+  --color-fd-ring: rgba(232, 164, 48, 0.4);
+}
+
+/* Refined TOC scroll indicator */
+#nd-toc [style*="--fd-top"] {
+  width: 2px !important;
+  border-radius: 999px !important;
+  background: var(--color-fd-primary) !important;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-fd-primary) 50%, transparent);
+  transition:
+    top 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    height 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}

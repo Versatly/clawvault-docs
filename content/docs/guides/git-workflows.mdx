@@ -1,0 +1,160 @@
+---
+title: "Version Control"
+description: "Git workflows for tracking, committing, and syncing your ClawVault vault."
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+# Version Control
+
+A ClawVault vault is a directory of Markdown files -- ideal for Git. Version control gives you history, rollback, multi-machine sync, and backup for free.
+
+## Initializing Git
+
+```bash
+cd /path/to/vault
+git init
+git add -A
+git commit -m "Initial vault snapshot"
+```
+
+## .gitignore Patterns
+
+Not everything in the vault belongs in Git. The search index and internal state are machine-specific:
+
+```txt
+# ClawVault internals
+.clawvault/cache/
+.clawvault/index/
+.clawvault/tmp/
+
+# qmd search index (rebuilt with clawvault reindex)
+*.qmd
+.qmd/
+
+# OS files
+.DS_Store
+Thumbs.db
+```
+
+**Do track:**
+
+- `.clawvault.json` (vault configuration)
+- `.clawvault/hooks/` (hook scripts, if any)
+- All Markdown memory files
+- Templates
+
+**Do not track:**
+
+- Search indexes (machine-specific, rebuilt with `clawvault reindex`)
+- Cache and temporary files
+- Lock files
+
+## Committing on Sleep
+
+The `sleep` command supports automatic Git commits. When the agent ends a session:
+
+```bash
+clawvault sleep "finished auth module" \
+  --next "write tests" \
+  --git-commit
+```
+
+This stages all changed vault files and creates a commit with the sleep summary as the message. To also push:
+
+```bash
+clawvault sleep "finished auth module" --git-commit --git-push
+```
+
+### Automating Commits
+
+If you prefer commits on every memory write rather than just at session boundaries, add a post-store hook:
+
+```bash
+#!/bin/bash
+# .clawvault/hooks/post-store.sh
+cd "$(clawvault status --vault-path)"
+git add -A
+git commit -m "vault: auto-commit after store" --quiet
+```
+
+## Pulling on Wake
+
+When starting a new session on a different machine, pull before waking:
+
+```bash
+cd /path/to/vault
+git pull --rebase
+clawvault reindex    # rebuild search index for this machine
+clawvault wake       # resume with full context
+```
+
+<Callout type="info">
+Always run `clawvault reindex` after pulling changes from Git. The search index is not tracked in Git and needs to be rebuilt locally.
+</Callout>
+
+## Conflict Resolution
+
+Memory files can conflict when two agents (or an agent and a human) edit the same file on different machines. Common scenarios:
+
+### Frontmatter Conflicts
+
+YAML frontmatter conflicts are usually trivial -- take the version with the later `updated` timestamp:
+
+```yaml
+<<<<<<< HEAD
+updated: 2026-02-12T10:00:00Z
+=======
+updated: 2026-02-12T14:30:00Z
+>>>>>>> origin/main
+```
+
+Resolution: keep the later timestamp.
+
+### Content Conflicts
+
+For the body of a memory file, both versions usually contain valuable information. Merge by concatenating both sections:
+
+```markdown
+<<<<<<< HEAD
+Decided to use PostgreSQL for the auth service.
+=======
+After discussion, PostgreSQL was chosen for auth. Redis for session cache.
+>>>>>>> origin/main
+```
+
+Resolution: combine both -- the second version has more detail, but verify nothing is lost from the first.
+
+### Preventing Conflicts
+
+The simplest approach: use a single-writer pattern. One machine is the authority for the vault; others are read-only. For multi-writer setups:
+
+- Use `clawvault sleep --git-commit --git-push` at session end
+- Use `git pull --rebase` at session start
+- Assign different categories to different machines when possible
+
+## Branch Strategies
+
+For most vaults, a single `main` branch is sufficient. For experimentation:
+
+```bash
+# Try a different observation compression strategy
+git checkout -b experiment/aggressive-compression
+# ... run observe with different settings ...
+# If it works, merge back
+git checkout main
+git merge experiment/aggressive-compression
+```
+
+## Remote Backup
+
+Push to any Git remote for backup:
+
+```bash
+git remote add origin git@github.com:you/vault.git
+git push -u origin main
+```
+
+<Callout type="warn">
+Your vault may contain sensitive information (personal details, API decisions, relationship notes). Use a private repository and consider encrypting sensitive files with `git-crypt` if the remote is not fully trusted.
+</Callout>

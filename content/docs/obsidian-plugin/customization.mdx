@@ -1,0 +1,63 @@
+---
+title: Customization
+description: Customize the plugin's colors, behavior, and appearance.
+---
+
+# Customization
+
+The ClawVault plugin is designed to be configurable out of the box.
+
+## Settings
+
+Open Settings → ClawVault to configure:
+
+### Graph Colors
+
+Per-category color pickers with live preview. Change any category's graph node color. Reset to defaults with one click.
+
+### Auto-Refresh
+
+How often the sidebar panel refreshes vault stats. Default: 60 seconds. Set to 0 to disable auto-refresh.
+
+### Status Bar
+
+Toggle the bottom status bar item on/off. When enabled, shows node count and active task count.
+
+### Vault Path
+
+Usually auto-detected from `.clawvault.json`. Override if your vault is in a non-standard location.
+
+## CSS Snippets
+
+The plugin injects CSS for graph coloring, but you can add your own snippets in `.obsidian/snippets/`:
+
+```css
+/* Custom: make blocked tasks pulse */
+.graph-view .node[data-status="blocked"] {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+```
+
+```css
+/* Custom: larger task nodes in graph */
+.graph-view .node[data-category="tasks"] {
+  r: 8;
+}
+```
+
+## Custom Categories
+
+If you've added custom categories beyond the defaults, the plugin picks them up from `.clawvault.json`. Add colors for them in Settings → Graph Colors.
+
+## Keyboard Shortcuts
+
+Assign hotkeys to any ClawVault command in Settings → Hotkeys:
+
+- `ClawVault: Quick Capture` — suggested: `Ctrl+Shift+C`
+- `ClawVault: Add Task` — suggested: `Ctrl+Shift+T`
+- `ClawVault: Generate Dashboard` — suggested: `Ctrl+Shift+D`

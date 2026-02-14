@@ -1,0 +1,31 @@
+---
+title: "entities"
+description: "List all linkable entities in the vault"
+---
+
+The `entities` command lists all entities that can be referenced via wiki-links in your vault — people, projects, decisions, and other named items.
+
+## Usage
+
+```bash
+clawvault entities [options]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--json` | Output as JSON | false |
+
+## Examples
+
+```bash
+# List all entities
+clawvault entities
+
+# JSON output for scripting
+clawvault entities --json
+```
+
+Entities are derived from vault file paths and frontmatter. They form the nodes in ClawVault's knowledge graph and can be referenced with `[[wiki-links]]` in any vault document.

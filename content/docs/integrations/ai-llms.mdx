@@ -1,0 +1,148 @@
+---
+title: "AI and LLMs"
+description: "How ClawVault integrates with large language models for context injection, memory compression, and intelligent retrieval."
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+# AI and LLMs
+
+ClawVault uses LLMs in two ways: compressing raw session data into structured observations, and generating task-relevant context for prompt injection. Both are optional -- ClawVault works without any LLM access, falling back to rule-based processing.
+
+## Context Injection
+
+The `clawvault context` command generates a block of relevant memories for a given task, formatted for inclusion in an LLM prompt:
+
+```bash
+clawvault context "implement OAuth for the API"
+```
+
+Output:
+
+```markdown
+## Relevant Context (ClawVault)
+
+### Decision: Auth Architecture (2026-02-08)
+Chose OAuth 2.0 with PKCE for public clients. JWT access tokens, 15-min expiry.
+
+### Project: API Rewrite (active)
+Backend migration from Express to Fastify. Auth module is next milestone.
+
+### Commitment: Security Audit (2026-02-28)
+Pedro committed to completing auth security review before end of month.
+```
+
+This output is designed to be prepended to an LLM system prompt or injected as context in a conversation.
+
+### Token Budget Management
+
+Context windows are finite. ClawVault's context command respects token budgets:
+
+```bash
+# Limit context to ~2000 tokens
+clawvault context "OAuth implementation" --max-tokens 2000
+
+# Use a specific profile for retrieval strategy
+clawvault context "OAuth implementation" --profile compact
+```
+
+The `--max-tokens` flag controls how much context is returned. ClawVault prioritizes by relevance score and recency, truncating lower-priority memories first.
+
+## Context Profiles
+
+Profiles control how context is assembled. See [Context Profiles](/docs/concepts/context-profiles) for the full reference.
+
+| Profile | Behavior |
+|---------|----------|
+| `full` | Returns all matching memories up to the token budget |
+| `compact` | Summarizes each memory to a single line |
+| `auto` | Uses the LLM to select and rank the most relevant memories |
+| `recent` | Prioritizes chronologically recent memories |
+
+The `auto` profile makes an LLM call to intelligently select which memories matter for the given task. This produces the best results but adds latency and cost:
+
+```bash
+clawvault context "deploy to production" --profile auto
+```
+
+## Observational Memory Compression
+
+The `observe --compress` command uses an LLM to read raw session transcripts and extract structured observations:
+
+```bash
+clawvault observe --compress
+```
+
+This produces categorized observations with scored importance using the `[type|c=confidence|i=importance]` format:
+
+- **Structural** (importance >= 0.8) -- decisions made, errors encountered, deadlines set
+- **Potential** (importance 0.4-0.79) -- preferences expressed, architecture discussions, people interactions
+- **Contextual** (importance < 0.4) -- routine updates, successful deployments, progress notes
+
+### Which Models Work
+
+Observation compression works with any model that handles long context well. Recommended:
+
+| Provider | Model | Notes |
+|----------|-------|-------|
+| Anthropic | Claude 3.5 Sonnet or later | Best quality, handles long transcripts well |
+| OpenAI | GPT-4o | Good balance of speed and quality |
+| Google | Gemini 1.5 Pro | Large context window, good for very long sessions |
+
+Set the API key for your preferred provider:
+
+```bash
+export ANTHROPIC_API_KEY="sk-ant-..."
+# or
+export OPENAI_API_KEY="sk-..."
+# or
+export GEMINI_API_KEY="..."
+```
+
+ClawVault detects which keys are available and uses the first one found (in the order above).
+
+<Callout type="info">
+Without any API key, `observe` falls back to rule-based extraction. This catches obvious patterns (errors, TODOs, decisions marked with keywords) but misses nuanced context that LLM compression would capture.
+</Callout>
+
+## Supported Providers
+
+ClawVault supports three LLM providers:
+
+### Anthropic
+
+```bash
+export ANTHROPIC_API_KEY="sk-ant-..."
+export CLAWVAULT_MODEL="claude-sonnet-4-20250514"  # optional, uses default if unset
+```
+
+### OpenAI
+
+```bash
+export OPENAI_API_KEY="sk-..."
+export CLAWVAULT_MODEL="gpt-4o"  # optional
+```
+
+### Google Gemini
+
+```bash
+export GEMINI_API_KEY="..."
+export CLAWVAULT_MODEL="gemini-1.5-pro"  # optional
+```
+
+The `CLAWVAULT_MODEL` environment variable overrides the default model for the detected provider. If unset, ClawVault uses a sensible default for each provider.
+
+## Running Without an LLM
+
+ClawVault is fully functional without LLM access. The following features degrade gracefully:
+
+| Feature | With LLM | Without LLM |
+|---------|----------|-------------|
+| `observe` | AI-compressed observations | Rule-based extraction |
+| `context --profile auto` | LLM-ranked relevance | Falls back to `full` profile |
+| `wake` | AI-generated session summary | Raw handoff + recent memories |
+| Search | Unaffected | Unaffected |
+| Storage | Unaffected | Unaffected |
+| Graph | Unaffected | Unaffected |
+
+This means ClawVault works in air-gapped environments, on machines without internet access, or when you simply prefer not to send vault contents to an API.

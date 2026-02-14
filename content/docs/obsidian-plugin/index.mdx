@@ -1,0 +1,45 @@
+---
+title: Overview
+description: ClawVault plugin for Obsidian — colored graph, task dashboard, vault stats, and mobile sync.
+---
+
+# Obsidian Plugin
+
+The ClawVault Obsidian plugin brings your vault to life with visual management features.
+
+## What It Does
+
+- **Colored knowledge graph** — nodes colored by category (decisions in red, people in blue, tasks in gold)
+- **Sidebar status panel** — vault stats, active tasks, blocked items at a glance
+- **Command palette** — generate dashboards, capture notes, add tasks without leaving Obsidian
+- **Canvas dashboard** — auto-generated JSON Canvas with knowledge graph stats, task boards, and vault activity
+- **Task management views** — see all tasks, filter by project, track blockers
+- **Mobile sync** — sync your vault to Obsidian mobile over Tailscale via WebDAV
+- **Customizable templates** — every vault category has configurable templates for new files
+
+## Requirements
+
+- Obsidian 1.5.0 or later
+- ClawVault CLI installed (`npm i -g clawvault`)
+- A ClawVault vault (run `clawvault init` to create one)
+
+## Quick Start
+
+1. Install the plugin from Obsidian Community Plugins
+2. Open a vault that has been initialized with `clawvault init`
+3. The plugin auto-detects `.clawvault.json` and activates
+
+Your graph nodes will be colored immediately. Open the sidebar panel (elephant icon) to see vault stats.
+
+## Architecture
+
+The plugin reads your vault's local files — no cloud, no network calls (except optional Tailscale sync). Everything stays on your machine.
+
+```
+.clawvault.json          → Plugin reads vault config
+.clawvault/graph-index.json → Graph stats and node data
+tasks/                   → Task files with frontmatter
+backlog/                 → Backlog items
+ledger/observations/     → Observation count and dates
+ledger/reflections/      → Reflection summaries
+```

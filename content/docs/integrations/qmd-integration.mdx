@@ -1,0 +1,416 @@
+---
+title: "QMD Integration"
+description: "Semantic search integration with qmd for BM25 keyword search, vector embeddings, and neural reranking of ClawVault memories."
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+
+# QMD Integration
+
+ClawVault integrates with [qmd](https://github.com/tobi/qmd) to provide powerful semantic search capabilities that go beyond simple keyword matching.
+
+## What is QMD?
+
+QMD is a local semantic search engine that combines:
+- **BM25 search** - Fast keyword relevance ranking
+- **Vector embeddings** - Semantic meaning capture
+- **Neural reranking** - AI-powered result improvement
+
+All processing runs locally - no cloud APIs required for search.
+
+## Installation
+
+### Install QMD
+```bash
+# Via npm (preferred)
+npm install -g qmd
+
+# Via Bun (alternative)
+bun install -g github:tobi/qmd
+```
+
+### Verify Installation
+```bash
+qmd --version
+# Should output: qmd v0.x.x
+```
+
+## Setup with ClawVault
+
+### Add Your Vault as a Collection
+```bash
+# Add vault to qmd
+qmd collection add /path/to/your/vault --name clawvault-memory --mask "**/*.md"
+
+# Or use CLAWVAULT_PATH if set
+qmd collection add $CLAWVAULT_PATH --name clawvault-memory --mask "**/*.md"
+```
+
+### Initial Index Build
+```bash
+# Build search index
+qmd update
+
+# Generate embeddings for semantic search
+qmd embed
+```
+
+This process may take several minutes for large vaults as it:
+1. Scans all markdown files
+2. Extracts text content
+3. Builds BM25 keyword index
+4. Generates vector embeddings for each document
+5. Creates neural reranking models
+
+### Verify Setup
+```bash
+# Test search functionality
+qmd search "database decision"
+
+# Test semantic search
+qmd search "what did we choose for data storage" --semantic
+```
+
+## Search Methods in ClawVault
+
+With qmd integrated, ClawVault provides multiple search modes:
+
+### Keyword Search (Fast)
+```bash
+clawvault search "database postgres"
+```
+- Uses BM25 algorithm for keyword relevance
+- Fast response (~50-100ms)
+- Good for exact term matches
+- Handles typos and stemming
+
+### Semantic Search (Accurate)
+```bash
+clawvault vsearch "what did we decide about the database"
+```
+- Uses vector embeddings for meaning
+- Slower response (~500ms-2s)
+- Captures conceptual relationships
+- Better for natural language queries
+
+### Combined Search (Best)
+```bash
+clawvault context --profile default "database architecture"
+```
+- Combines keyword + semantic + graph traversal
+- Optimal relevance ranking
+- Used by context injection system
+
+## Search Pipeline
+
+### Stage 1: BM25 Keyword Ranking
+```
+Query: "database decision"
+ ↓
+BM25 finds: ["decisions/database-choice.md", "projects/api-redesign.md"]
+ ↓
+Score by keyword relevance
+```
+
+### Stage 2: Vector Semantic Matching
+```
+Embedding: [0.2, -0.1, 0.8, ...] (query vector)
+ ↓
+Compare to document vectors
+ ↓
+Find semantic neighbors: ["lessons/data-modeling.md", "people/dba-consultant.md"]
+```
+
+### Stage 3: Neural Reranking
+```
+Combined candidates: [BM25 results + semantic results]
+ ↓ 
+Neural reranker considers:
+- Query-document relevance
+- Document quality signals
+- User interaction patterns
+ ↓
+Final ranked results
+```
+
+## Configuration
+
+### QMD Collection Settings
+```bash
+# View current collections
+qmd collection list
+
+# Update collection settings
+qmd collection update clawvault-memory --mask "**/*.md" --exclude "**/node_modules/**"
+```
+
+### ClawVault QMD Integration
+```bash
+# Enable/disable qmd integration
+clawvault config set qmd_enabled true
+
+# Set collection name
+clawvault config set qmd_collection_name clawvault-memory
+
+# Configure search timeouts
+clawvault config set search_timeout_ms 5000
+clawvault config set vsearch_timeout_ms 10000
+```
+
+## Index Management
+
+### Regular Updates
+```bash
+# Update index with new/changed files
+qmd update
+
+# Regenerate embeddings (slower, more thorough)
+qmd embed --force
+```
+
+### Automatic Updates
+Set up automatic index updates:
+
+```bash
+# Add to crontab for daily updates
+echo "0 1 * * * qmd update" | crontab -
+
+# Or use ClawVault hook for real-time updates
+clawvault config set auto_qmd_update true
+```
+
+### Index Status
+```bash
+# Check index health
+qmd status
+
+# View collection statistics
+qmd collection stats clawvault-memory
+```
+
+Expected output:
+```
+Collection: clawvault-memory
+ Files: 347 markdown files
+ Index: 347 documents indexed
+ Embeddings: 347 vectors (384 dimensions)
+ Last updated: 2024-01-15 15:30:42
+ Size: 45.2 MB index, 12.8 MB embeddings
+```
+
+## Search Examples
+
+### Finding Technical Decisions
+```bash
+# Keyword search
+clawvault search "postgres sqlite database"
+
+# Semantic search 
+clawvault vsearch "storage technology choices"
+
+# Graph-aware context
+clawvault context "database architecture decisions"
+```
+
+### Locating People Interactions
+```bash
+# Find specific person
+clawvault search "pedro santos"
+
+# Find collaboration contexts
+clawvault vsearch "working with the engineering team"
+
+# Get person context
+clawvault context --profile default "pedro collaboration"
+```
+
+### Learning from Past Experience
+```bash
+# Find similar problems
+clawvault vsearch "API rate limiting solutions"
+
+# Search lessons learned
+clawvault search "lesson production outage"
+
+# Context for current problem
+clawvault context --profile incident "database performance issue"
+```
+
+## Performance Optimization
+
+### Index Size Management
+```bash
+# Exclude unnecessary files
+qmd collection update clawvault-memory --exclude "**/node_modules/**,**/dist/**,.git/**"
+
+# Optimize for common queries
+qmd optimize --collection clawvault-memory
+```
+
+### Search Performance
+| Vault Size | Keyword Search | Semantic Search | Context Generation |
+|------------|---------------|-----------------|-------------------|
+| Small (&lt;100 files) | &lt;50ms | &lt;500ms | &lt;1s |
+| Medium (100-500 files) | 50-100ms | 500ms-1s | 1-2s |
+| Large (500-1000 files) | 100-200ms | 1-2s | 2-3s |
+| Very Large (1000+ files) | 200-500ms | 2-5s | 3-5s |
+
+### Memory Usage
+- **BM25 index:** ~1-5 MB per 1000 files
+- **Vector embeddings:** ~10-50 MB per 1000 files
+- **Neural reranker:** ~20-100 MB model size
+
+## Troubleshooting
+
+### QMD Not Found
+**Error:** `qmd: command not found`
+
+**Solutions:**
+```bash
+# Reinstall qmd
+npm install -g qmd
+
+# Check PATH
+echo $PATH | grep npm
+
+# Use npx if global install failed
+npx qmd --version
+```
+
+### Collection Not Found 
+**Error:** `Collection 'clawvault-memory' not found`
+
+**Solutions:**
+```bash
+# List existing collections
+qmd collection list
+
+# Re-add collection
+qmd collection add $CLAWVAULT_PATH --name clawvault-memory --mask "**/*.md"
+
+# Rebuild index
+qmd update
+```
+
+### Slow Search Performance
+**Symptoms:** Search takes >10 seconds
+
+**Diagnosis:**
+```bash
+# Check index status
+qmd status
+
+# Profile a search
+time qmd search "test query"
+```
+
+**Solutions:**
+```bash
+# Rebuild index
+qmd embed --force
+
+# Optimize collection
+qmd optimize --collection clawvault-memory
+
+# Exclude large files
+qmd collection update clawvault-memory --exclude "**/*.pdf,**/*.docx"
+```
+
+### Embedding Generation Fails
+**Error:** `Failed to generate embeddings`
+
+**Solutions:**
+```bash
+# Check available models
+qmd models list
+
+# Use different model
+qmd embed --model sentence-transformers/all-MiniLM-L6-v2
+
+# Clear and rebuild
+qmd collection remove clawvault-memory
+qmd collection add $CLAWVAULT_PATH --name clawvault-memory --mask "**/*.md"
+qmd embed
+```
+
+## Advanced Configuration
+
+### Custom Models
+```bash
+# List available embedding models
+qmd models list
+
+# Use higher-quality model (slower)
+qmd embed --model sentence-transformers/all-mpnet-base-v2
+
+# Use faster model
+qmd embed --model sentence-transformers/all-MiniLM-L12-v2
+```
+
+### Search Tuning
+```bash
+# Adjust BM25 parameters
+qmd config set bm25.k1 1.2 # Term frequency saturation
+qmd config set bm25.b 0.75 # Length normalization
+
+# Adjust semantic search
+qmd config set semantic.threshold 0.5 # Similarity threshold
+qmd config set semantic.max_results 50 # Max semantic candidates
+```
+
+### Reranking Configuration
+```bash
+# Enable/disable neural reranking
+qmd config set rerank.enabled true
+
+# Adjust reranking model
+qmd config set rerank.model cross-encoder/ms-marco-MiniLM-L-6-v2
+```
+
+## Integration with ClawVault Features
+
+### Memory Graph Enhancement
+QMD search results inform graph traversal:
+- Semantic neighbors become graph edge candidates
+- Search relevance weights graph traversal
+- Combined search + graph provides richer context
+
+### Context Profiles
+Different profiles use QMD differently:
+- **Planning:** Emphasize project and goal documents
+- **Incident:** Weight recent, problem-related content
+- **Handoff:** Focus on continuity and progress markers
+
+### Observational Memory
+QMD helps route observations:
+- Semantic similarity identifies related existing content
+- Prevents duplicate observations
+- Suggests entity relationships for graph building
+
+## Offline Benefits
+
+QMD runs entirely offline:
+- **Privacy:** No queries leave your machine
+- **Speed:** No network latency
+- **Reliability:** Works without internet
+- **Cost:** No API charges for search
+
+This makes it ideal for sensitive or personal memory management where cloud search isn't appropriate.
+
+<Callout type="info">
+1. **Update regularly** - run `qmd update` daily for best results
+2. **Exclude irrelevant files** - use masks to keep index focused
+3. **Use semantic search for exploration** - better for discovering connections
+4. **Use keyword search for known items** - faster for specific lookups
+5. **Monitor index size** - large indexes can slow down search
+</Callout>
+
+<Callout>
+If qmd is unavailable, ClawVault falls back to:
+- Simple grep-based text search for `clawvault search`
+- Graph-only traversal for context generation
+- Manual file browsing for discovery
+
+While functional, the experience is significantly degraded without semantic capabilities.
+</Callout>

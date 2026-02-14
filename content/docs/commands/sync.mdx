@@ -1,0 +1,43 @@
+---
+title: "sync"
+description: "Sync vault files to a target path"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+The `sync` command copies vault files to a target directory, useful for mirroring your vault to another location (e.g., an Obsidian vault, a backup folder, or a shared drive).
+
+## Usage
+
+```bash
+clawvault sync <target> [options]
+```
+
+### Required
+
+- `<target>` — Destination path to sync files to
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--delete` | Delete orphan files in target | false |
+| `--dry-run` | Show what would be synced without syncing | false |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+
+## Examples
+
+```bash
+# Sync to an Obsidian vault
+clawvault sync ~/obsidian-vault/clawvault/
+
+# Preview what would be synced
+clawvault sync ~/backup --dry-run
+
+# Mirror exactly (delete files in target that aren't in source)
+clawvault sync ~/mirror --delete
+```
+
+<Callout type="warn">
+  The `--delete` flag removes files in the target that do not exist in the source vault. Use `--dry-run` first to verify.
+</Callout>

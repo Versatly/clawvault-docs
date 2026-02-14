@@ -1,0 +1,48 @@
+---
+title: "rebuild"
+description: "Rebuild compiled observations from raw ledger transcripts"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+The `rebuild` command reprocesses raw ledger transcripts to regenerate compiled observation files. Use this when you need to recompute observations after changes to the scoring system, observation format, or compression logic.
+
+_Added in v2.2.0_
+
+## Usage
+
+```bash
+clawvault rebuild [options]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--from <date>` | Start date (YYYY-MM-DD) | — |
+| `--to <date>` | End date (YYYY-MM-DD) | — |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+
+## How It Works
+
+1. Lists all raw transcript files in the ledger, optionally filtered by date range
+2. Deletes existing compiled observation files for each date
+3. Replays each day's raw transcripts through the observer pipeline
+4. Writes fresh compiled observation files
+
+<Callout type="warn">
+  Rebuild deletes and regenerates observation files. Raw transcripts in the ledger are preserved and never modified. If you want to preview the scope first, check the date range with `clawvault list` before running rebuild.
+</Callout>
+
+## Examples
+
+```bash
+# Rebuild all observations
+clawvault rebuild
+
+# Rebuild observations for a specific date range
+clawvault rebuild --from 2026-01-01 --to 2026-01-31
+
+# Rebuild against a specific vault
+clawvault rebuild -v ~/my-vault
+```

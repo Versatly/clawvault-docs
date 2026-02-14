@@ -1,0 +1,5 @@
+{
+  "title": "Advanced",
+  "icon": "Settings",
+  "pages": ["vault-structure", "wiki-links-entity-routing", "environment-variables"]
+}

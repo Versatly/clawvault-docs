@@ -1,0 +1,51 @@
+---
+title: "reflect"
+description: "Promote stable observation patterns into weekly reflection summaries"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+The `reflect` command analyzes recent observations and promotes stable patterns into weekly reflection files. Reflections distill day-level observations into higher-level summaries that persist longer than individual observations.
+
+_Added in v2.2.0_
+
+## Usage
+
+```bash
+clawvault reflect [options]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--days <n>` | Observation window in days | 14 |
+| `--dry-run` | Show what would be reflected without writing | false |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+
+## How It Works
+
+1. Scans observations from the last N days (default 14)
+2. Identifies recurring themes, decisions, and patterns across multiple days
+3. Writes weekly reflection files summarizing the promoted observations
+4. Optionally runs an archive pass to move old observations past the retention window
+
+<Callout type="info">
+  Reflections are triggered automatically during `replay` operations. Manual invocation is useful when you want to force a reflection pass outside of the normal observation cycle.
+</Callout>
+
+## Examples
+
+```bash
+# Run reflection with default 14-day window
+clawvault reflect
+
+# Preview reflections without writing
+clawvault reflect --dry-run
+
+# Use a 30-day observation window
+clawvault reflect --days 30
+
+# Reflect against a specific vault
+clawvault reflect -v ~/my-vault
+```

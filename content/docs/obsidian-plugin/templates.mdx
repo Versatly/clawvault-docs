@@ -1,0 +1,87 @@
+---
+title: Templates
+description: ClawVault's template system for consistent vault structure.
+---
+
+# Templates
+
+ClawVault includes a template system for creating consistent, well-structured files across your vault.
+
+## Built-in Templates
+
+Every vault comes with templates in the `templates/` folder:
+
+| Template | Used For | Key Fields |
+|----------|----------|------------|
+| `daily-note.md` | Daily logs | date, focus, wins, notes, next |
+| `decision.md` | Choices with reasoning | title, status, context, consequences |
+| `lesson.md` | Insights and patterns | title, insight, evidence, application |
+| `person.md` | Relationship files | title, relationship, contact, history |
+| `project.md` | Active work | title, status, objective, notes |
+| `checkpoint.md` | Save progress | working-on, focus, blocked |
+| `handoff.md` | Session bridges | working-on, blocked, next |
+
+## Using Templates
+
+### From CLI
+
+```bash
+# Create a file from template
+clawvault template apply decision "Use WebDAV for sync"
+
+# List available templates
+clawvault template list
+```
+
+### From Obsidian
+
+Use the command palette: **ClawVault: Quick Capture** or **ClawVault: Add Task** — these use the appropriate template automatically.
+
+## Template Variables
+
+Templates use `{{variable}}` placeholders that are filled automatically:
+
+| Variable | Value |
+|----------|-------|
+| `{{title}}` | The title you provide |
+| `{{date}}` | Today's date (YYYY-MM-DD) |
+| `{{datetime}}` | Current date and time |
+| `{{type}}` | Memory type (fact, decision, lesson, etc.) |
+
+## Custom Templates
+
+Add your own templates to the `templates/` folder. Any `.md` file there becomes available via `clawvault template apply`.
+
+Example custom template for meeting notes:
+
+```markdown
+---
+title: "{{title}}"
+date: {{date}}
+type: fact
+tags: [meeting]
+attendees: []
+---
+
+# Meeting: {{title}}
+
+## Agenda
+-
+
+## Notes
+-
+
+## Action Items
+- [ ]
+
+## Decisions Made
+-
+```
+
+## Template Best Practices
+
+1. Always include frontmatter with `title`, `date`, and `type`
+2. Use `tags` for easy filtering in Obsidian Bases
+3. Include wiki-link placeholders for related entities
+4. Keep templates minimal — capture structure, not content
+5. Add templates for your specific workflow (standups, reviews, retrospectives)

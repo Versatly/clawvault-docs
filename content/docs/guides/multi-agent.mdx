@@ -1,0 +1,150 @@
+---
+title: "Multi-Agent Memory"
+description: "Patterns for sharing and isolating memory across multiple AI agents using ClawVault."
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+import { Cards, Card } from "fumadocs-ui/components/card";
+
+# Multi-Agent Memory
+
+When multiple agents operate in the same environment, memory management becomes a coordination problem. ClawVault supports both shared vaults (agents read and write the same memory) and isolated vaults (each agent has its own memory space).
+
+## Shared Vaults vs Isolated Vaults
+
+<Cards>
+<Card title="Shared Vault">
+All agents read and write to the same vault directory. Best for agents that collaborate on the same tasks and need unified context.
+
+**Pros:** Single source of truth, no sync overhead, full cross-agent visibility.
+
+**Cons:** Risk of conflicting writes, noisy observations, harder to attribute memories.
+</Card>
+<Card title="Isolated Vaults">
+Each agent has its own vault. Cross-agent context is exchanged explicitly. Best for agents with distinct responsibilities.
+
+**Pros:** Clean separation, no write conflicts, agent-specific tuning.
+
+**Cons:** Requires explicit context sharing, potential for knowledge silos.
+</Card>
+</Cards>
+
+### When to Share
+
+Share a vault when agents:
+
+- Work on the same project and need each other's decisions
+- Operate sequentially (one agent hands off to another)
+- Have non-overlapping categories (one stores decisions, another stores observations)
+
+### When to Isolate
+
+Use separate vaults when agents:
+
+- Serve different users or contexts
+- Have conflicting observation schedules
+- Need different LLM configurations for compression
+- Operate in parallel on unrelated tasks
+
+## Agent-Specific Memory Folders
+
+Within a shared vault, you can partition by agent using category prefixes or dedicated folders:
+
+```
+vault/
+  .clawvault.json
+  decisions/          # shared
+  projects/           # shared
+  agents/
+    agent-alpha/      # agent-specific observations
+    agent-beta/       # agent-specific observations
+  inbox/
+    agent-alpha/      # agent-specific captures
+    agent-beta/
+```
+
+Each agent stores its observations and quick captures in its own subfolder while sharing access to decisions, projects, and other cross-cutting categories.
+
+Configure per-agent paths in each agent's environment:
+
+```bash
+# Agent Alpha
+export CLAWVAULT_AGENT_ID="agent-alpha"
+
+# Agent Beta
+export CLAWVAULT_AGENT_ID="agent-beta"
+```
+
+ClawVault uses `CLAWVAULT_AGENT_ID` to namespace observations and captures when set.
+
+## Cross-Agent Context
+
+The `clawvault context` command generates task-relevant context from the vault. In a multi-agent setup, any agent can query the shared vault:
+
+```bash
+# Agent Beta needs context about a decision Agent Alpha made
+clawvault context "authentication architecture decision"
+```
+
+This returns relevant memories regardless of which agent created them, because `context` searches across all vault categories.
+
+### Explicit Context Passing
+
+For isolated vaults, use `clawvault sync` to share specific categories:
+
+```bash
+# Export decisions from Agent Alpha's vault to a shared location
+clawvault sync /shared/decisions --categories decisions
+
+# Agent Beta imports from the shared location
+clawvault sync /shared/decisions --into /agent-beta/vault/shared-decisions
+```
+
+## Patterns for Agent Orchestration
+
+### Hub-and-Spoke
+
+A coordinator agent maintains the shared vault. Worker agents have isolated vaults but push summaries to the hub:
+
+```
+                ┌─────────────┐
+                │ Coordinator │
+                │   (hub)     │
+                └──────┬──────┘
+                       │ shared vault
+            ┌──────────┼──────────┐
+            │          │          │
+      ┌─────┴──┐ ┌────┴───┐ ┌───┴─────┐
+      │Worker A│ │Worker B│ │Worker C │
+      │(isolat)│ │(isolat)│ │(isolat) │
+      └────────┘ └────────┘ └─────────┘
+```
+
+Workers run `clawvault sleep` with summaries that the coordinator observes.
+
+### Pipeline
+
+Agents operate sequentially. Each agent's `sleep` handoff becomes the next agent's `wake` input:
+
+```bash
+# Agent 1 finishes
+clawvault sleep "research complete" --next "write draft based on findings"
+
+# Agent 2 starts
+clawvault wake  # picks up Agent 1's handoff
+```
+
+### Parallel with Merge
+
+Multiple agents work independently, then a merge agent consolidates:
+
+```bash
+# After parallel agents finish, merge agent runs:
+clawvault observe --compress   # processes all new transcripts
+clawvault link --all           # resolves cross-references
+clawvault graph                # shows the unified picture
+```
+
+<Callout type="info">
+Multi-agent patterns are evolving. The `CLAWVAULT_AGENT_ID` environment variable and per-agent namespacing are the current recommended approach. Future versions may add first-class multi-agent coordination commands.
+</Callout>

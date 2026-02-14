@@ -1,0 +1,34 @@
+---
+title: "dashboard"
+description: "Run a local web dashboard for vault graph visualization"
+---
+
+The `dashboard` command starts a local web server that provides a visual graph view of your vault — nodes, edges, entity relationships, and type statistics.
+
+## Usage
+
+```bash
+clawvault dashboard [options]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-p, --port <port>` | Dashboard port | 3377 |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+
+## Examples
+
+```bash
+# Start the dashboard
+clawvault dashboard
+
+# Custom port
+clawvault dashboard --port 8080
+
+# Specific vault
+clawvault dashboard -v ~/work-vault
+```
+
+The dashboard opens at `http://localhost:3377` and displays the vault's knowledge graph with typed nodes, typed edges, and category statistics.

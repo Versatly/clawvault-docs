@@ -1,0 +1,60 @@
+---
+title: "handoff"
+description: "Create a structured session handoff document for continuity between sessions"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+The `handoff` command creates a structured handoff document capturing what you were working on, what's next, and any blockers. Handoffs are the core unit of session continuity in ClawVault.
+
+## Usage
+
+```bash
+clawvault handoff [options]
+```
+
+### Options
+
+| Flag | Description |
+|------|-------------|
+| `-w, --working-on <items>` | What I was working on (comma-separated) |
+| `-b, --blocked <items>` | What is blocked (comma-separated) |
+| `-n, --next <items>` | What comes next (comma-separated) |
+| `-d, --decisions <items>` | Key decisions made (comma-separated) |
+| `-q, --questions <items>` | Open questions (comma-separated) |
+| `-f, --feeling <state>` | Emotional/energy state |
+| `-s, --session <key>` | Session key |
+| `-v, --vault <path>` | Vault path |
+| `--no-index` | Skip qmd index update |
+| `--json` | Output as JSON |
+
+## Examples
+
+```bash
+# Full handoff
+clawvault handoff \
+  --working-on "auth refactor, API tests" \
+  --next "deploy to staging, write integration tests" \
+  --blocked "waiting for OAuth docs" \
+  --decisions "chose JWT over session cookies" \
+  --feeling "productive"
+
+# Quick handoff with just the essentials
+clawvault handoff -w "bug fix for login" -n "test and deploy"
+
+# JSON output for automation
+clawvault handoff -w "migration" --json
+```
+
+<Callout type="info">
+  `clawvault sleep` calls `handoff` internally with additional features like git commit prompts and interactive mode. Use `handoff` directly when you want programmatic control or are building automation.
+</Callout>
+
+## Handoff vs Sleep
+
+| | `handoff` | `sleep` |
+|---|-----------|---------|
+| Interactive prompts | No | Yes |
+| Git commit prompt | No | Yes |
+| Auto-observe | No | Yes |
+| Use case | Scripting, automation | End-of-session ritual |

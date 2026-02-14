@@ -1,0 +1,199 @@
+---
+title: "clawvault link"
+description: "Auto-link entity mentions and manage wiki-link relationships in your ClawVault memory files."
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+
+# clawvault link
+
+The `link` command automatically converts entity mentions into wiki-links (`[[entity]]`) and helps you manage the relationships between your memory files.
+
+## Usage
+
+```bash
+# Link all files in the vault
+clawvault link --all
+
+# Link a specific file
+clawvault link memory/2024-01-15.md
+
+# Show what links to a specific file
+clawvault link --backlinks people/pedro.md
+
+# Find broken wiki-links
+clawvault link --orphans
+```
+
+## Commands
+
+### Auto-link All Files
+
+```bash
+clawvault link --all
+```
+
+Scans all markdown files in your vault and automatically converts entity mentions into wiki-links:
+
+- **People:** `Pedro` → `[[pedro]]`
+- **Projects:** `ClawVault` → `[[clawvault]]` 
+- **Decisions:** `database choice` → `[[database-choice]]`
+
+The linking process is smart about context and avoids linking common words or inappropriate mentions.
+
+### Link Specific File
+
+```bash
+clawvault link path/to/file.md
+```
+
+Process a single file for entity mentions and convert them to wiki-links.
+
+### Show Backlinks
+
+```bash
+clawvault link --backlinks target-file.md
+```
+
+Display all files that link to the specified target file. Useful for understanding relationships and finding related context.
+
+**Example output:**
+```
+Backlinks to people/pedro.md:
+ decisions/2024-01-10-hiring.md:5 "discussed with [[pedro]]"
+ projects/clawvault.md:12 "[[pedro]] suggested the graph approach"
+ memory/2024-01-15.md:23 "meeting with [[pedro]] about roadmap"
+```
+
+### Find Orphaned Links
+
+```bash
+clawvault link --orphans
+```
+
+Identify broken wiki-links that reference files that don't exist. This helps maintain vault integrity and find content that needs to be created.
+
+**Example output:**
+```
+Orphaned links found:
+ memory/2024-01-10.md:15 [[client-onboarding]] → people/client-onboarding.md (missing)
+ decisions/database.md:8 [[performance-tests]] → projects/performance-tests.md (missing)
+
+Suggestions:
+ - Create missing files, or
+ - Remove/rename links to existing content
+```
+
+## Entity Detection
+
+The linking system recognizes several types of entities:
+
+### People
+- Proper names in people/ folder or mentioned in context
+- Converts to slug format: `John Smith` → `[[john-smith]]`
+
+### Projects 
+- Project names from projects/ folder
+- Technology/tool names mentioned frequently
+- Converts to kebab-case: `Pet Door App` → `[[pet-door-app]]`
+
+### Decisions
+- Decision titles from decisions/ folder
+- Choice-related phrases in context
+
+## Wiki-Link Format
+
+ClawVault uses standard Obsidian-style wiki-links:
+
+```markdown
+# Basic link
+[[entity-name]]
+
+# Link with display text 
+[[entity-name|Display Text]]
+
+# Link to specific section
+[[entity-name#section]]
+```
+
+## Entity Routing
+
+When you create a link to an entity that doesn't exist, ClawVault follows smart routing rules:
+
+- `[[person-name]]` → `people/person-name.md`
+- `[[project-name]]` → `projects/project-name.md`
+- `[[decision-title]]` → `decisions/decision-title.md`
+
+For people and projects, files may be routed to subfolders:
+- `[[pedro]]` → `people/pedro/index.md` or `people/pedro.md`
+
+## Best Practices
+
+<Callout type="info">
+1. **Run `--all` periodically** to catch new entity mentions
+2. **Check `--orphans` monthly** to clean up broken links
+3. **Use descriptive entity names** that won't conflict with common words
+4. **Link liberally** — over-linking is better than under-linking
+</Callout>
+
+### When to Link
+- **Names of people** you interact with
+- **Project names** and major tools/technologies 
+- **Key decisions** that might be referenced later
+- **Important concepts** that appear across multiple files
+
+### When NOT to Link
+- Common words like "the", "and", "with"
+- Obvious context that doesn't need connection
+- Temporary or one-off mentions
+
+## Integration with Memory Graph
+
+Wiki-links are a primary source of edges in your [memory graph](/concepts/memory-graph/). The `clawvault graph` command uses these links to build relationship maps and improve context retrieval.
+
+```bash
+# Refresh graph after major linking changes
+clawvault graph --refresh
+```
+
+## Examples
+
+### Auto-linking in Practice
+
+**Before linking:**
+```markdown
+Met with Pedro today about the ClawVault improvements. 
+He suggested we focus on the memory graph feature first.
+We decided to use the graph approach for better context.
+```
+
+**After `clawvault link --all`:**
+```markdown
+Met with [[pedro]] today about the [[clawvault]] improvements.
+He suggested we focus on the memory graph feature first.
+We [[decision-graph-approach|decided to use the graph approach]] for better context.
+```
+
+### Finding Orphans
+
+```bash
+$ clawvault link --orphans
+
+ Orphaned Wiki-Links Found:
+
+memory/2024-01-10.md:
+ Line 15: [[client-onboarding]] → people/client-onboarding.md (missing)
+ Line 23: [[api-design]] → decisions/api-design.md (missing)
+
+Total: 2 orphaned links in 1 file
+
+ Suggestions:
+ - Create people/client-onboarding.md for client process documentation
+ - Create decisions/api-design.md for API architecture decisions
+ - Or update links to point to existing files
+```
+
+<Callout>
+Link processing is fast for most vaults. For very large vaults (1000+ files), consider linking specific files rather than using `--all` frequently.
+</Callout>

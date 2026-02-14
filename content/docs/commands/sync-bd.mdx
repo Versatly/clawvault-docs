@@ -1,0 +1,48 @@
+---
+title: "sync-bd"
+description: "Sync active beads (bd) tasks into the vault views"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+The `sync-bd` command pulls active tasks from the [beads](https://github.com/impredicative/bd) (`bd`) task manager and writes them into `views/now.md`. This gives your AI agent awareness of external tasks tracked in beads.
+
+_Added in v2.2.0_
+
+## Usage
+
+```bash
+clawvault sync-bd [options]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--dry-run` | Show what would be synced without writing | false |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+
+## Requirements
+
+The `bd` binary must be installed and on your `PATH`. If it is not found, the command exits silently with no error.
+
+<Callout type="info">
+  This command is optional and only relevant if you use beads for task management. See the [Beads integration guide](/docs/integrations/beads) for setup details.
+</Callout>
+
+## How It Works
+
+1. Checks for the `bd` binary on your system
+2. Queries active tasks via `bd list --json` (falls back to plain text output)
+3. Filters out tasks with status `done`, `completed`, or `closed`
+4. Upserts an "Active Tasks (from bd)" section in `views/now.md`
+
+## Examples
+
+```bash
+# Sync bd tasks into views/now.md
+clawvault sync-bd
+
+# Preview the sync
+clawvault sync-bd --dry-run
+```

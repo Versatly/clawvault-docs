@@ -1,0 +1,155 @@
+---
+title: "observe"
+description: "Build observational memory from session transcripts via compression, reflection, and file watching"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+The `observe` command is ClawVault's observational memory engine. It watches session transcripts, compresses them into durable observations, and routes them to the appropriate vault categories.
+
+## Usage
+
+```bash
+clawvault observe [options]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--active` | Observe active OpenClaw sessions incrementally | false |
+| `--agent <id>` | OpenClaw agent ID | `OPENCLAW_AGENT_ID` or `clawdious` |
+| `--min-new <bytes>` | Override minimum new-content threshold in bytes | Auto-scaled |
+| `--sessions-dir <path>` | Override OpenClaw sessions directory | Auto-detected |
+| `--dry-run` | Show active observation candidates without compressing | false |
+| `--watch <path>` | Watch session file or directory | — |
+| `--compress <file>` | One-shot compression for a conversation file | — |
+| `--threshold <n>` | Compression token threshold | 30000 |
+| `--reflect-threshold <n>` | Reflection token threshold | 40000 |
+| `--model <model>` | LLM model override | — |
+| `--daemon` | Run in detached background mode | false |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+
+## Modes of Operation
+
+### Active Session Observation
+
+_Added in v2.1.0_
+
+Incrementally observe long-running OpenClaw sessions. Only new content since the last observation is processed.
+
+```bash
+# Preview what would be observed
+clawvault observe --active --dry-run
+
+# Run active observation
+clawvault observe --active
+
+# Force-observe everything (1 byte threshold)
+clawvault observe --active --min-new 1
+
+# Target a specific agent
+clawvault observe --active --agent myagent
+```
+
+Thresholds scale automatically with session size:
+
+| Session Size | Trigger Threshold |
+|---|---|
+| Under 1 MB | 50 KB new content |
+| 1-5 MB | 150 KB new content |
+| Over 5 MB | 300 KB new content |
+
+Per-session byte cursors are stored in `.clawvault/observe-cursors.json`.
+
+<Callout type="info">
+  With the OpenClaw hook installed, active observation fires automatically on heartbeats, context compaction, and `/new` commands. No manual invocation needed.
+</Callout>
+
+### One-Shot Compression
+
+Compress a single session transcript into observations:
+
+```bash
+clawvault observe --compress ~/session-transcript.md
+```
+
+This reads the file, runs it through the LLM compressor, classifies observations by priority, and routes them to vault categories like `decisions/`, `people/`, `lessons/`, `projects/`.
+
+### Watch Mode
+
+Watch a file or directory for changes and compress in real-time:
+
+```bash
+clawvault observe --watch ~/.openclaw/state/agents/clawdious/sessions/
+```
+
+The watcher triggers compression when a session file crosses the token threshold.
+
+### Daemon Mode
+
+Run the watcher as a detached background process:
+
+```bash
+clawvault observe --watch /path/to/sessions --daemon
+```
+
+<Callout type="warn">
+  All observation modes require an LLM API key (Gemini, Anthropic, or OpenAI) configured in your environment for compression.
+</Callout>
+
+## How It Works
+
+1. **Parser** — Extracts conversation content from session transcripts
+2. **Compressor** — LLM-powered compression into structured observations with scored importance classification
+3. **Score Enforcement** — Regex-based post-processing ensures project milestones, releases, and business events get correct importance scores even if the LLM misclassifies them
+4. **Router** — Auto-categorizes observations to vault folders (`decisions/`, `people/`, `lessons/`, `projects/`, etc.)
+5. **Reflector** — Periodic reflection pass that prunes low-priority old observations and surfaces patterns
+6. **Dedup** — Bigram Jaccard similarity comparison prevents duplicate observations
+
+## Scored Importance System
+
+_Updated in v2.2.0_
+
+Observations are tagged with a type, confidence score, and importance score using the format `[type|c=confidence|i=importance]`.
+
+| Importance | Score | Retention | Examples |
+|------------|-------|-----------|----------|
+| **Structural** | >= 0.8 | Permanent | Decisions, version releases, client demos, pricing decisions, strategy pivots, commitments, blockers |
+| **Potential** | 0.4 - 0.79 | Long-term | Production deploys, new tools built, proposals sent, preferences, architecture discussions, people interactions |
+| **Contextual** | < 0.4 | Decays after 7 days | Routine tasks, intermediate steps, minor fixes |
+
+Available types: `decision`, `preference`, `fact`, `commitment`, `milestone`, `lesson`, `relationship`, `project`.
+
+## Source Labels
+
+When observing OpenClaw sessions, observations are tagged with their source channel:
+
+```
+[main] [milestone|c=0.99|i=0.9] Published clawvault@2.2.0 to npm
+[telegram-dm] [project|c=0.8|i=0.6] Pedro asked about pricing for Artemisa
+[discord] [project|c=0.7|i=0.5] Zeca generated brand images in Versatly style
+[cron] [fact|c=0.9|i=0.3] Morning brief delivered
+```
+
+## Examples
+
+```bash
+# Active observation (recommended for OpenClaw)
+clawvault observe --active
+
+# Dry run to see what's pending
+clawvault observe --active --dry-run
+
+# Compress a specific session file
+clawvault observe --compress ./transcript.md
+
+# Watch sessions with a custom model
+clawvault observe --watch ./sessions --model claude-sonnet-4-20250514
+
+# Lower the compression threshold for more frequent processing
+clawvault observe --watch ./sessions --threshold 15000
+
+# Run as background daemon against a specific vault
+clawvault observe --watch ./sessions --daemon -v ~/my-vault
+```

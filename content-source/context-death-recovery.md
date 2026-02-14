@@ -1,0 +1,267 @@
+---
+title: "Context Death & Recovery"
+description: "Surviving session resets and maintaining continuity across context windows"
+---
+
+**Context death** happens when AI agents lose their session memory due to crashes, resets, or context window limits. ClawVault's checkpoint/recover/wake cycle ensures continuity across these inevitable interruptions.
+
+## What is Context Death?
+
+Context death occurs when:
+
+- **Session crashes** due to API errors or system issues
+- **Manual resets** with `/new` command  
+- **Context window overflow** forcing conversation pruning
+- **System restarts** or process termination
+- **Agent handoffs** between different sessions
+
+Without proper handling, agents lose:
+- What they were working on
+- Recent decisions made
+- Current blockers and next steps  
+- Conversational context and progress
+
+## The Recovery Cycle
+
+ClawVault provides a three-part solution:
+
+### 1. Checkpoint (Before Death)
+Save current state during work:
+
+```bash
+clawvault checkpoint --working-on "fixing auth bug" --focus "token validation" --blocked "waiting for API docs"
+```
+
+**What's saved:**
+- Current task summary
+- Key focus areas
+- Known blockers  
+- Session metadata (timestamp, key)
+
+### 2. Recover (After Death)
+Check if previous session died unexpectedly:
+
+```bash
+clawvault recover --clear
+```
+
+**Recovery info includes:**
+- Death detection (was previous session interrupted?)
+- Last checkpoint details
+- Time since last activity
+- Handoff recommendations
+
+### 3. Wake (New Session Start)
+Comprehensive context restoration:
+
+```bash
+clawvault wake
+```
+
+**Wake combines:**
+- Recovery check + flag clearing
+- Recent handoff recap  
+- Critical observations summary
+- Executive summary (LLM-generated)
+
+## Dirty Death Flag
+
+ClawVault tracks unexpected session termination with a `.clawvault/dirty-death.flag` file.
+
+**Flag created when:**
+- Session ends without proper `sleep` handoff
+- Process terminated abruptly
+- `/new` command used without checkpoint
+
+**Flag cleared when:**
+- `clawvault wake` or `recover --clear` runs
+- Proper `sleep` handoff completed
+
+## OpenClaw Hook Auto-Detection
+
+The ClawVault hook automatically handles context death:
+
+### gateway:startup Event
+```javascript
+// Detects dirty death on OpenClaw startup
+if (await hasDirtyDeath(vaultPath)) {
+  const recovery = await recover(vaultPath);
+  injectContextDeathAlert(recovery);
+}
+```
+
+**Alert injection:**
+```markdown
+🚨 **Context Death Detected** 
+
+Previous session ended unexpectedly at 14:32.
+Last checkpoint: "fixing auth bug" (focus: token validation)
+Blockers: waiting for API docs
+
+Run `clawvault wake` for full context recovery.
+```
+
+### command:new Event  
+```javascript
+// Auto-checkpoint before /new reset
+await checkpoint({
+  workingOn: inferCurrentWork(),
+  sessionKey: getSessionId()
+});
+```
+
+This ensures context is saved even if you forget to manually checkpoint.
+
+## Best Practices
+
+### Frequent Checkpointing
+Checkpoint every 10-15 minutes during heavy work:
+
+```bash
+clawvault checkpoint --working-on "PR review" --focus "type safety refactor"
+```
+
+### Rich Session Ends
+Use `sleep` for detailed handoffs:
+
+```bash
+clawvault sleep "completed auth refactor" \
+  --next "write integration tests, deploy to staging" \
+  --blocked "waiting for code review" \
+  --decisions "using JWT over sessions for scalability" \
+  --feeling "productive, code is cleaner"
+```
+
+### Morning Wake Ritual
+Start each session with wake:
+
+```bash
+clawvault wake
+```
+
+This becomes your daily briefing with:
+- What happened since last session
+- Current priorities and blockers
+- Recent critical decisions
+- Overall context summary
+
+## Manual Recovery
+
+When automatic detection fails, use manual tools:
+
+### Check for Death
+```bash
+clawvault recover
+# Shows: death detection, last checkpoint, time since activity
+```
+
+### Force Clear Flag
+```bash
+clawvault recover --clear
+# Clears dirty death flag, shows recovery info
+```
+
+### Detailed Recap
+```bash
+clawvault recap --brief
+# Recent handoffs, active projects, pending commitments
+```
+
+## Recovery Information
+
+A typical recovery report:
+
+```markdown
+## 🔄 Recovery Status
+
+**Context Death:** Yes (detected)
+**Death Time:** 2026-02-13 14:32 (2 hours ago)
+**Last Checkpoint:** 14:30 
+  - Working on: fixing auth bug
+  - Focus: token validation logic  
+  - Blocked: waiting for API documentation
+
+**Recent Handoff:** 12:45
+  - Summary: authentication refactor  
+  - Next: write integration tests
+  - Status: 80% complete
+
+**Recommendations:**
+- Continue with auth bug fix
+- Check if API docs arrived  
+- Review recent authentication decisions
+```
+
+## Hook Configuration
+
+Enable automatic context death handling:
+
+```bash
+# Install hook
+openclaw hooks install clawvault
+
+# Enable hook  
+openclaw hooks enable clawvault
+
+# Verify hook status
+openclaw hooks status clawvault
+```
+
+The hook runs on `gateway:startup` and `command:new` events to provide seamless protection.
+
+## Environment Variables
+
+Control recovery behavior:
+
+```bash
+# Disable death detection
+export CLAWVAULT_NO_DEATH_DETECTION=1
+
+# Custom checkpoint frequency (minutes)  
+export CLAWVAULT_CHECKPOINT_INTERVAL=10
+
+# Verbose recovery logging
+export CLAWVAULT_VERBOSE_RECOVERY=1
+```
+
+## Example Session Flow
+
+```bash
+# Start work
+clawvault wake
+# → Shows: previous session died at 14:32, last working on "auth bug"
+
+# Work for a while, then checkpoint  
+clawvault checkpoint --working-on "fixing token validation"
+
+# Continue work... then session crashes
+
+# Next session
+clawvault wake  
+# → Recovery alert: "Previous session died, was fixing token validation"
+
+# Continue where you left off
+```
+
+## Session Transcript Repair
+
+When context death causes corrupted session files:
+
+```bash
+# Check for transcript corruption
+clawvault repair-session --dry-run
+
+# Fix corrupted tool_use/tool_result chains
+clawvault repair-session
+
+# Repair specific session
+clawvault repair-session --session <id> --agent <agent-id>
+```
+
+This fixes common API rejection issues that prevent session continuation.
+
+:::tip
+Context death is inevitable in long-running AI work. Embrace the checkpoint/recover/wake cycle as a daily ritual rather than trying to avoid resets entirely.
+:::
+
+The key insight: **make context death survivable rather than preventing it**. With proper checkpointing and recovery, session resets become refreshing breaks rather than productivity killers.

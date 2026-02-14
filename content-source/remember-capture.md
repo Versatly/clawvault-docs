@@ -1,0 +1,287 @@
+---
+title: "remember & capture"
+description: "Store structured memories and quick notes in your vault"
+---
+
+The `remember` and `capture` commands are the primary ways to store information in ClawVault. Use `remember` for structured memories with specific types, and `capture` for quick notes that you'll process later.
+
+## clawvault remember
+
+**Store typed memories with classification.**
+
+```bash
+clawvault remember <type> <title> --content <content> [options]
+```
+
+### Memory Types
+
+| Type | Description | Example Use |
+|------|-------------|-------------|
+| `fact` | Static information | API endpoints, configurations |
+| `feeling` | Emotional context | Meeting sentiment, confidence levels |  
+| `decision` | Choices with reasoning | Architecture choices, tool selections |
+| `lesson` | Learning from experience | What worked/failed, insights |
+| `commitment` | Promises and deadlines | Project deliverables, meeting promises |
+| `preference` | Subjective choices | Code styles, work patterns |
+| `relationship` | People and interactions | Team members, client contacts |
+| `project` | Active work | Current initiatives, goals |
+
+### Basic Usage
+
+```bash
+# Technical decision
+clawvault remember decision "Use PostgreSQL over SQLite" \
+  --content "Need concurrent writes for multi-agent setup. SQLite locks cause bottlenecks under load."
+
+# Learning from experience  
+clawvault remember lesson "Always backup before schema changes" \
+  --content "Lost 2 hours of data during migration testing. Automated backups now required."
+
+# Person and working relationship
+clawvault remember relationship "Sarah Chen - Product Manager" \
+  --content "Detail-oriented, prefers data-driven decisions. Responds best to Slack, not email. Timezone: PST."
+
+# Project status
+clawvault remember project "User Dashboard Redesign" \
+  --content "Q1 initiative. Focus on mobile-first, reduce clicks by 30%. A/B testing framework ready."
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--content <text>` | Main content (required) | - |
+| `--tags <list>` | Comma-separated tags | None |
+| `--category <name>` | Override default category | Derived from type |
+| `--template <name>` | Use document template | None |
+| `--no-index` | Skip qmd index update | false |
+
+### Advanced Examples
+
+#### With Tags and Templates
+```bash
+clawvault remember decision "API Rate Limiting Strategy" \
+  --content "Implement token bucket with Redis backend" \
+  --tags "api,performance,redis" \
+  --template decision
+```
+
+#### Custom Categories
+```bash
+clawvault remember fact "Production Database Config" \
+  --content "Host: prod-db.company.com, Port: 5432" \
+  --category infrastructure
+```
+
+#### Wiki-Links in Content
+```bash
+clawvault remember decision "Choose React over Vue" \
+  --content "[[sarah-chen]] and [[tech-team]] discussed. React has better TypeScript support for our [[user-dashboard]] project."
+```
+
+## clawvault capture
+
+**Quick capture for unstructured notes.**
+
+```bash
+clawvault capture <text> [options]
+```
+
+### Basic Usage
+
+```bash
+# Quick TODO
+clawvault capture "TODO: Review PR #156 tomorrow"
+
+# Meeting note
+clawvault capture "Client wants dark mode toggle by Friday demo"
+
+# Idea or insight
+clawvault capture "Could use Redis for session cache instead of database"
+
+# Bug report
+clawvault capture "Auth flow breaks when user has no email - investigate TokenError"
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--title <text>` | Custom title (auto-generated if empty) | From content |
+| `--category <name>` | Category to store in | inbox |
+| `--no-index` | Skip qmd index update | false |
+
+### Auto-Title Generation
+
+Capture automatically generates titles from content:
+
+```bash
+clawvault capture "TODO: Review PR #156 tomorrow"
+# → Title: "Review PR #156 tomorrow" (strips TODO prefix)
+
+clawvault capture "Client wants dark mode toggle by Friday demo"  
+# → Title: "Client wants dark mode toggle by Friday demo" (first 50 chars)
+```
+
+### Custom Titles
+```bash
+clawvault capture "Long detailed note about the meeting..." \
+  --title "Client Meeting Notes"
+```
+
+## Processing Captured Notes
+
+Captured items go to `inbox/` by default for later processing:
+
+```bash
+# View inbox items
+clawvault list inbox
+
+# Process into structured memories
+clawvault get inbox/client-dark-mode-request
+# → Review content, then:
+clawvault remember commitment "Dark mode toggle for client demo" \
+  --content "Client requested by Friday. Impacts: dashboard, settings panel, email templates."
+```
+
+## Memory Type Selection Guide
+
+### When to Use Each Type
+
+**fact** - Information that doesn't change:
+```bash
+clawvault remember fact "Stripe API Rate Limit" \
+  --content "100 requests per second per API key"
+```
+
+**decision** - Choices with lasting impact:
+```bash
+clawvault remember decision "Move from REST to GraphQL" \
+  --content "Better for mobile app performance. Single endpoint, flexible queries."
+```
+
+**lesson** - Insights from experience:
+```bash
+clawvault remember lesson "Microservices require careful boundaries" \
+  --content "Split too early, spent 3 weeks merging services. Start monolithic, extract later."
+```
+
+**commitment** - Time-bound promises:
+```bash
+clawvault remember commitment "Demo ready by Friday 3pm" \
+  --content "Promised working user auth + basic dashboard to client"
+```
+
+**preference** - Subjective choices:
+```bash
+clawvault remember preference "Async standups work better" \
+  --content "Team prefers written updates. More thoughtful, less interruption."
+```
+
+**relationship** - People and interactions:
+```bash
+clawvault remember relationship "Alex Kim - Frontend Dev" \
+  --content "CSS expert, prefers styled-components. Available 10am-6pm EST."
+```
+
+**project** - Active initiatives:
+```bash
+clawvault remember project "Payment Integration v2" \
+  --content "Replace Stripe Checkout with custom flow. Better UX, lower fees."
+```
+
+**feeling** - Emotional context:
+```bash
+clawvault remember feeling "Team Meeting Went Well" \
+  --content "Good energy, productive discussion. Everyone aligned on priorities."
+```
+
+## Integration with Observational Memory
+
+Structured memories enhance observational memory classification:
+
+```bash
+# Session transcript mentions: "We decided to use Redis for caching"
+# Observer auto-routes to decisions/ because "decided" keyword detected
+
+# But explicit decision memory provides richer context:
+clawvault remember decision "Use Redis for Application Cache" \
+  --content "Performance tests show 3x faster response times. Simpler than Memcached setup."
+```
+
+## Bulk Operations
+
+### Multiple Captures
+```bash
+# Process multiple quick notes
+clawvault capture "Fix user avatar upload bug"
+clawvault capture "Research competitor pricing"  
+clawvault capture "Schedule team retro meeting"
+```
+
+### From File Content
+```bash
+# Store file content as memory
+clawvault remember fact "API Documentation" \
+  --content "$(cat api-spec.md)" \
+  --tags "api,docs"
+```
+
+## Best Practices
+
+### Use Capture for Speed
+```bash
+# During meetings/conversations - capture first
+clawvault capture "Sarah suggested using Docker for local dev"
+clawvault capture "Client budget increased to 50k"
+clawvault capture "Bug: payment flow fails on Safari"
+
+# Later - process into structured memories  
+clawvault remember preference "Docker for Local Development" \
+  --content "[[sarah-chen]] suggested. Standardizes environment across team."
+```
+
+### Include Context in Decisions
+```bash
+# Good - includes reasoning
+clawvault remember decision "Use TypeScript for new microservice" \
+  --content "Team comfortable with TS. Better error catching. Easier refactoring than JS."
+
+# Less useful - just the choice
+clawvault remember decision "Use TypeScript" --content "Decided to use TypeScript"
+```
+
+### Link Related Memories
+```bash
+clawvault remember project "Mobile App v2" \
+  --content "Related to [[api-redesign-decision]] and [[react-native-preference]]. Targets Q2 launch."
+```
+
+### Tag for Discovery
+```bash
+clawvault remember lesson "Database Connection Pooling" \
+  --content "PgBouncer reduced connection overhead by 60%" \
+  --tags "database,performance,postgresql,optimization"
+```
+
+## Error Handling
+
+```bash
+# Missing required content
+clawvault remember decision "Use GraphQL"
+# Error: --content is required
+
+# Invalid memory type
+clawvault remember invalid-type "Title" --content "Content"  
+# Error: Unknown memory type. Valid types: fact, feeling, decision, lesson, commitment, preference, relationship, project
+
+# Empty capture
+clawvault capture ""
+# Error: Capture text cannot be empty
+```
+
+:::tip
+Start with `capture` during active work for speed, then use `remember` during reflection time to create structured, searchable memories.
+:::
+
+The remember/capture pattern balances speed (capture everything) with structure (remember meaningfully) to ensure nothing important gets lost.

@@ -1,0 +1,19 @@
+{
+  "title": "Obsidian Plugin",
+  "description": "Visual memory management for Obsidian",
+  "root": true,
+  "icon": "Palette",
+  "pages": [
+    "index",
+    "installation",
+    "graph-colors",
+    "sidebar-panel",
+    "commands",
+    "task-views",
+    "canvas-dashboard",
+    "tailscale-sync",
+    "mobile-sync",
+    "customization",
+    "templates"
+  ]
+}

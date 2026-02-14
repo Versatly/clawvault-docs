@@ -1,0 +1,31 @@
+---
+title: "reindex"
+description: "Rebuild the vault search index"
+---
+
+The `reindex` command rebuilds the keyword search index from scratch. Optionally updates qmd embeddings for semantic (vector) search.
+
+## Usage
+
+```bash
+clawvault reindex [options]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--qmd` | Also update qmd embeddings | false |
+
+## Examples
+
+```bash
+# Rebuild keyword index
+clawvault reindex
+
+# Rebuild everything including vector embeddings
+clawvault reindex --qmd
+```
+
+Run `reindex` after bulk imports, manual file edits, or if search results seem stale.

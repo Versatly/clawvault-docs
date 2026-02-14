@@ -1,0 +1,63 @@
+---
+title: "list & get"
+description: "Browse and retrieve documents from the vault"
+---
+
+The `list` and `get` commands provide direct access to vault documents — browse by category or retrieve a specific document by ID.
+
+## clawvault list
+
+**List documents in the vault, optionally filtered by category.**
+
+```bash
+clawvault list [category] [options]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--json` | Output as JSON | false |
+
+### Examples
+
+```bash
+# List all documents
+clawvault list
+
+# List only decisions
+clawvault list decisions
+
+# List people as JSON
+clawvault list people --json
+```
+
+## clawvault get
+
+**Retrieve a specific document by its ID.**
+
+```bash
+clawvault get <id> [options]
+```
+
+### Required
+
+- `<id>` — Document ID (typically the filename without extension)
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--json` | Output as JSON | false |
+
+### Examples
+
+```bash
+# Get a specific document
+clawvault get use-postgresql
+
+# Get as JSON
+clawvault get auth-refactor --json
+```

@@ -1,0 +1,52 @@
+---
+title: "migrate-observations"
+description: "Convert legacy emoji-format observations to the scored format"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+The `migrate-observations` command converts observation files from the legacy emoji-based format to the scored format introduced in v2.2.0. A backup of each original file is created before conversion.
+
+_Added in v2.2.0_
+
+## Usage
+
+```bash
+clawvault migrate-observations [options]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--dry-run` | Preview migration without writing files | false |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+
+## Background
+
+Prior to v2.2.0, observations used an emoji-based format for type and importance classification. The scored format replaces emojis with explicit `[type|c=confidence|i=importance]` tags, enabling more precise filtering and retention policies.
+
+## How It Works
+
+1. Scans all observation files in the vault (including legacy paths)
+2. Parses each line for emoji-format observations
+3. Converts matched lines to the equivalent scored format
+4. Creates a `.emoji-backup.md` copy of each modified file
+5. Writes the converted content back to the original path
+
+<Callout type="info">
+  Files that are already in scored format are skipped. Running `migrate-observations` multiple times is safe.
+</Callout>
+
+## Examples
+
+```bash
+# Preview what would be migrated
+clawvault migrate-observations --dry-run
+
+# Run the migration
+clawvault migrate-observations
+
+# Migrate a specific vault
+clawvault migrate-observations -v ~/my-vault
+```

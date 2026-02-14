@@ -1,0 +1,157 @@
+---
+title: "Automating ClawVault"
+description: "Schedule observation sweeps, heartbeat integrations, and automated memory maintenance."
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+import { Steps, Step } from "fumadocs-ui/components/steps";
+
+# Automating ClawVault
+
+ClawVault is designed to run unattended. Observation sweeps, memory maintenance, and session bookkeeping can all be scheduled so your agent's memory stays current without manual intervention.
+
+## Cron-Based Observation Sweeps
+
+The `observe` command compresses raw session transcripts into categorized observations. Running it on a schedule ensures no session data is left unprocessed.
+
+```bash
+# Run every 30 minutes
+*/30 * * * * cd /path/to/vault && clawvault observe --compress 2>&1 >> /var/log/clawvault-observe.log
+```
+
+For vaults with high session volume, split observation into two passes:
+
+```bash
+# Fast rule-based pass every 15 minutes
+*/15 * * * * clawvault observe
+
+# LLM-compressed pass every 2 hours
+0 */2 * * * clawvault observe --compress
+```
+
+<Callout type="info">
+The `--compress` flag requires an LLM API key (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, or `GEMINI_API_KEY`). Without it, `observe` falls back to rule-based extraction.
+</Callout>
+
+## OpenClaw Heartbeat Integration
+
+If your agent runs on OpenClaw, heartbeats provide a natural trigger for memory maintenance. Add observation checks to your `HEARTBEAT.md`:
+
+```markdown
+## Memory Maintenance
+- Run `clawvault observe --compress` if last run was &gt;1 hour ago
+- Run `clawvault link --all` if new files were added since last link pass
+- Run `clawvault reindex` if search results seem stale
+```
+
+Track when each task last ran in a state file to avoid redundant work:
+
+```bash
+clawvault checkpoint --working-on "heartbeat maintenance"
+clawvault observe --compress
+clawvault link --all
+```
+
+## Auto-Observe on Session Events
+
+The OpenClaw hook can trigger observation automatically at session boundaries. When the hook is installed, ClawVault runs observation on:
+
+- **Session start** (`wake`) -- processes any transcripts from the previous session
+- **Session end** (`sleep`) -- compresses the current session before handoff
+- **Context death recovery** (`recover`) -- catches up on missed observations
+
+See [Hook Setup](/docs/openclaw/hook-setup) for installation instructions.
+
+### Manual Event Triggers
+
+You can also wire observation into shell events:
+
+```bash
+# In .bashrc or .zshrc
+clawvault_post_session() {
+  clawvault observe --compress --quiet
+  clawvault link --all --quiet
+}
+
+# Call after any long-running agent session
+trap clawvault_post_session EXIT
+```
+
+## Scheduling Memory Maintenance
+
+Beyond observation, several maintenance tasks benefit from regular scheduling:
+
+### Reindexing
+
+The search index can drift if files are edited outside ClawVault. Schedule periodic reindexing:
+
+```bash
+# Daily at 3 AM
+0 3 * * * clawvault reindex
+```
+
+### Link Resolution
+
+Auto-link entity mentions across all vault files:
+
+```bash
+# Weekly on Sunday
+0 4 * * 0 clawvault link --all
+```
+
+### Health Checks
+
+Run the doctor command to catch configuration drift:
+
+```bash
+# Weekly
+0 5 * * 1 clawvault doctor
+```
+
+### Vault Statistics
+
+Log vault growth over time for monitoring:
+
+```bash
+# Daily
+0 6 * * * clawvault stats >> /var/log/clawvault-stats.log
+```
+
+## Putting It Together
+
+A complete automation setup for an OpenClaw agent:
+
+<Steps>
+<Step>
+### Install the OpenClaw hook
+
+```bash
+clawvault setup
+```
+
+This enables auto-checkpoint, context death detection, and session-start context injection.
+</Step>
+<Step>
+### Add cron jobs for background maintenance
+
+```bash
+crontab -e
+```
+
+```
+*/30 * * * * cd ~/vault && clawvault observe --compress --quiet
+0 3 * * * cd ~/vault && clawvault reindex --quiet
+0 4 * * 0 cd ~/vault && clawvault link --all --quiet
+0 5 * * 1 cd ~/vault && clawvault doctor --quiet
+```
+</Step>
+<Step>
+### Configure heartbeat checks
+
+Add memory maintenance tasks to `HEARTBEAT.md` so the agent handles anything cron missed during active sessions.
+</Step>
+</Steps>
+
+<Callout type="warn">
+Avoid running `observe --compress` concurrently from both cron and the agent. Use a lock file or timestamp check to prevent duplicate processing.
+</Callout>

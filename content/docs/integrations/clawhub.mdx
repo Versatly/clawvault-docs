@@ -1,0 +1,125 @@
+---
+title: "ClawHub"
+description: "Publish and install ClawVault as a skill on ClawHub, OpenClaw's skill marketplace."
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+import { Steps, Step } from "fumadocs-ui/components/steps";
+
+# ClawHub
+
+[ClawHub](https://clawhub.dev) is the skill marketplace for OpenClaw. ClawVault is distributed as a ClawHub skill, which means installing it, updating it, and sharing your configuration is handled through the standard skill lifecycle.
+
+## Installing from ClawHub
+
+```bash
+openclaw skill install clawvault
+```
+
+This downloads the ClawVault skill, installs the CLI, and registers the OpenClaw hook. After installation, run setup:
+
+```bash
+clawvault setup
+```
+
+The setup wizard detects your OpenClaw environment and configures the vault path, hook integration, and default settings.
+
+## Publishing as a Skill
+
+If you have built extensions or customizations on top of ClawVault, you can publish them as a separate skill:
+
+<Steps>
+<Step>
+### Create the skill manifest
+
+Every ClawHub skill needs a `SKILL.md` and a `skill.json`:
+
+```json
+{
+  "name": "clawvault-custom",
+  "version": "1.0.0",
+  "description": "Custom ClawVault configuration with team-specific templates",
+  "dependencies": ["clawvault"],
+  "hooks": {
+    "post-install": "setup.sh"
+  }
+}
+```
+</Step>
+<Step>
+### Write the SKILL.md
+
+Document what your skill does, how to configure it, and any requirements. This file is displayed on the ClawHub listing page.
+</Step>
+<Step>
+### Publish
+
+```bash
+openclaw skill publish
+```
+
+This validates the skill manifest, runs audit checks, and uploads to ClawHub.
+</Step>
+</Steps>
+
+## Skill Metadata
+
+The `skill.json` manifest supports the following fields:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | Yes | Unique skill identifier |
+| `version` | Yes | Semver version string |
+| `description` | Yes | Short description for the listing |
+| `dependencies` | No | Other skills this skill requires |
+| `hooks` | No | Lifecycle hooks (post-install, pre-update, etc.) |
+| `compatibility` | No | Minimum OpenClaw version required |
+| `author` | No | Author name or organization |
+| `license` | No | SPDX license identifier |
+
+## Audit Requirements
+
+Before a skill is listed publicly on ClawHub, it must pass automated audits:
+
+- **No secrets** -- the skill must not contain API keys, tokens, or credentials
+- **Valid manifest** -- `skill.json` must parse correctly with all required fields
+- **Hook safety** -- hook scripts are scanned for dangerous operations (rm -rf, curl to unknown hosts, etc.)
+- **Dependency resolution** -- all declared dependencies must exist on ClawHub
+
+```bash
+# Run the audit locally before publishing
+openclaw skill audit
+```
+
+<Callout type="warn">
+Skills that fail audit are rejected from the public registry. Fix all warnings before publishing. Private skills (team-only) have relaxed audit requirements.
+</Callout>
+
+## Version Management
+
+ClawHub uses semantic versioning. To update a published skill:
+
+```bash
+# Bump version in skill.json, then:
+openclaw skill publish
+```
+
+Users on older versions receive update notifications:
+
+```bash
+openclaw skill update clawvault
+```
+
+To pin a specific version:
+
+```bash
+openclaw skill install clawvault@2.1.0
+```
+
+### Breaking Changes
+
+When publishing a major version bump (e.g., 1.x to 2.x), ClawHub flags it as a breaking change. Users must explicitly opt in to major upgrades:
+
+```bash
+openclaw skill update clawvault --major
+```

@@ -1,0 +1,51 @@
+---
+title: Installation
+description: Install the ClawVault plugin in Obsidian.
+---
+
+# Installation
+
+## From Community Plugins
+
+1. Open Obsidian Settings
+2. Go to **Community Plugins** and disable Safe Mode if prompted
+3. Click **Browse** and search for "ClawVault"
+4. Click **Install**, then **Enable**
+
+## Manual Installation
+
+Download the latest release from [GitHub](https://github.com/Versatly/obsidian-clawvault/releases):
+
+1. Download `main.js`, `manifest.json`, and `styles.css`
+2. Create a folder: `.obsidian/plugins/clawvault/`
+3. Copy the three files into that folder
+4. Restart Obsidian and enable the plugin in Settings → Community Plugins
+
+## Prerequisites
+
+The plugin works best with the ClawVault CLI installed:
+
+```bash
+npm install -g clawvault
+```
+
+Without the CLI, visual features (graph colors, sidebar stats) still work. Commands that generate files (dashboard, quick capture) require the CLI.
+
+## First Run
+
+When the plugin loads, it looks for `.clawvault.json` in your vault root. If found:
+
+- Graph colors are applied automatically
+- Sidebar panel becomes available (click the elephant icon)
+- Status bar shows node and task counts
+- Commands are registered in the command palette
+
+If no `.clawvault.json` is found, initialize your vault:
+
+```bash
+clawvault init /path/to/your/obsidian/vault
+```
+
+## Updating
+
+The plugin auto-updates through Obsidian's plugin manager. For manual updates, replace the three files in `.obsidian/plugins/clawvault/`.

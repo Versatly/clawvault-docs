@@ -1,0 +1,128 @@
+---
+title: "Introduction"
+description: "ClawVault is a structured memory system for AI agents that ensures persistent memory across sessions."
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+# Introduction
+
+ClawVault is a structured, file-based memory system for AI agents. It stores memories as categorized Markdown files with frontmatter metadata, wiki-link relationships, and full-text search -- all running locally with no cloud dependencies.
+
+## The Problem
+
+AI agents lose their memory constantly. Context windows overflow, sessions end, crashes happen, and everything the agent knew disappears. This creates concrete failures:
+
+- **Context death** -- the agent forgets what it was working on mid-task
+- **Repeated mistakes** -- lessons learned in one session are gone in the next
+- **Lost relationships** -- the agent forgets who people are and what they care about
+- **No continuity** -- each session starts from zero, forcing the user to re-explain context
+- **Scattered state** -- information gets dumped into a single flat file with no structure or retrievability
+
+Most "memory" solutions for agents fall into one of two traps: they store everything in a single monolithic file (MEMORY.md pattern), or they use opaque vector databases that lose structure and make debugging impossible.
+
+## What ClawVault Does Differently
+
+ClawVault treats agent memory the way a knowledge worker treats their notes: typed, linked, searchable, and version-controlled.
+
+### Typed Storage
+
+Every piece of information has a **category** that determines where it lives and how it is retrieved. A decision goes in `decisions/`, a person goes in `people/`, a lesson goes in `lessons/`. This means "show me all decisions" actually works -- because decisions were stored as decisions, not buried in a wall of text.
+
+The [memory type taxonomy](/docs/concepts/memory-types) provides eight types based on Benthic's classification: fact, feeling, decision, lesson, commitment, preference, relationship, and project.
+
+### Local Search
+
+ClawVault integrates with [qmd](https://github.com/tobi/qmd) to provide both BM25 keyword search and semantic vector search using local embeddings. No API calls, no cloud services, no data leaving your machine.
+
+```bash
+# Keyword search (fast, exact matching)
+clawvault search "postgresql migration"
+
+# Semantic search (slower, meaning-based)
+clawvault vsearch "what database should we use"
+```
+
+### Knowledge Graph
+
+Wiki-links (`[[entity]]`) in document content and frontmatter relation fields (`related`, `depends_on`, `blocks`, `people`) automatically build a typed knowledge graph. The graph index tracks nodes, edges, and degree centrality, enabling queries like "what is connected to this project" or "which references are unresolved."
+
+See [Vault Structure](/docs/advanced/vault-structure) for details on the graph index format.
+
+### Session Continuity
+
+The `wake` and `sleep` commands provide structured session handoffs:
+
+```bash
+# Before ending a session
+clawvault sleep "finished auth refactor" \
+  --next "deploy to staging" \
+  --blocked "waiting on DNS" \
+  --feeling "good progress"
+
+# On next session start
+clawvault wake
+```
+
+`sleep` creates a handoff document. `wake` reads recent handoffs, active projects, pending commitments, and recent decisions to reconstruct the agent's full context. Checkpoints provide automatic mid-session snapshots for crash recovery.
+
+### Observational Memory
+
+The `observe` command compresses raw session transcripts into scored observations using the format `[type|c=confidence|i=importance]`:
+
+- **Structural** (importance >= 0.8) -- decisions, errors, blockers, deadlines
+- **Potential** (importance 0.4-0.79) -- preferences, architecture choices, people interactions
+- **Contextual** (importance < 0.4) -- routine updates, deployments, progress
+
+With an LLM API key set, `observe --compress` uses AI to extract observations. Without one, it falls back to rule-based extraction with no network calls.
+
+## Architecture
+
+ClawVault consists of four components, two of which are optional:
+
+```
+┌─────────────┐     ┌───────────┐     ┌─────────────────┐
+│ ClawVault   │────>│   Vault   │<────│  OpenClaw Hook  │
+│    CLI      │     │ (markdown │     │   (optional)    │
+└─────────────┘     │   files)  │     └─────────────────┘
+                    └─────┬─────┘
+                          │
+                    ┌─────┴─────┐
+                    │    qmd    │
+                    │ (optional)│
+                    └───────────┘
+```
+
+1. **ClawVault CLI** -- the primary interface. Commands for storing, searching, sleeping, waking, observing, and managing vault content.
+2. **Vault** -- a directory of Markdown files with `.clawvault.json` config. Plain text, human-readable, Git-friendly.
+3. **qmd** (optional) -- provides BM25 and vector search. Without it, ClawVault cannot initialize or search. Install via `bun install -g github:tobi/qmd`.
+4. **OpenClaw Hook** (optional) -- automatic integration with the OpenClaw agent framework. Provides context death detection on startup, auto-checkpoint before `/new`, and memory injection on session start. See [Hook Setup](/docs/openclaw/hook-setup).
+
+## Who ClawVault Is For
+
+**AI agent builders** who need their agents to maintain state across sessions without relying on cloud memory services. ClawVault runs entirely on your machine.
+
+**OpenClaw users** who want automatic session continuity. Install the hook and ClawVault handles checkpoints, crash recovery, and context injection transparently.
+
+**Knowledge workers using AI assistants** who want their assistant to remember decisions, commitments, and relationships over weeks or months of collaboration.
+
+**Anyone who wants inspectable agent memory.** Every memory is a Markdown file you can read, edit, grep, and version-control. No opaque databases.
+
+## How It Compares
+
+| Approach | Structure | Search | Local | Inspectable | Graph |
+|----------|-----------|--------|-------|-------------|-------|
+| Single MEMORY.md file | None | grep | Yes | Yes | No |
+| Mem0 | Tags | Vector | No (cloud) | Partial | No |
+| Vector DB (Chroma, Pinecone) | Embeddings | Vector | Varies | No | No |
+| **ClawVault** | Categories + types | BM25 + vector | Yes | Yes | Yes |
+
+ClawVault trades the simplicity of a single file for structured categories that make retrieval predictable. It trades the power of cloud vector databases for full local control and human-readable storage.
+
+## Next Steps
+
+- [Installation](/docs/getting-started/installation) -- install ClawVault and qmd
+- [Quick Start](/docs/getting-started/quick-start) -- hands-on walkthrough
+- [Hook Setup](/docs/openclaw/hook-setup) -- automatic OpenClaw integration
+- [Vault Structure](/docs/advanced/vault-structure) -- understand the file layout
+- [Environment Variables](/docs/advanced/environment-variables) -- configuration reference

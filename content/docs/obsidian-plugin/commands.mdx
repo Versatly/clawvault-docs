@@ -1,0 +1,65 @@
+---
+title: Commands
+description: ClawVault commands in the Obsidian command palette.
+---
+
+# Commands
+
+The plugin registers commands in Obsidian's command palette (`Ctrl+P` / `Cmd+P`).
+
+## Available Commands
+
+| Command | What It Does | Requires CLI |
+|---------|-------------|-------------|
+| **Generate Dashboard** | Runs `clawvault canvas` and opens the `.canvas` file | Yes |
+| **Quick Capture** | Opens a modal to capture a thought → saves to `inbox/` | No |
+| **Add Task** | Modal with title, project, priority → saves to `tasks/` | No |
+| **View Blocked** | Modal listing all blocked tasks with blocker info | No |
+| **Refresh Stats** | Force-refresh the sidebar panel | No |
+| **Open Status Panel** | Opens the sidebar panel | No |
+
+## Quick Capture
+
+The capture modal is a single text field. Type your thought and press Enter. The plugin creates a markdown file in `inbox/` with:
+
+```markdown
+---
+title: "Your thought"
+date: 2026-02-14
+type: fact
+---
+
+# Your thought
+
+Your thought text here.
+```
+
+## Add Task
+
+The task modal has three fields:
+
+- **Title** (required) — becomes the filename and heading
+- **Project** (optional) — links to a project via wiki-link
+- **Priority** (optional) — critical, high, medium, low
+
+Creates a file in `tasks/` with proper frontmatter:
+
+```markdown
+---
+status: open
+created: '2026-02-14T08:00:00.000Z'
+updated: '2026-02-14T08:00:00.000Z'
+project: my-project
+priority: high
+---
+
+# Build the thing
+
+[[my-project]]
+```
+
+## Desktop Only
+
+Commands that run the ClawVault CLI (Generate Dashboard) are desktop-only. On mobile, these commands show a notice explaining they require the CLI.
+
+File-creating commands (Quick Capture, Add Task) work on all platforms since they write directly.

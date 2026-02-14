@@ -1,0 +1,64 @@
+---
+title: "replay"
+description: "Replay historical chat exports into ClawVault observations"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+The `replay` command ingests exported conversation history from supported platforms and processes it through the observation pipeline. This lets you backfill your vault with observations from sessions that occurred before ClawVault was installed.
+
+_Added in v2.2.0_
+
+## Usage
+
+```bash
+clawvault replay --source <platform> --input <path> [options]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--source <platform>` | Source platform (required) | — |
+| `--input <path>` | Export file or directory (required) | — |
+| `--from <date>` | Start date filter (YYYY-MM-DD) | — |
+| `--to <date>` | End date filter (YYYY-MM-DD) | — |
+| `--dry-run` | Preview replay without writing | false |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+
+## Supported Sources
+
+| Source | Expected Input |
+|--------|---------------|
+| `chatgpt` | Directory containing `conversations.json` |
+| `claude` | One or more `.json` export files |
+| `opencode` | `.json` or `.jsonl` session files |
+| `openclaw` | `.jsonl` session transcript files |
+
+## How It Works
+
+1. **Normalize** — Platform-specific parsers convert exports into a common message format
+2. **Filter** — Messages are filtered by the optional date range
+3. **Group** — Messages are bucketed by date
+4. **Observe** — Each day's messages are processed through the observation pipeline with a timestamp fixed to that date
+5. **Reflect** — A reflection pass runs across the full replay span
+
+<Callout type="warn">
+  Replay requires an LLM API key configured in your environment for the observation compression step.
+</Callout>
+
+## Examples
+
+```bash
+# Replay a ChatGPT export
+clawvault replay --source chatgpt --input ~/chatgpt-export/
+
+# Replay Claude conversations for January 2026
+clawvault replay --source claude --input ~/claude-export/ --from 2026-01-01 --to 2026-01-31
+
+# Dry run to see how many messages would be ingested
+clawvault replay --source openclaw --input ~/.openclaw/sessions/ --dry-run
+
+# Replay OpenCode sessions into a specific vault
+clawvault replay --source opencode --input ~/opencode-logs/ -v ~/my-vault
+```

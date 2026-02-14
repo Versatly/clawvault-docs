@@ -1,0 +1,42 @@
+---
+title: "session-recap"
+description: "Generate a recap from a specific OpenClaw session transcript"
+---
+
+The `session-recap` command reads an OpenClaw session transcript and generates a structured summary of what happened.
+
+## Usage
+
+```bash
+clawvault session-recap <sessionKey> [options]
+```
+
+### Required
+
+- `<sessionKey>` — The session key (ID) to recap
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-n, --limit <n>` | Number of messages to include | 15 |
+| `--format <format>` | Output format (`markdown` or `json`) | markdown |
+| `-a, --agent <id>` | Agent ID | `OPENCLAW_AGENT_ID` or `clawdious` |
+
+## Examples
+
+```bash
+# Recap the most recent session
+clawvault session-recap main
+
+# Recap with more context
+clawvault session-recap main --limit 50
+
+# JSON output for processing
+clawvault session-recap main --format json
+
+# Recap a specific agent's session
+clawvault session-recap abc123 --agent my-agent
+```
+
+The recap extracts key topics, decisions, and action items from the session transcript, making it useful for handoffs and context recovery.

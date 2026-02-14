@@ -1,0 +1,161 @@
+---
+title: "CI/CD"
+description: "Run ClawVault compatibility checks, vault health validation, and hook verification in continuous integration pipelines."
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+# CI/CD
+
+ClawVault provides commands designed for automated pipelines. Use them to validate vault integrity, check hook installations, and ensure compatibility with your OpenClaw version.
+
+## Running Compatibility Checks
+
+The `compat` command verifies that ClawVault is compatible with the installed OpenClaw version:
+
+```bash
+clawvault compat --strict
+```
+
+In strict mode, any compatibility warning becomes a failure (non-zero exit code). This is ideal for CI:
+
+```bash
+$ clawvault compat --strict
+ClawVault v2.1.0
+OpenClaw v3.4.2
+
+Checking compatibility...
+  Hook API version: OK (v3)
+  Session format: OK (v2)
+  Context injection: OK
+  Checkpoint format: OK
+
+All checks passed.
+```
+
+If something fails:
+
+```bash
+$ clawvault compat --strict
+ClawVault v2.1.0
+OpenClaw v3.5.0
+
+Checking compatibility...
+  Hook API version: WARN - v4 available, using v3
+  Session format: FAIL - v3 required, v2 installed
+
+Compatibility check failed with 1 error(s).
+Exit code: 1
+```
+
+## Validating Hook Installations
+
+Verify that the OpenClaw hook is correctly installed and functional:
+
+```bash
+clawvault doctor --ci
+```
+
+The `--ci` flag outputs machine-readable results and returns a non-zero exit code on failure:
+
+```bash
+$ clawvault doctor --ci
+vault_path: /home/agent/.openclaw/workspace/memory
+vault_valid: true
+hook_installed: true
+hook_version: 3
+qmd_available: true
+search_index: valid
+graph_index: valid
+config_valid: true
+```
+
+## Automated Vault Health Checks
+
+Combine multiple checks into a single validation step:
+
+```bash
+#!/bin/bash
+set -e
+
+# Check vault configuration
+clawvault doctor --ci
+
+# Verify compatibility
+clawvault compat --strict
+
+# Validate search index
+clawvault reindex --dry-run
+
+# Check for orphaned links
+clawvault link --orphans --ci
+
+echo "All health checks passed"
+```
+
+## GitHub Actions Example
+
+```yaml
+name: ClawVault Health Check
+
+on:
+  push:
+    paths:
+      - 'vault/**'
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly Monday 6 AM
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          npm install -g clawvault
+          # Install qmd for search validation
+          bun install -g github:tobi/qmd
+
+      - name: Validate vault
+        run: |
+          cd vault
+          clawvault doctor --ci
+          clawvault compat --strict
+
+      - name: Check link integrity
+        run: |
+          cd vault
+          clawvault link --orphans --ci
+
+      - name: Verify search index
+        run: |
+          cd vault
+          clawvault reindex --dry-run
+```
+
+<Callout type="info">
+The `--ci` flag is supported by `doctor` and `link`. It suppresses interactive output and returns structured results suitable for parsing in automation scripts.
+</Callout>
+
+## Pre-Commit Hooks
+
+You can also validate vault files before they are committed using Git pre-commit hooks:
+
+```bash
+#!/bin/bash
+# .git/hooks/pre-commit
+
+# Ensure all memory files have valid frontmatter
+changed_files=$(git diff --cached --name-only --diff-filter=ACM -- '*.md')
+
+if [ -n "$changed_files" ]; then
+  clawvault doctor --ci --files-only
+  if [ $? -ne 0 ]; then
+    echo "Vault validation failed. Fix issues before committing."
+    exit 1
+  fi
+fi
+```
+
+This prevents malformed memory files from entering the repository.

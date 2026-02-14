@@ -1,0 +1,4 @@
+{
+  "title": "OpenClaw",
+  "pages": ["hook-setup", "auto-checkpoint", "context-death-detection", "session-start-context"]
+}

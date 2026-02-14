@@ -1,0 +1,23 @@
+---
+title: "shell-init"
+description: "Output shell integration for ClawVault"
+---
+
+The `shell-init` command outputs shell configuration that can be sourced in your `.bashrc` or `.zshrc` for ClawVault shell integration.
+
+## Usage
+
+```bash
+clawvault shell-init
+```
+
+### Setup
+
+Add the following to your shell configuration:
+
+```bash
+# ~/.bashrc or ~/.zshrc
+eval "$(clawvault shell-init)"
+```
+
+This sets up completions and any shell-level integrations that ClawVault provides.

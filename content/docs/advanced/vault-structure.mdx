@@ -1,0 +1,260 @@
+---
+title: "Vault Structure"
+description: "Understanding ClawVault's internal architecture and file organization"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+# Vault Structure
+
+A ClawVault vault is a directory of Markdown files organized by category, with an internal metadata directory for configuration, graph indexes, checkpoints, and session data. Everything is plain text and designed to work with Git, Obsidian, and standard file tools.
+
+## Directory Layout
+
+A fully initialized vault contains these directories:
+
+```
+vault/
+├── .clawvault.json          # Vault configuration
+├── .clawvault-index.json    # Search index cache
+├── .clawvault/              # Internal state directory
+│   ├── graph-index.json     # Knowledge graph index
+│   ├── checkpoints/         # Session checkpoints
+│   └── sessions/            # Session recap data
+├── README.md                # Auto-generated vault readme
+├── preferences/             # Likes, dislikes, how things should be done
+├── decisions/               # Choices made with context and reasoning
+├── patterns/                # Recurring behaviors (often promoted to lessons)
+├── people/                  # Relationships, one file per person
+├── projects/                # Active work, ventures, ongoing efforts
+├── goals/                   # Long-term and short-term objectives
+├── transcripts/             # Session summaries and logs
+├── inbox/                   # Quick captures, to be processed later
+├── templates/               # Document templates for each type
+├── facts/                   # Raw information, data points
+├── feelings/                # Emotional states, reactions, energy levels
+├── lessons/                 # Insights, patterns observed, what was learned
+├── commitments/             # Promises, goals, obligations to fulfill
+├── handoffs/                # Session bridges: what was happening, what comes next
+└── ledger/                  # Observational memory ledger (v2.2.0+)
+    ├── raw/<source>/        # Raw session transcripts by source channel
+    ├── observations/        # Compiled observations (YYYY/MM/DD.md)
+    │   └── YYYY/MM/DD.md
+    ├── reflections/         # Weekly reflections (YYYY-WNN.md)
+    └── archive/             # Archived observations (excluded from search/graph)
+```
+
+### Default Categories
+
+The following nine categories are created by `clawvault init`:
+
+`preferences`, `decisions`, `patterns`, `people`, `projects`, `goals`, `transcripts`, `inbox`, `templates`
+
+### Extended Categories
+
+These additional categories are part of the memory type taxonomy and are created automatically when documents are stored using `clawvault remember`:
+
+`facts`, `feelings`, `lessons`, `commitments`, `handoffs`
+
+Any string is a valid category. Storing a document to a category that does not exist yet creates the directory automatically.
+
+## The .clawvault.json Config File
+
+This file marks a directory as a ClawVault vault and stores metadata:
+
+```json
+{
+  "name": "memory",
+  "version": "1.0.0",
+  "created": "2026-01-15T10:00:00.000Z",
+  "lastUpdated": "2026-02-13T18:30:00.000Z",
+  "categories": [
+    "preferences", "decisions", "patterns", "people",
+    "projects", "goals", "transcripts", "inbox", "templates"
+  ],
+  "documentCount": 47,
+  "qmdCollection": "memory",
+  "qmdRoot": "/home/user/.openclaw/workspace/memory"
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `name` | Vault name, derived from the directory basename |
+| `version` | Schema version |
+| `created` | ISO timestamp of vault creation |
+| `lastUpdated` | ISO timestamp of last index update |
+| `categories` | Array of category directory names |
+| `documentCount` | Total indexed documents |
+| `qmdCollection` | qmd collection name for search |
+| `qmdRoot` | Root path passed to qmd for collection indexing |
+
+## The .clawvault/ Internal Directory
+
+### graph-index.json
+
+The knowledge graph index, rebuilt incrementally on every store or reindex operation. It tracks:
+
+- **Nodes** -- one per document, tag, or unresolved wiki-link reference. Each node has an `id`, `title`, `type`, `category`, `path`, `tags`, `degree`, and `modifiedAt`.
+- **Edges** -- connections between nodes. Three types:
+  - `wiki_link` -- from a document to another document via `[[target]]` syntax
+  - `tag` -- from a document to a `#tag`
+  - `frontmatter_relation` -- from a document to another via frontmatter fields like `related`, `depends_on`, `blocks`, `owner`, `project`, `people`, or `links`
+- **Stats** -- summary counts by node type and edge type
+
+Node types are inferred from the category directory: `note`, `daily`, `observation`, `handoff`, `decision`, `lesson`, `project`, `person`, `commitment`, `tag`, or `unresolved`.
+
+The index uses incremental updates: only files whose `mtimeMs` has changed since the last build are re-parsed. Pass `forceFull: true` to rebuild from scratch.
+
+### checkpoints/
+
+Created by `clawvault checkpoint` and by the OpenClaw hook before `/new` commands. Each checkpoint records:
+
+- What the agent was working on
+- Current focus area
+- Session key and model info
+- Token usage estimate
+
+### sessions/
+
+Session recap data used by `clawvault session-recap` to restore conversational context across session boundaries.
+
+## File Naming Conventions
+
+ClawVault generates filenames by slugifying the document title:
+
+1. Convert to lowercase
+2. Remove non-word characters (except spaces and hyphens)
+3. Replace spaces with hyphens
+4. Collapse consecutive hyphens
+
+Examples:
+
+| Title | Filename |
+|-------|----------|
+| "Use PostgreSQL for auth" | `use-postgresql-for-auth.md` |
+| "Pedro (project lead)" | `pedro-project-lead.md` |
+| "note-1707849600000" | `note-1707849600000.md` (auto-generated capture title) |
+
+Files are always `.md` (Markdown). The document ID is the relative path without the extension: `decisions/use-postgresql-for-auth`.
+
+## Frontmatter Schema
+
+All documents use YAML frontmatter. The `store` command always writes `title` and `date`. Additional fields depend on how the document was created.
+
+### Core Fields
+
+| Field | Type | Source | Description |
+|-------|------|--------|-------------|
+| `title` | string | All commands | Document title |
+| `date` | string | All commands | ISO date (YYYY-MM-DD) of creation |
+| `memoryType` | string | `remember` | Memory type taxonomy: `fact`, `feeling`, `decision`, `lesson`, `commitment`, `preference`, `relationship`, `project` |
+| `tags` | string[] | User-supplied | Tags for categorization (also extracted from `#tag` in content) |
+
+### Handoff Fields
+
+Written by `clawvault sleep` and `createHandoff`:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `type` | `"handoff"` | Document type marker |
+| `workingOn` | string[] | What the agent was doing |
+| `blocked` | string[] | Current blockers |
+| `nextSteps` | string[] | What should happen next |
+| `sessionKey` | string | OpenClaw session identifier |
+| `feeling` | string | Agent's self-reported state |
+| `decisions` | string[] | Decisions made during the session |
+| `openQuestions` | string[] | Unresolved questions |
+
+### Relationship Fields (Graph Edges)
+
+These frontmatter fields are extracted by the graph indexer to create `frontmatter_relation` edges:
+
+`related`, `depends_on` / `dependsOn`, `blocked_by`, `blocks`, `owner`, `project`, `people`, `links`
+
+Each accepts a string or array of strings. Values are resolved as wiki-link targets against the vault's file registry.
+
+### People Fields
+
+Commonly used in `people/` documents:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `importance` | string | Priority level (e.g., `"high"`) |
+| `role` | string | Person's role or relationship |
+| `status` | string | Active, archived, etc. |
+
+### Project Fields
+
+Commonly used in `projects/` documents:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `status` | string | `"active"`, `"completed"`, `"archived"` |
+
+## How Files Are Created
+
+| Command | Category | Title | Notes |
+|---------|----------|-------|-------|
+| `clawvault store --category X --title Y` | Specified | Specified | General-purpose storage |
+| `clawvault capture "text"` | `inbox` | Auto-generated (`note-{timestamp}`) | Quick capture for later processing |
+| `clawvault remember decision "title"` | `decisions` | Specified | Routes via `TYPE_TO_CATEGORY` map |
+| `clawvault remember lesson "title"` | `lessons` | Specified | Same routing |
+| `clawvault remember relationship "name"` | `people` | Specified | Same routing |
+| `clawvault sleep "summary"` | `handoffs` | `handoff-{date}-{time}` | Session bridge document |
+| `clawvault observe --compress` | `transcripts` | Varies | Compressed session observations |
+
+## How the Graph Index Relates to Files
+
+The graph index at `.clawvault/graph-index.json` is a derived artifact. It is **not** the source of truth -- the Markdown files are. The index is rebuilt from files on every `store`, `reindex`, or `init` call.
+
+The relationship between files and the graph:
+
+1. Each `.md` file becomes a **node** with a type inferred from its directory
+2. Wiki-links in content (`[[target]]`) become **wiki_link edges**
+3. Hashtags in content and frontmatter `tags` become **tag nodes** and **tag edges**
+4. Frontmatter relation fields become **frontmatter_relation edges**
+5. Unresolved targets (links to files that do not exist) become **unresolved nodes**
+
+The graph supports queries like "show all documents linked to this person" or "find all unresolved references" by traversing edges.
+
+## Git Integration
+
+ClawVault vaults are designed to be Git repositories. Recommendations:
+
+### .gitignore
+
+```txt
+# Regenerated on every operation
+.clawvault-index.json
+.clawvault/graph-index.json
+
+# Keep the config
+!.clawvault.json
+```
+
+The index and graph files are derived from the Markdown files and can be regenerated with `clawvault reindex`. The `.clawvault.json` config should be tracked.
+
+### Checkpoint and Session Data
+
+Whether to track `.clawvault/checkpoints/` and `.clawvault/sessions/` depends on your use case. If you want full session history in Git, track them. If you prefer a clean repository, add them to `.gitignore`.
+
+### Commit Workflow
+
+A typical agent workflow:
+
+```bash
+# After storing memories
+cd /path/to/vault
+git add -A
+git commit -m "vault: session 2026-02-13"
+git push
+```
+
+<Callout type="info">
+ClawVault does not run Git commands automatically. If you want auto-commits, set up a cron job or hook script that commits after vault changes.
+</Callout>
+
+### Obsidian Compatibility
+
+Vault files use standard Markdown with YAML frontmatter and `[[wiki-link]]` syntax, which Obsidian understands natively. Use `clawvault sync --target /path/to/obsidian/vault` to mirror your vault to an Obsidian directory, or point Obsidian directly at the vault folder.

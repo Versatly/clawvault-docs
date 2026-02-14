@@ -1,0 +1,354 @@
+---
+title: Changelog
+description: Release history for ClawVault — every version, every feature, every fix.
+---
+
+<a href="/changelog/rss" style={{display:'inline-flex',alignItems:'center',gap:'0.5rem',padding:'0.4rem 0.8rem',borderRadius:'0.375rem',border:'1px solid var(--color-fd-border)',fontSize:'0.875rem',color:'var(--color-fd-muted-foreground)',textDecoration:'none',marginBottom:'1.5rem'}} target="_blank" rel="noopener">
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+  Subscribe via RSS
+</a>
+
+## v2.3.0 — February 14, 2026
+
+### Added
+- **Task tracking primitives** — `clawvault task` (add/list/update/done/show), `clawvault backlog` (add/list/promote), `clawvault blocked`. Tasks stored as markdown with frontmatter (status, owner, project, priority, blocked_by, due).
+- **Canvas dashboard** — `clawvault canvas` generates an Obsidian JSON Canvas file with active tasks, blocked items, backlog, knowledge graph stats, vault activity, and data flow diagram. File nodes are clickable in Obsidian.
+- **Vault activity stats** — canvas dashboard now shows observation count, reflection count, task completion rates, and document counts per category.
+- **Tailscale networking** — `clawvault serve` (HTTP API on Tailscale IP), `clawvault peers` (manage vault peers), `clawvault net-search` (cross-vault search). Trust levels: read, read-write, full. Zero new dependencies.
+- **New default categories** — `lessons`, `agents`, `commitments`, `handoffs`, `research`, `tasks`, `backlog` (16 total, up from 9).
+- **Ledger structure in init** — `clawvault init` now creates `ledger/raw/`, `ledger/observations/`, `ledger/reflections/` from day one.
+- **Welcome note** — new vaults get a welcome note in `inbox/` with quick-start commands.
+
+### Improved
+- Init output shows memory categories, work categories, and ledger structure separately.
+- Post-init instructions link to docs.clawvault.dev.
+- Canvas layout engine with proper positioning, grouping, and color coding per JSON Canvas spec.
+
+---
+
+## v2.2.0 — February 14, 2026
+
+### Added
+- **Ledger-first observer architecture** — raw transcripts preserved in `ledger/raw/<source>/` as the canonical source of truth. Compiled observations are derived views in `ledger/observations/YYYY/MM/DD.md`.
+- **Scored importance model** — replaces emoji priorities with typed, scored format: `[type|c=confidence|i=importance]`. Types: decision, preference, fact, commitment, milestone, lesson, relationship, project.
+- **`clawvault reflect`** — promotes stable observation patterns into weekly reflections (`ledger/reflections/YYYY-WNN.md`). Runs automatically weekly via hook.
+- **`clawvault replay`** — ingest historical exports from ChatGPT, Claude, OpenCode, or OpenClaw into the observation pipeline.
+- **`clawvault rebuild`** — regenerate compiled observations from raw ledger transcripts.
+- **`clawvault archive`** — move old observations to `ledger/archive/` (default 14 days retention).
+- **`clawvault migrate-observations`** — convert legacy emoji observations to scored format with non-destructive backups.
+- **`clawvault sync-bd`** — optional Beads task sync into `views/now.md`.
+- **Graph guardrails** — `--max-hops` on context command (default 2), derived-only nodes (no synthetic nodes for missing files), archive paths excluded from search/graph.
+- **`sleep --reflect`** option runs reflection pass after handoff.
+
+### Improved
+- Context profiles use importance buckets (structural/potential/contextual) instead of color names.
+- Tight-budget context preserves at least one top-ranked signal.
+- Observation reader supports both ledger and legacy paths with automatic deduplication.
+
+### Backward Compatibility
+- Existing emoji observations remain fully readable. New pipeline emits scored lines only.
+- `migrate-observations` provides a safe one-way migration with `.emoji-backup.md` files.
+
+---
+
+## v2.1.2 — February 13, 2026
+
+### Improved
+- **Observation compressor now captures business milestones** — not just code. Client demos, pricing decisions, strategy pivots, signed contracts, pitch decks, and proposals are now treated as first-class project milestones alongside version releases and PR merges.
+- Priority enforcement rules updated: completed demos and pricing decisions are always critical (red), proposals and deploys are always notable (yellow).
+
+---
+
+## v2.1.1 — February 13, 2026
+
+### Improved
+- **Compressor priority rules for project milestones** — version releases, PR merges, and shipped features are now enforced as critical observations. Deploys and new commands are enforced as notable. Previously these were marked as low-priority info and often dropped during compression.
+
+---
+
+## v2.1.0 — February 13, 2026
+
+### Added
+- **Active Session Observer** — `clawvault observe --active` incrementally observes long-running OpenClaw sessions without waiting for them to go stale.
+- **Smart threshold triggers** — scaled by session size: &lt;1MB triggers at 50KB new content, 1-5MB at 150KB, &gt;5MB at 300KB.
+- **Per-session byte cursors** — tracks observation progress in `.clawvault/observe-cursors.json` so only new transcript deltas are compressed.
+- **OpenClaw hook integration** — heartbeat events run cheap `statSync` checks, triggers observation only when thresholds are crossed. Also fires on context compaction and `/new` commands.
+- **Source label tagging** — observations are tagged with their origin (telegram-dm, discord, main, etc.) for attribution.
+- **Dry-run mode** — `--dry-run` previews which sessions would be observed without compressing.
+- **Helper scripts** — `observe-active-sessions.sh` and `observe-stale-sessions.sh` for cron integration.
+
+### Changed
+- Extracted `resolveVaultPath` into shared `lib/config.ts` (was duplicated in observe command).
+- Created `lib/session-utils.ts` for OpenClaw session discovery utilities.
+
+---
+
+## v2.0.2 — February 13, 2026
+
+### Fixed
+- Wiki-link corruption in observe compressor — LLMs were fusing word fragments into wiki-links during compression (e.g., `reque[[people/pedro]]`). Added `sanitizeWikiLinks()` post-processor.
+
+---
+
+## v2.0.1 — February 13, 2026
+
+### Fixed
+
+- ClawHub metadata audit compliance (kind, env\_optional, hooks, capabilities)
+- SKILL.md version sync with package.json
+
+---
+
+## v2.0.0 — February 13, 2026
+
+Major release: Memory Graph, Context Profiles, CLI modularization.
+
+### Added
+
+- **Memory Graph Index** — typed knowledge graph (`.clawvault/graph-index.json`) with wiki-link, tag, and frontmatter edges. Schema versioned with incremental rebuild.
+- **Graph-Aware Context** — `clawvault context` blends semantic search with graph-neighbor traversal, with explain signals in JSON output.
+- **Context Profiles** — `clawvault context --profile` with `default`, `planning`, `incident`, `handoff` presets for task-appropriate context injection.
+- **`clawvault compat`** — OpenClaw compatibility diagnostics. Checks hook wiring, event routing, SKILL.md, and handler safety. `--strict` mode for CI.
+- **`clawvault graph`** — graph summary and refresh diagnostics.
+- **Doctor upgrade** — now includes OpenClaw compatibility check summary.
+- **Dashboard upgrades** — vault parser emits typed nodes, typed edges, and type statistics.
+- **Hook handler** — flexible event routing via `eventMatches()` and `normalizeEventToken()`, `--profile auto` for context queries.
+
+### Changed
+
+- **CLI modularized** — monolithic `clawvault.js` split into 7 command groups (`register-core`, `register-query`, `register-vault-operations`, `register-maintenance`, `register-resilience`, `register-session-lifecycle`, `register-template`).
+- **367+ tests** across core, commands, graph, dashboard, hooks, and CLI registration.
+
+---
+
+## v1.11.2 — February 12, 2026
+
+### Fixed
+
+- **Entity-slug routing** — observations route to entity subfolders (`people/pedro/2026-02-12.md` instead of `people/2026-02-12.md`)
+- **Root-level file prevention** — observations never create files at vault root; always route to category folders
+- **Entity name extraction** — case-sensitive proper noun matching prevents capturing common words
+- **Dedup improvements** — router uses normalized content + Jaccard similarity to prevent duplicates
+
+---
+
+## v1.11.1 — February 11, 2026
+
+### Fixed
+
+- **Compressor priority enforcement** — post-processes LLM output to upgrade misclassified priorities (decisions get critical, preferences get notable)
+- **Temporal decay in reflector** — low-priority observations older than 7 days auto-pruned; critical always kept
+- **Exec summary in wake** — richer context with observation summaries
+- **Dedup normalization** — strips timestamps, wiki-links, and whitespace before comparing
+
+---
+
+## v1.11.0 — February 11, 2026
+
+### Removed
+
+- **Cloud sync removed entirely** — `src/cloud/` module and `clawvault cloud` command stripped
+- All cloud-related dependencies and imports removed
+
+ClawVault is now fully local-first. Zero network calls except optional LLM API for observe compression.
+
+---
+
+## v1.10.2 — February 10, 2026
+
+### Added
+
+- Auto wiki-links in routed observations for Obsidian graph view
+
+---
+
+## v1.10.1 — February 10, 2026
+
+### Fixed
+
+- Search docs: clarified `memory_search` vs `clawvault search` scope
+
+---
+
+## v1.10.0 — February 10, 2026
+
+### Changed
+
+- Cleaned repo: removed internal docs, SEO bloat, dist from git
+
+---
+
+## v1.9.6 — February 10, 2026
+
+### Fixed
+
+- Stress test fixes: priority calibration, budget enforcement, scoring, watch reliability, wake verbosity
+
+---
+
+## v1.9.5 — February 10, 2026
+
+### Fixed
+
+- Stronger decision detection in compressor
+
+---
+
+## v1.9.4 — February 10, 2026
+
+### Fixed
+
+- Enforce priority rules on LLM output, fix people routing patterns
+
+---
+
+## v1.9.3 — February 10, 2026
+
+### Fixed
+
+- Watch, dedup, budget, classification, people routing fixes
+
+---
+
+## v1.9.2 — February 10, 2026
+
+### Added
+
+- Gemini support for observer compressor (in addition to Anthropic and OpenAI)
+
+---
+
+## v1.9.1 — February 10, 2026
+
+### Added
+
+- Auto-observe on sleep/wake
+- Context-aware token budgets for observation injection
+
+---
+
+## v1.9.0 — February 10, 2026
+
+### Added
+
+- **Observational memory system** — compresses session transcripts into durable observations
+- Observer, Compressor, Reflector, Router, SessionWatcher, SessionParser modules
+- Priority system (critical, notable, info) with automatic classification
+- Vault routing: observations auto-categorize to `decisions/`, `people/`, `lessons/`, etc.
+- File watcher mode for real-time session observation
+- One-shot compression via `--compress` flag
+
+---
+
+## v1.8.2 — February 9, 2026
+
+### Fixed
+
+- **Path validation** — OPENCLAW\_HOME and OPENCLAW\_STATE\_DIR now properly validated (trimmed, require absolute paths)
+- **Error handling** — `listAgents()` wrapped in try/catch for malformed filesystem state
+
+---
+
+## v1.8.1 — February 9, 2026
+
+### Added
+
+- **OPENCLAW\_HOME support** — session utilities respect custom OpenClaw installations
+- **OPENCLAW\_STATE\_DIR support** — overrides state/agent paths
+
+### Compatibility
+
+- Verified with OpenClaw v2026.2.9
+- Hook handler confirmed working after OpenClaw's tsdown migration fix
+- Session transcript reading benefits from OpenClaw's parentId chain fix
+
+---
+
+## v1.5.1 — February 6, 2026
+
+### Security
+
+- **Fixed shell injection** in hook handler — changed from `execSync` to `execFileSync`, arguments passed as array
+- **Fixed prompt injection** — checkpoint recovery data sanitized before injection, control characters stripped, length limited
+- **Removed direct GitHub dependency** for qmd — moved to optional peer dependency
+
+---
+
+## v1.5.0 — February 6, 2026
+
+### Added
+
+- **`clawvault repair-session`** — repair corrupted OpenClaw session transcripts
+  - Detects orphaned `tool_result` blocks referencing non-existent `tool_use` IDs
+  - Identifies aborted tool calls with partial JSON
+  - Automatically relinks parent chain after removals
+  - Creates backup before repair (`--no-backup` to skip)
+  - Dry-run mode with `--dry-run`
+  - List sessions with `--list`
+  - JSON output with `--json` for scripting
+- **Session utilities** — `listAgents()`, `findMainSession()`, `findSessionById()`, file helpers
+
+---
+
+## v1.4.2 — February 6, 2026
+
+### Added
+
+- **OpenClaw Hook Integration** — automatic context death resilience
+  - `gateway:startup`: detects if previous session died, injects alert
+  - `command:new`: auto-checkpoints before session reset
+- **`clawvault wake`** — all-in-one session start (recover + recap + summary)
+- **`clawvault sleep`** — all-in-one session end with handoff (`--next`, `--blocked`, `--decisions`, `--questions`, `--feeling`)
+
+### Fixed
+
+- Readline import fix (was using `readline/promises` which bundlers couldn't resolve)
+
+---
+
+## v1.4.1 — February 5, 2026
+
+### Added
+
+- `clawvault doctor` — vault health diagnostics
+- `clawvault shell-init` — shell integration setup
+
+---
+
+## v1.4.0 — February 4, 2026
+
+### Added
+
+- **qmd integration** — semantic search via local embeddings
+- `clawvault setup` — auto-discovers OpenClaw memory folder
+- `clawvault status` — vault health, checkpoint age, qmd index
+- `clawvault template` — list/create/add with 7 built-in templates
+- `clawvault link --backlinks` — see what links to a file
+- `clawvault link --orphans` — find broken wiki-links
+
+---
+
+## v1.2.0 — February 1, 2026
+
+### Added
+
+- `clawvault remember` and `clawvault capture` commands
+- `clawvault search` with keyword matching
+- Category-based storage (decisions, lessons, people, projects, preferences, commitments, inbox)
+- Daily notes integration
+
+---
+
+## v1.1.0 — February 1, 2026
+
+Initial release.
+
+### Added
+
+- Core CLI with `store`, `search`, `checkpoint`, `recover`
+- Vault initialization with `.clawvault/` config directory
+- Markdown-based memory storage
+- Frontmatter parsing
+- Handoff/recap for session continuity
+- Wiki-linking and entity management
+- Structured memory categories

@@ -1,0 +1,5 @@
+{
+  "title": "Integrations",
+  "icon": "Plug",
+  "pages": ["openclaw", "ai-llms", "clawhub", "ci-cd", "qmd-integration", "beads"]
+}

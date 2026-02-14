@@ -1,0 +1,50 @@
+---
+title: Graph Colors
+description: Color your knowledge graph nodes by category and tag.
+---
+
+# Graph Colors
+
+The plugin colors nodes in Obsidian's graph view based on their vault category and tags.
+
+## Default Color Scheme
+
+| Category | Color | Hex |
+|----------|-------|-----|
+| tasks | Gold | `#e8a430` |
+| decisions | Red | `#e85d4a` |
+| people | Blue | `#4a90e8` |
+| projects | Green | `#4ae85d` |
+| lessons | Purple | `#9b59b6` |
+| backlog | Gray | `#95a5a6` |
+| commitments | Orange | `#e67e22` |
+| research | Teal | `#1abc9c` |
+| inbox | Light gray | `#bdc3c7` |
+
+Blocked tasks (frontmatter `status: blocked`) get bright red (`#e74c3c`) regardless of category.
+
+## Customization
+
+Open Settings → ClawVault → Graph Colors to change any category's color.
+
+Colors are applied via CSS injection — the plugin reads your `.clawvault.json` categories and generates the appropriate styles.
+
+## How It Works
+
+Obsidian's graph view uses file paths to identify nodes. The plugin maps folder paths to colors:
+
+- `tasks/my-task.md` → gold node
+- `decisions/use-postgres.md` → red node
+- `people/pedro.md` → blue node
+
+Files in the vault root or unrecognized folders use the default Obsidian node color.
+
+## Tag-Based Overrides
+
+You can also color nodes by tag. Add tag→color mappings in settings:
+
+- `#urgent` → bright red
+- `#archived` → dim gray
+- `#milestone` → gold
+
+Tag colors take priority over category colors when both apply.

@@ -1,0 +1,71 @@
+---
+title: "init & setup"
+description: "Initialize a new vault or auto-discover an existing one"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+The `init` and `setup` commands handle vault creation and configuration. Use `init` to create a new vault from scratch, or `setup` to auto-discover and configure an existing memory folder.
+
+## clawvault init
+
+**Create a new ClawVault in the specified directory.**
+
+```bash
+clawvault init [path] [options]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-n, --name <name>` | Vault name | Directory name |
+| `--qmd` | Set up qmd semantic search collection | false |
+| `--qmd-collection <name>` | qmd collection name | Vault name |
+
+### Examples
+
+```bash
+# Initialize in current directory
+clawvault init
+
+# Initialize with a name and semantic search
+clawvault init ~/my-vault --name "work-memory" --qmd
+
+# Initialize with custom qmd collection
+clawvault init ./memory --qmd --qmd-collection my-agent
+```
+
+This creates the `.clawvault/` configuration directory with vault metadata, category folders, and search indexes.
+
+## clawvault setup
+
+**Auto-discover and configure a ClawVault from an existing memory folder.**
+
+```bash
+clawvault setup
+```
+
+<Callout type="info">
+  `setup` has no options — it automatically finds the nearest OpenClaw memory folder and configures it as a ClawVault. This is the fastest way to get started if you already have an OpenClaw workspace.
+</Callout>
+
+### What Setup Does
+
+1. Discovers the OpenClaw memory folder (via `OPENCLAW_HOME` or standard paths)
+2. Creates `.clawvault/` configuration if missing
+3. Builds the search index
+4. Validates vault structure
+
+### Example
+
+```bash
+# From your OpenClaw workspace
+cd ~/.openclaw/workspace/memory
+clawvault setup
+```
+
+## When to Use Which
+
+- **`init`** — Starting fresh, or creating a vault outside of OpenClaw
+- **`setup`** — Already have a memory folder from OpenClaw and want to add ClawVault on top

@@ -1,0 +1,5 @@
+{
+  "title": "Core Concepts",
+  "icon": "BookOpen",
+  "pages": ["memory-types", "observational-memory", "memory-graph", "context-profiles", "context-death-recovery"]
+}

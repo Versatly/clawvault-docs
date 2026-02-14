@@ -1,0 +1,74 @@
+---
+title: Mobile Sync
+description: Sync your vault to Obsidian mobile over Tailscale.
+---
+
+# Mobile Sync
+
+Access your ClawVault vault on Obsidian mobile by syncing over your Tailscale network via WebDAV.
+
+## Prerequisites
+
+- `clawvault serve` running on your desktop/server
+- Tailscale app installed on your phone (iOS or Android)
+- Phone connected to the same Tailnet
+- Obsidian mobile with the [Remotely Save](https://github.com/remotely-save/remotely-save) community plugin
+
+## Setup
+
+### 1. Start the Vault Server
+
+On your desktop or server:
+
+```bash
+clawvault serve
+# → Listening on 100.64.31.68:7283
+# → WebDAV available at /webdav/
+```
+
+### 2. Install Tailscale on Your Phone
+
+Download Tailscale from the App Store or Google Play. Sign in with the same account as your desktop.
+
+### 3. Configure Remotely Save
+
+In Obsidian mobile:
+
+1. Install the **Remotely Save** community plugin
+2. Open its settings
+3. Choose **WebDAV** as the remote type
+4. Set the server URL: `http://100.64.31.68:7283/webdav/`
+5. Leave username/password blank (Tailscale network is the auth boundary)
+6. Test the connection — should show success
+
+### 4. Sync
+
+Remotely Save can sync automatically on open/close, or manually via the command palette.
+
+## What Syncs
+
+Everything in your vault syncs bidirectionally:
+
+- Tasks and backlog items
+- Decisions, lessons, people files
+- Observations and reflections
+- Dashboard canvas
+- Templates
+
+The `.clawvault/` internal directory and `.git/` are excluded from WebDAV for security.
+
+## Editing on Mobile
+
+You can:
+- View and edit any vault file
+- Open the canvas dashboard
+- Browse the knowledge graph
+- Read observations and reflections
+
+Creating new tasks or capturing notes on mobile syncs back to your desktop vault on next sync.
+
+## Troubleshooting
+
+- **Can't connect**: Verify both devices are on the same Tailnet (`tailscale status`)
+- **Sync conflicts**: Remotely Save handles conflicts by keeping both versions
+- **Slow sync**: Large vaults may take a moment on first sync. Subsequent syncs are incremental.

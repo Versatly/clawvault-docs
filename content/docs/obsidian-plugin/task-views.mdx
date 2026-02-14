@@ -1,0 +1,58 @@
+---
+title: Task Views
+description: Visual task management with Obsidian Bases.
+---
+
+# Task Views
+
+ClawVault tasks are markdown files with frontmatter. Combined with Obsidian's Bases feature (1.12+), you get database-like views over your tasks.
+
+## Included Base Files
+
+The plugin can generate `.base` files for common task views. Use the command palette: **ClawVault: Generate Task Bases**.
+
+### All Tasks
+
+Shows every task with columns for status, priority, project, and dates.
+
+```yaml
+# tasks-all.base
+filter:
+  - file.inFolder("tasks")
+properties:
+  - { name: status, type: text }
+  - { name: priority, type: text }
+  - { name: project, type: text }
+  - { name: created, type: date }
+  - { name: updated, type: date }
+views:
+  - type: table
+    name: All Tasks
+    groupBy: status
+```
+
+### By Project
+
+Tasks grouped by project — see what's active per workstream.
+
+### Blocked Items
+
+Filtered to only `status: blocked` tasks, showing `blocked_by` field prominently.
+
+### Backlog
+
+Everything in `backlog/` sorted by project, ready to promote.
+
+## File Explorer Decorations
+
+The plugin adds visual indicators in the file explorer:
+
+- `●` — in-progress tasks
+- `○` — open tasks
+- `⊘` — blocked tasks (red)
+- `✓` — completed tasks (green)
+- `📥` — inbox items
+
+## Requirements
+
+Task views use Obsidian Bases, which requires Obsidian 1.12 or later. The file explorer decorations work on all supported versions.

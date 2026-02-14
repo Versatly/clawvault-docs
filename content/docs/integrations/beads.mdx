@@ -1,0 +1,57 @@
+---
+title: "Beads (bd)"
+description: "Integrate ClawVault observations with the beads personal knowledge tool"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+[Beads](https://github.com/impredicative/bd) (`bd`) is a command-line personal knowledge and task management tool. ClawVault can optionally sync active task information from beads into your vault's compiled views.
+
+## How It Works
+
+The `sync-bd` command queries your local `bd` installation for active tasks and writes them into the `views/now.md` file under an **Active Tasks (from bd)** section. This gives your AI agent visibility into what you are currently working on outside of ClawVault sessions.
+
+The sync is **additive** — it upserts the task section without disturbing other content in `views/now.md`.
+
+## Requirements
+
+- The `bd` binary must be installed and available on your `PATH`
+- If `bd` is not found, `sync-bd` exits silently with no error
+
+<Callout type="info">
+  Beads integration is entirely optional. ClawVault checks for the `bd` binary at runtime and skips the sync if it is not installed.
+</Callout>
+
+## Usage
+
+```bash
+# Sync active bd tasks into views/now.md
+clawvault sync-bd
+
+# Preview without writing
+clawvault sync-bd --dry-run
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--dry-run` | Show what would be synced without writing | false |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+
+## Output
+
+After running `sync-bd`, your `views/now.md` will contain a section like:
+
+```markdown
+## Active Tasks (from bd)
+- Review Q4 planning doc
+- Ship clawvault v2.2.0
+- Update onboarding flow
+```
+
+Tasks with a status of `done`, `completed`, or `closed` are excluded automatically.
+
+## Automation
+
+If you use the OpenClaw hook, you can add `sync-bd` to your heartbeat or session-start workflow so that task context stays current without manual invocation. See the [OpenClaw hook setup](/docs/integrations/openclaw/hook-setup) guide for details.

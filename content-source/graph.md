@@ -1,0 +1,397 @@
+---
+title: "graph"
+description: "Memory graph visualization and management"
+---
+
+The `graph` command provides insights into your vault's knowledge graph structure, connectivity, and health. It manages the memory graph index and offers analytics on how your memories connect.
+
+## clawvault graph
+
+**View graph summary and manage graph index.**
+
+```bash
+clawvault graph [options]
+```
+
+### Basic Usage
+
+```bash
+# View current graph summary
+clawvault graph
+
+# Force rebuild graph index
+clawvault graph --refresh
+```
+
+### Example Output
+
+```bash
+$ clawvault graph
+
+🕸️  Memory Graph Summary
+
+## 📊 Graph Statistics
+- **Nodes:** 156 memories
+- **Edges:** 298 connections  
+- **Density:** 1.91 connections per node
+- **Components:** 3 (1 main component: 149 nodes)
+
+## 🏷️  Node Types
+| Type         | Count | % of Total |
+|--------------|-------|------------|
+| decision     | 23    | 14.7%      |
+| lesson       | 31    | 19.9%      |
+| person       | 18    | 11.5%      |
+| project      | 12    | 7.7%       |
+| fact         | 28    | 17.9%      |
+| commitment   | 15    | 9.6%       |
+| preference   | 8     | 5.1%       |
+| feeling      | 6     | 3.8%       |
+| observation  | 15    | 9.6%       |
+
+## 🔗 Edge Types  
+| Type        | Count | Description              |
+|-------------|-------|--------------------------|
+| wiki-link   | 189   | [[entity]] references    |
+| tag         | 67    | #hashtag connections     |
+| frontmatter | 42    | YAML metadata links      |
+
+## 🌟 Most Connected Nodes
+1. **people/pedro** (24 connections)
+2. **projects/user-dashboard** (18 connections)  
+3. **decisions/architecture-choice** (15 connections)
+4. **people/sarah-chen** (12 connections)
+5. **projects/api-redesign** (11 connections)
+
+## 🏝️  Orphan Nodes (3)
+- facts/old-server-config  
+- lessons/random-insight
+- commitments/outdated-deadline
+
+## 📈 Graph Growth
+- Last 7 days: +12 nodes, +23 edges
+- Last 30 days: +45 nodes, +89 edges
+- Index last rebuilt: 2026-02-13 10:30 (3 hours ago)
+
+## 🔧 Graph Health
+✅ Index schema up-to-date (v2)
+✅ No broken wiki-links detected
+⚠️  3 orphan nodes (consider linking or archiving)
+✅ Average connectivity: healthy (1.9 edges/node)
+
+Run `clawvault link --orphans` to fix orphan nodes.
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--refresh` | Rebuild graph index from scratch |
+| `--format <fmt>` | Output format (text/json) | 
+| `--components` | Show connected component details |
+| `--orphans` | List only orphan (unconnected) nodes |
+
+## Graph Index Management
+
+### Incremental Updates
+
+The graph index updates incrementally by default:
+
+```bash
+clawvault graph
+# → Checks file modification times
+# → Updates only changed files  
+# → Fast for large vaults
+```
+
+### Force Rebuild
+
+When index corruption or schema changes require full rebuild:
+
+```bash
+clawvault graph --refresh
+# → Rebuilds entire index from scratch
+# → Slower but guarantees accuracy
+# → Updates schema version if needed
+```
+
+### Index Location
+
+Graph index is stored at `.clawvault/graph-index.json`:
+
+```json
+{
+  "schemaVersion": 2,
+  "lastUpdated": "2026-02-13T10:30:00Z",
+  "nodes": { /* node definitions */ },
+  "edges": [ /* edge relationships */ ],
+  "stats": { /* summary statistics */ }
+}
+```
+
+## JSON Output
+
+Get machine-readable graph data:
+
+```bash
+clawvault graph --format json
+```
+
+```json
+{
+  "summary": {
+    "nodeCount": 156,
+    "edgeCount": 298,
+    "density": 1.91,
+    "components": 3,
+    "largestComponent": 149
+  },
+  "nodeTypes": {
+    "decision": 23,
+    "lesson": 31,
+    "person": 18,
+    "project": 12,
+    "fact": 28,
+    "commitment": 15,
+    "preference": 8,
+    "feeling": 6,
+    "observation": 15
+  },
+  "edgeTypes": {
+    "wiki-link": 189,
+    "tag": 67,
+    "frontmatter": 42
+  },
+  "topNodes": [
+    {
+      "id": "people/pedro",
+      "title": "Pedro Martinez", 
+      "connections": 24,
+      "types": ["wiki-link", "frontmatter"]
+    }
+  ],
+  "orphans": [
+    "facts/old-server-config",
+    "lessons/random-insight"
+  ],
+  "growth": {
+    "last7days": { "nodes": 12, "edges": 23 },
+    "last30days": { "nodes": 45, "edges": 89 }
+  },
+  "health": {
+    "indexUpToDate": true,
+    "brokenLinks": 0,
+    "orphanCount": 3,
+    "avgConnectivity": 1.91,
+    "status": "healthy"
+  }
+}
+```
+
+## Connected Components
+
+View graph connectivity structure:
+
+```bash
+clawvault graph --components
+```
+
+```
+🕸️  Connected Components
+
+## Component 1 (149 nodes)
+**Hub nodes:** people/pedro (24), projects/user-dashboard (18)
+**Categories:** decisions, lessons, people, projects, facts
+**Density:** 1.95 edges/node
+
+## Component 2 (4 nodes)  
+**Hub nodes:** projects/legacy-cleanup (3)
+**Categories:** projects, facts
+**Density:** 0.75 edges/node
+
+## Component 3 (3 nodes)
+**Hub nodes:** lessons/old-framework (2) 
+**Categories:** lessons
+**Density:** 0.67 edges/node
+```
+
+Large connected components indicate good knowledge integration. Small isolated components may need linking.
+
+## Orphan Node Analysis
+
+Find unconnected memories:
+
+```bash
+clawvault graph --orphans
+```
+
+```
+🏝️  Orphan Nodes (3 found)
+
+facts/old-server-config.md
+  Last modified: 2026-01-15
+  Content: Legacy server configuration from previous deployment
+  Suggestion: Archive or link to infrastructure decisions
+
+lessons/random-insight.md  
+  Last modified: 2026-01-28
+  Content: Quick note about code organization
+  Suggestion: Link to related architecture decisions
+
+commitments/outdated-deadline.md
+  Last modified: 2026-01-20  
+  Content: Q4 deadline that's no longer relevant
+  Suggestion: Archive or update with current timeline
+
+Run `clawvault link --orphans` to find potential connections.
+```
+
+## Graph Health Indicators
+
+### Connectivity Metrics
+
+| Metric | Healthy Range | Warning | Action |
+|--------|---------------|---------|--------|
+| Avg connections/node | 1.5-3.0 | <1.0 or >5.0 | Link orphans or reduce over-linking |
+| Orphan percentage | <5% | >10% | Review and connect isolated nodes |
+| Largest component | >80% of nodes | <60% | Improve cross-category linking |
+
+### Schema Version
+
+```bash
+# Current schema version
+clawvault graph | grep "schema"
+# ✅ Index schema up-to-date (v2)
+
+# After ClawVault upgrade with schema changes
+clawvault graph --refresh
+# → Rebuilds with new schema version
+```
+
+## Integration with Other Commands
+
+### Link Management
+
+```bash
+# Fix orphan nodes
+clawvault link --orphans
+# → Shows potential wiki-link targets
+
+# Auto-link entity mentions  
+clawvault link --all
+# → Creates wiki-links for people/project mentions
+# → Updates graph automatically
+
+# Check backlinks
+clawvault link --backlinks people/pedro.md
+# → Shows what connects to Pedro
+```
+
+### Context Retrieval
+
+```bash
+# Graph influences context results
+clawvault context "database decisions"
+# → Uses graph connections to find related memories
+# → Includes graph neighbors in results
+```
+
+### Search Enhancement
+
+```bash
+# Graph-aware search scoring
+clawvault vsearch "authentication"  
+# → Higher scores for well-connected nodes
+# → Related memories surface through graph traversal
+```
+
+## Performance Considerations
+
+### Index Build Time
+
+| Vault Size | Initial Build | Incremental Update |
+|------------|---------------|--------------------|
+| 100 files | ~1 second | ~100ms |
+| 500 files | ~5 seconds | ~300ms |
+| 1000 files | ~12 seconds | ~500ms |
+
+### Memory Usage
+
+Graph index memory footprint:
+
+```bash
+# Check index file size
+ls -lh .clawvault/graph-index.json
+
+# Typical sizes:
+# 100 nodes: ~50KB
+# 500 nodes: ~200KB  
+# 1000 nodes: ~400KB
+```
+
+## Troubleshooting
+
+### Broken Index
+
+```bash
+# Index corruption or schema mismatch
+clawvault graph
+# Error: Invalid graph schema version
+
+# Fix: Force rebuild
+clawvault graph --refresh
+```
+
+### Performance Issues
+
+```bash
+# Slow graph operations
+clawvault graph --refresh  # Rebuild index
+clawvault link --orphans   # Reduce orphan nodes
+qmd update                 # Update search index
+```
+
+### Missing Connections
+
+```bash
+# Expected connections not showing
+clawvault link --all       # Auto-link entity mentions
+clawvault graph --refresh  # Rebuild with latest links
+```
+
+## Best Practices
+
+### Growing a Healthy Graph
+
+1. **Use wiki-links liberally** - `[[entity-name]]` creates connections
+2. **Tag consistently** - `#tag` groups related concepts  
+3. **Add frontmatter relationships** - explicit connections
+4. **Review orphan nodes** - monthly cleanup of isolated memories
+5. **Connect new memories** - link to existing entities when storing
+
+### Graph Maintenance
+
+```bash
+# Weekly graph health check
+clawvault graph
+
+# Monthly orphan cleanup  
+clawvault link --orphans
+clawvault graph --orphans
+
+# Quarterly full rebuild
+clawvault graph --refresh
+```
+
+### Optimal Graph Structure
+
+- **Hub nodes** (people, projects) with many connections
+- **Cross-category linking** between decisions, lessons, facts
+- **Temporal connections** between related work over time
+- **Entity-specific clustering** around people and projects
+
+:::tip
+A well-connected graph enables much richer context retrieval. Spend time linking related memories to build a knowledge network that grows more valuable over time.
+:::
+
+The graph command helps you understand and optimize your vault's knowledge structure for better context retrieval and relationship discovery.

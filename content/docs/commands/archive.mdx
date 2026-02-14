@@ -1,0 +1,45 @@
+---
+title: "archive"
+description: "Archive old observations beyond the retention window"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+The `archive` command moves observation files older than a specified threshold into the `ledger/archive/` directory. This keeps the active observation set lean while preserving historical data.
+
+_Added in v2.2.0_
+
+## Usage
+
+```bash
+clawvault archive [options]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--older-than <days>` | Archive observations older than this many days | 14 |
+| `--dry-run` | Show archive candidates without moving files | false |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+
+## How It Works
+
+Observation files with dates older than the specified threshold are moved from the active observation directory into `ledger/archive/`. Archived observations are excluded from normal searches and context assembly but remain available for historical analysis.
+
+<Callout type="info">
+  The `reflect` command can trigger an automatic archive pass after generating reflections. Use the standalone `archive` command when you want explicit control over retention.
+</Callout>
+
+## Examples
+
+```bash
+# Archive observations older than 14 days (default)
+clawvault archive
+
+# Archive observations older than 30 days
+clawvault archive --older-than 30
+
+# Preview what would be archived
+clawvault archive --dry-run
+```

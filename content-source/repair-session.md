@@ -1,0 +1,245 @@
+---
+title: clawvault repair-session
+description: Repair corrupted OpenClaw session transcripts with orphaned tool results and aborted tool calls.
+---
+
+# clawvault repair-session
+
+The `repair-session` command fixes corrupted OpenClaw session transcripts that cause the Anthropic API to reject with "unexpected tool_use_id found in tool_result blocks" errors.
+
+## Usage
+
+```bash
+# Analyze current session without making changes
+clawvault repair-session --dry-run
+
+# Fix the current main session
+clawvault repair-session
+
+# Repair a specific session
+clawvault repair-session --session <session-id> --agent <agent-id>
+
+# List available sessions for repair
+clawvault repair-session --list
+```
+
+## What It Fixes
+
+The repair command detects and fixes several types of transcript corruption:
+
+### Orphaned Tool Results
+- `tool_result` blocks that reference non-existent `tool_use` IDs
+- Results from interrupted tool calls that were partially cleaned up
+- Malformed tool call chains after session crashes
+
+### Aborted Tool Calls  
+- Incomplete tool calls with partial JSON
+- Tool calls interrupted mid-execution
+- Broken function call syntax from API timeouts
+
+### Broken Parent Chains
+- Disconnected message references after removals
+- Invalid parent ID links between messages
+- Inconsistent conversation flow markers
+
+## Options
+
+### Dry Run Mode
+```bash
+clawvault repair-session --dry-run
+```
+
+Preview what would be fixed without making changes. Shows:
+- Number of corrupted blocks found
+- Types of corruption detected  
+- Estimated repair success rate
+
+### Specific Session Repair
+```bash
+clawvault repair-session --session abc123 --agent main
+```
+
+Repair a specific session by ID and agent name instead of auto-detecting the current session.
+
+### List Sessions
+```bash
+clawvault repair-session --list
+```
+
+Show all available sessions across all agents, with status indicators for corruption.
+
+### Backup Control
+```bash
+# Skip backup creation (faster, less safe)
+clawvault repair-session --no-backup
+
+# Custom backup location  
+clawvault repair-session --backup-dir /path/to/backups
+```
+
+## Example Output
+
+### Dry Run Analysis
+```bash
+$ clawvault repair-session --dry-run
+
+🔍 Analyzing session: main/2024-01-15-143052
+
+Transcript: ~/.openclaw/agents/main/sessions/2024-01-15-143052.jsonl
+Messages: 47 total, 12 assistant, 8 tool_use, 6 tool_result
+
+❌ Corruption Found:
+  - 2 orphaned tool_result blocks (tool_use_3f42, tool_use_7a91) 
+  - 1 aborted tool call with partial JSON (line 23)
+  - 1 broken parent chain after tool_use_3f42
+
+✅ Repair Plan:
+  - Remove 2 orphaned tool_result blocks
+  - Remove 1 incomplete tool_use block  
+  - Relink 3 parent chain references
+
+Estimated success rate: 95% (low risk)
+Run without --dry-run to apply fixes.
+```
+
+### Successful Repair
+```bash
+$ clawvault repair-session
+
+🔧 Repairing session: main/2024-01-15-143052
+
+✅ Backup created: ~/.openclaw/agents/main/backups/2024-01-15-143052.bak.jsonl
+
+🛠️  Applying fixes:
+  ✅ Removed orphaned tool_result block (tool_use_3f42)
+  ✅ Removed orphaned tool_result block (tool_use_7a91)
+  ✅ Removed aborted tool_use block (line 23)
+  ✅ Relinked 3 parent chain references
+
+✅ Repair complete: 4 fixes applied
+Session should now load without API errors.
+```
+
+### List Available Sessions
+```bash
+$ clawvault repair-session --list
+
+📋 Available Sessions:
+
+Agent: main
+  ✅ 2024-01-15-090312  (47 messages, healthy)
+  ❌ 2024-01-15-143052  (corrupted, 2 orphaned results)  
+  ✅ 2024-01-14-160821  (23 messages, healthy)
+
+Agent: subagent-docs
+  ✅ 2024-01-15-151203  (8 messages, healthy)
+  ⚠️  2024-01-15-134411  (1 aborted tool call)
+
+Total: 5 sessions, 2 need repair
+```
+
+## Common Corruption Scenarios
+
+### API Timeout Corruption
+When the Anthropic API times out mid-response, tool calls can be left incomplete:
+
+```json
+{"role": "assistant", "content": [
+  {"type": "tool_use", "id": "tool_abc", "name": "exec", "input": {"command": "ls -la
+```
+
+**Fix:** Removes the incomplete tool call entirely.
+
+### Interrupted Session Recovery
+When OpenClaw crashes during tool execution, orphaned results remain:
+
+```json
+{"role": "tool", "tool_use_id": "tool_missing", "content": "Success"}
+```
+
+**Fix:** Removes tool results that have no matching tool_use block.
+
+### Parent Chain Breaks
+After removing corrupted blocks, parent references can become invalid:
+
+```json
+{"role": "assistant", "parent_id": "tool_deleted", "content": "..."}
+```
+
+**Fix:** Relinks parent chains to the nearest valid ancestor.
+
+## Safety Features
+
+### Automatic Backups
+Every repair creates a backup with timestamp:
+```
+~/.openclaw/agents/main/backups/2024-01-15-143052.bak.jsonl
+```
+
+### Validation Checks
+- Verifies JSON structure before and after repair
+- Confirms message count consistency  
+- Validates tool call/result pairing
+- Checks parent chain integrity
+
+### Rollback Support
+If a repair goes wrong, restore from backup:
+```bash
+mv ~/.openclaw/agents/main/backups/session.bak.jsonl \
+   ~/.openclaw/agents/main/sessions/session.jsonl
+```
+
+## When to Use Repair
+
+:::warning Symptoms of Corruption
+Use `repair-session` when you see:
+
+- **API Error:** "unexpected tool_use_id found in tool_result blocks"
+- **Session won't load** in OpenClaw interface
+- **Missing context** after session crashes
+- **Incomplete tool outputs** that should have succeeded
+:::
+
+:::tip Prevention
+To reduce corruption risk:
+1. **Checkpoint frequently** during heavy tool use
+2. **Avoid force-killing** OpenClaw during tool execution  
+3. **Monitor API timeouts** and adjust timeout settings
+4. **Use `clawvault doctor`** to detect early signs
+:::
+
+## Advanced Usage
+
+### JSON Output for Scripting
+```bash
+clawvault repair-session --dry-run --json
+```
+
+Returns structured data for automation:
+```json
+{
+  "session": "main/2024-01-15-143052",
+  "corruption": {
+    "orphaned_results": 2,
+    "aborted_calls": 1,
+    "broken_parents": 1
+  },
+  "repair_plan": {
+    "removals": 3,
+    "relinks": 3,
+    "success_rate": 0.95
+  }
+}
+```
+
+### Batch Repair
+```bash
+# Repair all corrupted sessions
+for session in $(clawvault repair-session --list --corrupted-only); do
+  clawvault repair-session --session $session
+done
+```
+
+:::note Technical Details
+The repair command uses ClawVault's session utilities to safely parse and modify OpenClaw JSONL transcripts. It respects the OpenClaw session format and maintains compatibility with all OpenClaw features.
+:::

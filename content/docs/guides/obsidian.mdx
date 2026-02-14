@@ -1,0 +1,138 @@
+---
+title: "Obsidian Integration"
+description: "Use your ClawVault vault as an Obsidian vault for visual exploration, graph view, and manual editing."
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+import { Steps, Step } from "fumadocs-ui/components/steps";
+
+# Obsidian Integration
+
+A ClawVault vault is a directory of Markdown files with YAML frontmatter. This makes it natively compatible with [Obsidian](https://obsidian.md) -- you can open it as an Obsidian vault and get graph view, backlinks, tags, and visual editing for free.
+
+## Opening the Vault in Obsidian
+
+<Steps>
+<Step>
+### Open as vault
+
+In Obsidian, select "Open folder as vault" and point it to your ClawVault directory (the folder containing `.clawvault.json`).
+</Step>
+<Step>
+### Exclude internal files
+
+Create or edit `.obsidian/app.json` to exclude ClawVault internal files from search and graph:
+
+```json
+{
+  "userIgnoreFilters": [
+    ".clawvault.json",
+    ".clawvault/",
+    "*.qmd"
+  ]
+}
+```
+</Step>
+<Step>
+### Enable wiki-links
+
+Obsidian uses wiki-links by default (`[[link]]`), which matches ClawVault's linking format. Ensure "Use Wikilinks" is enabled in Settings > Files and Links.
+</Step>
+</Steps>
+
+## Wiki-Links and Graph View
+
+ClawVault's `link` command generates wiki-links in the same `[[entity]]` format Obsidian uses. This means:
+
+- **Backlinks panel** shows all files that reference an entity
+- **Graph view** visualizes the full knowledge graph
+- **Clicking a link** navigates to the referenced file
+
+Run `clawvault link --all` to ensure all entity mentions are linked before opening in Obsidian.
+
+```bash
+clawvault link --all
+# Links resolved: 47 mentions across 23 files
+```
+
+The graph view in Obsidian will mirror what `clawvault graph` shows, with the added benefit of interactive exploration.
+
+<Callout type="info">
+ClawVault wiki-links use the entity slug as the link target (e.g., `[[pedro]]` links to `people/pedro.md`). Obsidian resolves these automatically as long as file names match.
+</Callout>
+
+## Tags and Frontmatter
+
+ClawVault stores metadata in YAML frontmatter:
+
+```yaml
+---
+id: dec-20260210-auth-refactor
+title: "Auth Refactor Decision"
+type: decision
+category: decisions
+tags: [architecture, auth, backend]
+related: ["[[project-api]]", "[[pedro]]"]
+created: 2026-02-10T14:30:00Z
+---
+```
+
+Obsidian reads this frontmatter natively:
+
+- **Tags** appear in the tag pane and are searchable
+- **Properties** (Obsidian 1.4+) display frontmatter fields in a structured view
+- **Dataview** plugin can query across all memories using frontmatter fields
+
+Example Dataview query for all decisions:
+
+```
+```dataview
+TABLE title, created
+FROM "decisions"
+SORT created DESC
+```
+```
+
+## Daily Notes
+
+ClawVault's daily memory files (`memory/YYYY-MM-DD.md`) align with Obsidian's daily notes pattern. Configure Obsidian's Daily Notes plugin:
+
+- **Date format:** `YYYY-MM-DD`
+- **New file location:** your vault's memory folder
+- **Template:** optional, but ClawVault daily files already have frontmatter
+
+This lets you view your agent's daily activity logs using Obsidian's calendar and daily notes navigation.
+
+## Cross-Platform Sync
+
+Since the vault is plain Markdown files, any file sync tool works:
+
+### Git (Recommended)
+
+See [Version Control](/docs/guides/git-workflows) for detailed Git workflows.
+
+```bash
+# Commit and push from the machine running ClawVault
+clawvault sleep "session done" --git-commit
+
+# Pull from another machine
+cd vault && git pull
+```
+
+### Obsidian Sync
+
+If you use Obsidian Sync, the vault syncs automatically across devices. Be aware that:
+
+- `.clawvault.json` and index files should be excluded from sync (they are machine-specific)
+- The search index (`qmd`) is not portable; each machine needs its own
+
+### File Sync (Syncthing, Dropbox)
+
+Works for the Markdown files. Exclude:
+
+- `.clawvault/` (internal state)
+- `*.qmd` (search index, machine-specific)
+
+<Callout type="warn">
+If you edit files in Obsidian while the agent is running, run `clawvault reindex` afterward to update the search index. ClawVault does not watch for external file changes.
+</Callout>

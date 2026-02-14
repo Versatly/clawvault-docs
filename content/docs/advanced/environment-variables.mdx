@@ -1,0 +1,194 @@
+---
+title: "Environment Variables"
+description: "All environment variables used by ClawVault and when they apply."
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+ClawVault uses environment variables for configuration. None are required -- all have sensible defaults or auto-discovery.
+
+## Quick Reference
+
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `CLAWVAULT_PATH` | No | Vault directory path. Skips auto-discovery if set. |
+| `CLAWVAULT_SESSION_TRANSCRIPT` | No | Path to current session transcript for `sleep`. |
+| `CLAWVAULT_NO_LLM` | No | Disable all LLM API calls (observe, wake). |
+| `GEMINI_API_KEY` | No | Gemini API key for observe compression and wake synthesis. |
+| `ANTHROPIC_API_KEY` | No | Anthropic API key for observe compression and wake synthesis. |
+| `OPENAI_API_KEY` | No | OpenAI API key for observe compression and wake synthesis. |
+| `OPENCLAW_HOME` | No | OpenClaw home directory override. |
+| `OPENCLAW_STATE_DIR` | No | OpenClaw state directory override. |
+| `OPENCLAW_AGENT_ID` | No | Agent identifier for session-scoped commands. |
+| `OPENCLAW_SESSION_KEY` | No | Current session key, recorded in checkpoints. |
+| `OPENCLAW_SESSION_FILE` | No | Path to session transcript (alias for sleep). |
+| `OPENCLAW_SESSION_TRANSCRIPT` | No | Path to session transcript (alias for sleep). |
+| `OPENCLAW_MODEL` | No | Current LLM model name, recorded in checkpoints. |
+| `OPENCLAW_TOKEN_ESTIMATE` | No | Token usage estimate, recorded in checkpoints. |
+| `OPENCLAW_CONTEXT_TOKENS` | No | Alias for `OPENCLAW_TOKEN_ESTIMATE`. |
+
+## Vault Path
+
+### CLAWVAULT_PATH
+
+The most commonly set variable. Points ClawVault to your vault directory, skipping the auto-discovery walk.
+
+```bash
+export CLAWVAULT_PATH=/home/user/.openclaw/workspace/memory
+```
+
+Without it, ClawVault walks up from the current directory looking for a `.clawvault.json` file. The hook handler also checks for a `memory/` subdirectory at each level (the standard OpenClaw workspace convention).
+
+<Callout type="info">
+Run `clawvault shell-init >> ~/.bashrc` to automatically set `CLAWVAULT_PATH` and add useful aliases.
+</Callout>
+
+The path must resolve to a directory containing a `.clawvault.json` file. Both absolute and relative paths are accepted and resolved internally.
+
+## LLM API Keys
+
+ClawVault makes **zero network calls** by default. LLM APIs are only used by two features: `observe --compress` (session compression) and `wake` (context synthesis). Both fall back to local-only behavior when no key is available.
+
+### GEMINI_API_KEY
+
+Used for LLM-powered session compression and wake context synthesis via the Gemini API.
+
+```bash
+export GEMINI_API_KEY=your-key-here
+clawvault observe --compress session.jsonl
+```
+
+### ANTHROPIC_API_KEY
+
+Used as an alternative to Gemini for observe compression and wake synthesis via the Anthropic API.
+
+```bash
+export ANTHROPIC_API_KEY=your-key-here
+```
+
+### OPENAI_API_KEY
+
+Used as an alternative to Gemini and Anthropic for observe compression and wake synthesis via the OpenAI API.
+
+```bash
+export OPENAI_API_KEY=your-key-here
+```
+
+### Provider Selection Order
+
+When multiple keys are set, ClawVault selects a provider in this order:
+
+1. `ANTHROPIC_API_KEY` (Anthropic)
+2. `OPENAI_API_KEY` (OpenAI)
+3. `GEMINI_API_KEY` (Gemini)
+
+For `wake` specifically, the order is:
+1. `GEMINI_API_KEY`
+2. `ANTHROPIC_API_KEY`
+3. `OPENAI_API_KEY`
+
+### CLAWVAULT_NO_LLM
+
+Set to any value to disable all LLM API calls globally. Useful for testing or air-gapped environments.
+
+```bash
+export CLAWVAULT_NO_LLM=1
+clawvault observe --compress session.jsonl  # Falls back to rule-based extraction
+```
+
+<Callout>
+When `CLAWVAULT_NO_LLM` is set, `observe` falls back to rule-based extraction (no network calls) and `wake` skips context synthesis.
+</Callout>
+
+## Session Transcript
+
+### CLAWVAULT_SESSION_TRANSCRIPT
+
+Path to the current session transcript file. Used by `clawvault sleep` to automatically locate the transcript for compression.
+
+```bash
+export CLAWVAULT_SESSION_TRANSCRIPT=/path/to/session.jsonl
+```
+
+### OPENCLAW_SESSION_FILE / OPENCLAW_SESSION_TRANSCRIPT
+
+Aliases for the session transcript path. The `sleep` command checks all three variables in order:
+
+1. `CLAWVAULT_SESSION_TRANSCRIPT`
+2. `OPENCLAW_SESSION_FILE`
+3. `OPENCLAW_SESSION_TRANSCRIPT`
+
+## OpenClaw Integration
+
+These variables are typically set automatically by the OpenClaw runtime. You should not need to configure them manually unless debugging.
+
+### OPENCLAW_HOME
+
+Override the OpenClaw home directory. Used by `repair-session` and session utilities to locate agent session files.
+
+```bash
+# Default (auto-discovered):
+# ~/.openclaw/
+
+# Override:
+export OPENCLAW_HOME=/custom/openclaw/path
+```
+
+### OPENCLAW_STATE_DIR
+
+Override the OpenClaw state directory, where session transcripts and agent state are stored.
+
+```bash
+# Default (auto-discovered):
+# ~/.openclaw/agents/<agent>/sessions/
+
+# Override:
+export OPENCLAW_STATE_DIR=/custom/state/path
+```
+
+Both must be absolute paths. ClawVault validates them before use.
+
+### OPENCLAW_AGENT_ID
+
+The current agent's identifier. Used by `repair-session` to default the agent name and by `session-recap` to scope session lookups.
+
+```bash
+export OPENCLAW_AGENT_ID=clawdious
+```
+
+Defaults to `clawdious` in `repair-session` if not set.
+
+### OPENCLAW_SESSION_KEY
+
+The current session key (e.g., `agent:clawdious:main`). Recorded in checkpoint metadata by the `checkpoint` command and the OpenClaw hook.
+
+### OPENCLAW_MODEL
+
+The name of the current LLM model. Recorded in checkpoint metadata for debugging and auditing.
+
+### OPENCLAW_TOKEN_ESTIMATE / OPENCLAW_CONTEXT_TOKENS
+
+Estimated token usage for the current session. Recorded in checkpoint metadata. `OPENCLAW_CONTEXT_TOKENS` is an alias -- the `checkpoint` command checks `OPENCLAW_TOKEN_ESTIMATE` first.
+
+## Setting Variables
+
+### Shell RC (recommended)
+
+```bash
+# Add to ~/.bashrc or ~/.zshrc
+export CLAWVAULT_PATH="$HOME/.openclaw/workspace/memory"
+
+# Or use shell-init to auto-configure:
+clawvault shell-init >> ~/.bashrc
+source ~/.bashrc
+```
+
+### Per-command
+
+```bash
+CLAWVAULT_PATH=/tmp/test-vault clawvault status
+```
+
+### In OpenClaw
+
+If running as an OpenClaw agent, set variables in your gateway config or the agent's environment. The hook handler reads `CLAWVAULT_PATH` to locate the vault. OpenClaw-specific variables like `OPENCLAW_SESSION_KEY` and `OPENCLAW_AGENT_ID` are injected automatically by the runtime.

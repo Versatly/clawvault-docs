@@ -1,0 +1,61 @@
+---
+title: "store"
+description: "Low-level command to store a memory document into the vault"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+The `store` command is ClawVault's low-level storage primitive. It writes a document into the vault with explicit category, title, and content. For higher-level semantic storage, see [remember & capture](/docs/commands/remember-capture).
+
+## Usage
+
+```bash
+clawvault store [options]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-c, --category <category>` | Category | — |
+| `-t, --title <title>` | Document title | — |
+| `--content <content>` | Content body | — |
+| `-f, --file <file>` | Read content from file | — |
+| `--stdin` | Read content from stdin | false |
+| `--overwrite` | Overwrite if exists | false |
+| `--no-index` | Skip qmd index update | false (auto-updates) |
+| `--embed` | Also update qmd embeddings for vector search | false |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+
+### Available Categories
+
+`preferences`, `decisions`, `patterns`, `people`, `projects`, `goals`, `transcripts`, `inbox`
+
+## Examples
+
+```bash
+# Store inline content
+clawvault store -c decisions -t "Use PostgreSQL" --content "Chose Postgres over MySQL for JSONB support"
+
+# Store from a file
+clawvault store -c transcripts -t "standup-2026-02-13" -f ./standup-notes.md
+
+# Pipe content from stdin
+echo "Redis session store is 3x faster" | clawvault store -c lessons -t "redis-perf" --stdin
+
+# Overwrite an existing document and update embeddings
+clawvault store -c projects -t "auth-refactor" --content "Updated scope" --overwrite --embed
+```
+
+<Callout type="info">
+  `store` does not classify or interpret your content — it stores exactly what you give it. Use `clawvault remember` or `clawvault capture` if you want automatic categorization and wiki-linking.
+</Callout>
+
+## store vs remember
+
+| | `store` | `remember` |
+|---|---------|-----------|
+| Category | You specify explicitly | Inferred from type (`decision`, `lesson`, etc.) |
+| Title | You specify explicitly | You provide, auto-slugified |
+| Content | Raw, as provided | May add frontmatter and wiki-links |
+| Use case | Scripting, bulk imports, precise control | Human-friendly quick capture |

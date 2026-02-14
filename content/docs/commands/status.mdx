@@ -1,0 +1,40 @@
+---
+title: "status"
+description: "Show vault health and configuration status"
+---
+
+The `status` command provides a quick overview of your vault's health, configuration, and index state.
+
+## Usage
+
+```bash
+clawvault status [options]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--json` | Output as JSON | false |
+
+## What Status Shows
+
+- Vault location and name
+- Number of documents by category
+- Checkpoint age (time since last checkpoint)
+- qmd index status (if semantic search is configured)
+- Dirty flag state (context death detection)
+
+## Examples
+
+```bash
+# Quick health check
+clawvault status
+
+# JSON output for scripting
+clawvault status --json
+
+# Check a specific vault
+clawvault status -v ~/other-vault
+```

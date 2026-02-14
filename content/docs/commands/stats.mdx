@@ -1,0 +1,31 @@
+---
+title: "stats"
+description: "Show vault statistics including document counts and category breakdowns"
+---
+
+The `stats` command provides a statistical overview of your vault contents.
+
+## Usage
+
+```bash
+clawvault stats [options]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--json` | Output as JSON | false |
+
+## Examples
+
+```bash
+# View vault stats
+clawvault stats
+
+# JSON output for dashboards or scripts
+clawvault stats --json
+```
+
+Stats includes document counts by category, total vault size, and index health information.

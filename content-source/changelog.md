@@ -1,0 +1,282 @@
+---
+title: "Changelog"
+description: "Full release history for ClawVault — every version, every feature, every fix."
+---
+# Changelog
+
+## [2.0.0] — 2026-02-13
+
+### Added
+- **Memory Graph Index** — typed knowledge graph (`.clawvault/graph-index.json`) with wiki-link, tag, and frontmatter edges. Schema versioned with incremental rebuild.
+- **Graph-Aware Context** — `clawvault context` now blends semantic search with graph-neighbor traversal, with explain signals in JSON output.
+- **Context Profiles** — `clawvault context --profile <name>` with `default`, `planning`, `incident`, `handoff` presets for task-appropriate context injection.
+- **`clawvault compat`** — OpenClaw compatibility diagnostics. Checks hook wiring, event routing, SKILL.md, and handler safety. `--strict` mode for CI.
+- **`clawvault graph`** — Graph summary and refresh diagnostics.
+- **Doctor upgrade** — now includes OpenClaw compatibility check summary.
+- **Dashboard upgrades** — vault parser emits typed nodes, typed edges, and type statistics.
+- **Hook handler** — flexible event routing via `eventMatches()` and `normalizeEventToken()`, `--profile auto` for context queries.
+
+### Changed
+- **CLI modularized** — monolithic `clawvault.js` split into 7 command groups (`register-core`, `register-query`, `register-vault-operations`, `register-maintenance`, `register-resilience`, `register-session-lifecycle`, `register-template`).
+- **367+ tests** across core, commands, graph, dashboard, hooks, and CLI registration.
+
+## [1.11.2] - 2026-02-12
+
+### Fixed
+- **Entity-slug routing** — People/project observations now route to entity subfolders (`people/pedro/2026-02-12.md` instead of `people/2026-02-12.md`)
+- **Root-level file prevention** — Observations never create files at vault root; always route to category folders
+- **Entity name extraction** — Case-sensitive proper noun matching prevents capturing common words as entity names
+- **Dedup improvements** — Router uses normalized content + Jaccard similarity to prevent duplicate entries
+
+### Changed
+- Router `appendToCategory` now resolves entity-aware file paths for people and projects categories
+- Updated router tests to validate entity-slug subfolder structure
+
+---
+
+## [1.11.1] - 2026-02-11
+
+### Fixed
+- **Compressor priority enforcement** — Post-processes LLM output to upgrade misclassified priorities (decisions→🔴, preferences→🟡)
+- **Temporal decay in reflector** — 🟢 observations older than 7 days auto-pruned; 🔴 always kept
+- **Exec summary in wake** — Wake command now shows richer context with observation summaries
+- **Dedup normalization** — Strips timestamps, wiki-links, and whitespace before comparing for duplicates
+
+---
+
+## [1.11.0] - 2026-02-11
+
+### Removed
+- **Cloud sync** — Removed entire `src/cloud/` module (client, config, queue, service, types)
+- **`clawvault cloud` command** — Removed cloud sync CLI command
+- All cloud-related dependencies and imports stripped
+
+### Philosophy
+- ClawVault is now fully local-first. Zero network calls except optional LLM API for observe compression.
+- Local folder sync (`vault.sync()`) remains for Obsidian cross-platform workflows.
+
+---
+
+## [1.10.2] - 2026-02-10
+
+### Added
+- Auto wiki-links in routed observations for Obsidian graph view
+
+---
+
+## [1.10.1] - 2026-02-10
+
+### Fixed
+- Search docs: clarified memory_search vs clawvault search scope
+
+---
+
+## [1.10.0] - 2026-02-10
+
+### Changed
+- Clean repo: removed internal docs, SEO bloat, dist from git
+
+---
+
+## [1.9.6] - 2026-02-10
+
+### Fixed
+- Stress test fixes: priority calibration, budget enforcement, scoring, watch reliability, wake verbosity
+
+---
+
+## [1.9.5] - 2026-02-10
+
+### Fixed
+- Stronger decision detection in compressor
+
+---
+
+## [1.9.4] - 2026-02-10
+
+### Fixed
+- Enforce priority rules on LLM output, fix people routing patterns
+
+---
+
+## [1.9.3] - 2026-02-10
+
+### Fixed
+- Watch, dedup, budget, classification, people routing fixes
+
+---
+
+## [1.9.2] - 2026-02-10
+
+### Added
+- Gemini support for observer compressor (in addition to Anthropic + OpenAI)
+
+---
+
+## [1.9.1] - 2026-02-10
+
+### Added
+- Auto-observe on sleep/wake
+- Context-aware token budgets for observation injection
+
+---
+
+## [1.9.0] - 2026-02-10
+
+### Added
+- **Observational memory system** — Compresses session transcripts into durable observations
+- Observer, Compressor, Reflector, Router, SessionWatcher, SessionParser modules
+- Priority system (🔴 critical, 🟡 notable, 🟢 info) with automatic classification
+- Vault routing: observations auto-categorize to decisions/, people/, lessons/, etc.
+- File watcher mode for real-time session observation
+- One-shot compression via `--compress` flag
+
+---
+
+## [1.8.2] - 2026-02-09
+
+### Fixed
+- **Path validation** - OPENCLAW_HOME and OPENCLAW_STATE_DIR now properly validated (trimmed, require absolute paths)
+- **Error handling** - `listAgents()` now wrapped in try/catch to handle malformed filesystem state gracefully
+
+---
+
+## [1.8.1] - 2026-02-09
+
+### Added
+- **OPENCLAW_HOME support** - Session utilities now respect the `OPENCLAW_HOME` environment variable for custom OpenClaw installations
+- **OPENCLAW_STATE_DIR support** - Also supports `OPENCLAW_STATE_DIR` for overriding state/agent paths
+
+### Compatibility
+- Verified compatibility with OpenClaw v2026.2.9
+- Hook handler confirmed working after OpenClaw's tsdown migration fix (#9295)
+- Session transcript reading benefits from OpenClaw's parentId chain fix (#12283)
+
+---
+
+## [1.5.1] - 2026-02-06
+
+### Security
+- **Fixed shell injection vulnerability** in hooks/clawvault/handler.js
+  - Changed from `execSync` (with shell) to `execFileSync` (no shell)
+  - All arguments passed as array, never interpolated into shell string
+  - Vault path validation: must be absolute, exist, and contain .clawvault.json
+
+- **Fixed prompt injection vulnerability**
+  - Checkpoint recovery data now sanitized before injection
+  - Control characters stripped, markdown escaped, length limited
+  - Session keys and command sources sanitized with strict allowlist
+
+- **Removed direct GitHub dependency** for qmd
+  - qmd moved to optional peer dependency
+  - Users install separately: `npm install -g github:tobi/qmd`
+  - ClawVault gracefully handles missing qmd
+
+### Changed
+- Hook now validates vault paths before use
+- Error messages in hooks are now generic (no sensitive data leaked)
+
+---
+
+## [1.5.0] - 2026-02-06
+
+### Added
+- **`clawvault repair-session`** - Repair corrupted OpenClaw session transcripts
+  - Detects orphaned `tool_result` blocks that reference non-existent `tool_use` IDs
+  - Identifies aborted tool calls with partial JSON
+  - Automatically relinks parent chain after removals
+  - Creates backup before repair (configurable with `--no-backup`)
+  - Dry-run mode with `--dry-run` to preview repairs
+  - List sessions with `--list` flag
+  - JSON output with `--json` for scripting
+  
+  **Problem solved:** When the Anthropic API rejects with "unexpected tool_use_id found in tool_result blocks", this command fixes the transcript so the session can continue without losing context.
+  
+  ```bash
+  # Analyze without changing
+  clawvault repair-session --dry-run
+  
+  # Repair current main session
+  clawvault repair-session
+  
+  # Repair specific session
+  clawvault repair-session --session <id> --agent <agent-id>
+  ```
+
+- **Session utilities** (`src/lib/session-utils.ts`)
+  - `listAgents()` - Find all agents in ~/.openclaw/agents/
+  - `findMainSession()` - Get current session for an agent
+  - `findSessionById()` - Look up specific session
+  - `getSessionFilePath()`, `backupSession()` - File helpers
+
+### Tests
+- Added 13 tests for session repair functionality
+  - Transcript parsing
+  - Tool use extraction from assistant messages
+  - Corruption detection (aborted + orphaned)
+  - Parent chain relinking
+  - Dry-run mode
+  - Backup creation
+
+---
+
+## [1.4.2] - 2026-02-06
+
+### Added
+- **OpenClaw Hook Integration** - Automatic context death resilience
+  - `gateway:startup` event: Detects if previous session died, injects alert into first agent turn
+  - `command:new` event: Auto-checkpoints before session reset
+  - Install: `openclaw hooks install clawvault && openclaw hooks enable clawvault`
+  - Hook ships with npm package via `openclaw.hooks` field in package.json
+
+- **`clawvault wake`** - All-in-one session start command
+  - Combines: `recover --clear` + `recap` + summary
+  - Shows context death status, recent handoffs, what you were working on
+  - Perfect for session startup ritual
+
+- **`clawvault sleep <summary>`** - All-in-one session end command
+  - Creates handoff with: --next, --blocked, --decisions, --questions, --feeling
+  - Clears death flag
+  - Optional git commit prompt (--no-git to skip)
+  - Captures rich context before ending session
+
+### Fixed
+- Fixed readline import in sleep command (was using `readline/promises` which bundlers couldn't resolve)
+
+### Changed
+- Documentation updated for hook-first approach
+- AGENTS.md simplified - hook handles basics, manual commands for rich context
+- SKILL.md updated with OpenClaw Integration section
+
+---
+
+## [1.4.1] - 2026-02-05
+
+### Added
+- `clawvault doctor` - Vault health diagnostics
+- `clawvault shell-init` - Shell integration setup
+
+---
+
+## [1.4.0] - 2026-02-04
+
+### Added
+- **qmd integration** - Semantic search via local embeddings
+- `clawvault setup` - Auto-discovers OpenClaw memory folder
+- `clawvault status` - Vault health, checkpoint age, qmd index
+- `clawvault template` - List/create/add with 7 built-in templates
+- `clawvault link --backlinks` - See what links to a file
+- `clawvault link --orphans` - Find broken wiki-links
+
+### Changed
+- qmd is now required for semantic search functionality
+
+---
+
+## [1.3.x] - Earlier
+
+- Initial release with core functionality
+- Checkpoint/recover for context death resilience
+- Handoff/recap for session continuity
+- Wiki-linking and entity management
+- Structured memory categories

@@ -1,0 +1,11 @@
+{
+  "pages": [
+    "getting-started",
+    "concepts",
+    "commands",
+    "guides",
+    "integrations",
+    "advanced",
+    "changelog"
+  ]
+}
