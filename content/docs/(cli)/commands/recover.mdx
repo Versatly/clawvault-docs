@@ -15,6 +15,8 @@ clawvault recover [options]
 
 | Flag | Description | Default |
 |------|-------------|---------|
+| `--check` | Inspect dirty death flag without performing recovery | false |
+| `--list` | List recent checkpoints and recovery-relevant history | false |
 | `--clear` | Clear the dirty death flag after recovery | false |
 | `--verbose` | Show full checkpoint and handoff content | false |
 | `-v, --vault <path>` | Vault path | Nearest vault |
@@ -26,6 +28,12 @@ clawvault recover [options]
 # Check for context death
 clawvault recover
 
+# Non-destructive diagnostics only
+clawvault recover --check
+
+# List checkpoint history
+clawvault recover --list
+
 # Recover and clear the dirty flag
 clawvault recover --clear
 
@@ -35,4 +43,4 @@ clawvault recover --verbose --json
 
 ## Details
 
-Recovery inspects the dirty-death flag and latest checkpoint metadata, then looks for the newest handoff in `handoffs/`. In normal workflows, `recover` runs automatically as part of `wake`; direct use is most helpful for debugging or automation.
+Recovery inspects the dirty-death flag and latest checkpoint metadata, then looks for the newest handoff in `handoffs/`. `--check` is useful for diagnostics in scripts where you only need the flag state, while `--list` helps inspect checkpoint lineage before choosing a recovery action. In normal workflows, `recover` runs automatically as part of `wake`; direct use is most helpful for debugging or automation.

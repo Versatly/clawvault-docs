@@ -1,0 +1,56 @@
+---
+title: "route"
+description: "Manage custom entity routing rules used by the observer"
+---
+
+The `route` command lets you manage custom routing rules for observer output.
+
+Custom routes are evaluated **before** built-in category/entity routing patterns, so explicit rules can override default behavior when needed.
+
+## Usage
+
+```bash
+clawvault route add <pattern> <target>
+clawvault route remove <pattern>
+clawvault route list
+clawvault route test <text>
+```
+
+## Commands
+
+### `route add <pattern> <target>`
+
+Adds a custom route rule.
+
+```bash
+clawvault route add "acme corp" "projects/acme.md"
+clawvault route add "pedro santos" "people/pedro.md"
+```
+
+### `route remove <pattern>`
+
+Removes a custom route rule by pattern.
+
+```bash
+clawvault route remove "acme corp"
+```
+
+### `route list`
+
+Lists all custom routes currently configured.
+
+```bash
+clawvault route list
+```
+
+### `route test <text>`
+
+Tests sample text against current routing rules.
+
+```bash
+clawvault route test "Follow up with Pedro Santos on Acme launch readiness."
+```
+
+## Storage
+
+Route rules are stored in `.clawvault.json` under the `routes` array. Because routes are configuration-backed, they can be tracked in git and shared across environments.

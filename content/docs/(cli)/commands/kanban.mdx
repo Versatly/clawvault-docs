@@ -1,0 +1,64 @@
+---
+title: "kanban"
+description: "Sync ClawVault tasks with Obsidian Kanban boards"
+---
+
+The `kanban` command keeps task frontmatter and an Obsidian Kanban board in sync.
+
+## Usage
+
+```bash
+clawvault kanban sync [options]
+clawvault kanban import
+```
+
+## `kanban sync`
+
+Generates a Kanban board markdown file from current task state.
+
+```bash
+clawvault kanban sync [options]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--output <path>` | Output board file path | `Board.md` |
+| `--group-by <mode>` | Lane grouping (`status`, `priority`, `project`, `owner`) | `status` |
+| `--filter-project <project>` | Include only tasks from one project | all |
+| `--filter-owner <owner>` | Include only tasks for one owner | all |
+| `--include-done` | Include completed tasks/lane content | false |
+
+### Examples
+
+```bash
+# Default status board
+clawvault kanban sync
+
+# Group by owner into a custom board path
+clawvault kanban sync --group-by owner --output "boards/Team Board.md"
+
+# Project-specific board
+clawvault kanban sync --filter-project api
+```
+
+## `kanban import`
+
+Reads an existing Kanban board markdown file and applies lane-driven updates back to task files.
+
+```bash
+clawvault kanban import
+```
+
+During import, ClawVault detects lane changes and updates task frontmatter fields such as `status`, `priority`, `project`, and `owner`.
+
+## Output Format
+
+`kanban sync` emits markdown compatible with **Obsidian Kanban plugin v2**.
+
+## Recommended Workflow
+
+1. Generate or refresh a board with `clawvault kanban sync`.
+2. Edit and drag cards in `Board.md` inside Obsidian Kanban.
+3. Run `clawvault kanban import` to write those board changes back into task frontmatter files.

@@ -1,0 +1,72 @@
+---
+title: "config"
+description: "Read and update runtime ClawVault configuration in .clawvault.json"
+---
+
+The `config` command manages runtime configuration values stored in your vault's `.clawvault.json` file.
+
+## Usage
+
+```bash
+clawvault config get <key>
+clawvault config set <key> <value>
+clawvault config list
+clawvault config reset
+```
+
+## Commands
+
+### `config get <key>`
+
+Reads a single config value using dot-notation paths.
+
+```bash
+# Top-level key
+clawvault config get name
+
+# Nested key
+clawvault config get context.maxResults
+```
+
+### `config set <key> <value>`
+
+Writes a config value by key path.
+
+```bash
+clawvault config set theme neural
+clawvault config set context.defaultProfile planning
+clawvault config set graph.maxHops 3
+```
+
+### `config list`
+
+Prints all current config values in a table for quick inspection.
+
+```bash
+clawvault config list
+```
+
+### `config reset`
+
+Resets all config values back to ClawVault defaults.
+
+```bash
+clawvault config reset
+```
+
+## Supported Keys
+
+| Key | Description |
+|-----|-------------|
+| `name` | Vault display name |
+| `categories` | Enabled category list |
+| `theme` | Vault theme preset |
+| `observe.model` | Observer model identifier |
+| `observe.provider` | Observer provider |
+| `context.maxResults` | Maximum context memories returned |
+| `context.defaultProfile` | Default context profile |
+| `graph.maxHops` | Max traversal hops for graph-aware retrieval |
+
+## Details
+
+Configuration is persisted in `.clawvault.json` at the vault root, so changes made with `config set` are durable and can be versioned with git.
