@@ -77,26 +77,82 @@ clawvault --version
 Create your first vault with qmd integration:
 
 ```bash
-# Initialize with qmd collection
 clawvault init ~/memory --qmd-collection my-memory
-
-# Or specify a custom path 
-clawvault init /path/to/vault --qmd-collection vault-name
 ```
 
-This creates:
+#### Init Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--qmd-collection <name>` | Register with qmd for semantic search | None |
+| `--theme <name>` | Apply a vault theme (`neural`) | None |
+| `--canvas <template>` | Generate an initial canvas (`brain`, `project-board`) | None |
+| `--minimal` | Memory categories only, no tasks or bases | `false` |
+| `--no-tasks` | Skip task system setup | `false` |
+| `--no-bases` | Skip Obsidian Bases views | `false` |
+| `--categories <list>` | Comma-separated custom categories | All defaults |
+
+#### Example Flows
+
+**Full setup for an OpenClaw agent:**
+```bash
+clawvault init ~/memory \
+  --qmd-collection agent-memory \
+  --theme neural \
+  --canvas brain
+```
+
+**Minimal memory-only vault:**
+```bash
+clawvault init ~/memory --minimal --qmd-collection my-notes
+```
+
+**Custom categories for a specific use case:**
+```bash
+clawvault init ~/memory \
+  --categories "research,experiments,datasets,papers" \
+  --no-tasks --no-bases
+```
+
+#### Directory Structure (v2.4+)
+
+A full init creates:
 ```
 ~/memory/
-├── .clawvault.json # Config file
-├── .clawvault/ # Internal state
-│ └── graph-index.json # Memory graph index
-├── decisions/ # Key choices
-├── lessons/ # Things learned
-├── people/ # Relationships
-├── projects/ # Active work
-├── commitments/ # Promises & deadlines
-├── inbox/ # Quick captures
-└── handoffs/ # Session continuity
+├── .clawvault.json          # Config file
+├── .clawvault/              # Internal state
+│   └── graph-index.json     # Memory graph index
+├── ledger/                  # Transition audit logs
+│   └── task-transitions.jsonl
+├── tasks/                   # Active task files
+├── backlog/                 # Future work items
+├── decisions/               # Key choices
+├── lessons/                 # Things learned
+├── people/                  # Relationships
+├── projects/                # Active work
+├── commitments/             # Promises & deadlines
+├── inbox/                   # Quick captures
+├── handoffs/                # Session continuity
+├── all-tasks.base           # Obsidian Bases: all tasks
+├── blocked.base             # Obsidian Bases: blocked tasks
+├── by-project.base          # Obsidian Bases: by project
+├── by-owner.base            # Obsidian Bases: by owner
+└── backlog.base             # Obsidian Bases: backlog
+```
+
+#### Setup for Existing Vaults
+
+If you already have a folder you want to turn into a ClawVault vault (or upgrade an older vault):
+
+```bash
+# Add ClawVault structure to an existing folder
+clawvault setup --theme neural --canvas brain
+
+# Force re-setup (overwrites config)
+clawvault setup --force
+
+# Add just a canvas to an existing vault
+clawvault setup --canvas project-board
 ```
 
 ### 2. Environment Setup (Optional)
@@ -116,7 +172,7 @@ eval "$(clawvault shell-init)"
 
 This adds helpful aliases:
 - `cv` → `clawvault`
-- `wake` → `clawvault wake` 
+- `wake` → `clawvault wake`
 - `sleep` → `clawvault sleep`
 - `capture` → `clawvault capture`
 
@@ -130,11 +186,13 @@ clawvault doctor
 
 You should see:
 ```
- ClawVault found: ~/memory
- qmd available: v1.2.3
- Collection registered: my-memory
- Graph index: healthy
- OpenClaw hooks: enabled (if using OpenClaw)
+✓ ClawVault found: ~/memory
+✓ qmd available: v1.2.3
+✓ Collection registered: my-memory
+✓ Graph index: healthy
+✓ Task system: active
+✓ Bases views: 5 files
+✓ OpenClaw hooks: enabled (if using OpenClaw)
 ```
 
 ## Configuration

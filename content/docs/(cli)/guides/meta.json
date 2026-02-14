@@ -1,5 +1,5 @@
 {
   "title": "Guides",
   "icon": "BookMarked",
-  "pages": ["automation", "multi-agent", "obsidian", "git-workflows"]
+  "pages": ["automation", "multi-agent", "obsidian", "git-workflows", "task-management", "dashboards"]
 }

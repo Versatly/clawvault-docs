@@ -1,0 +1,198 @@
+---
+title: "Task Management"
+description: "File-based, frontmatter-driven task management that works with Obsidian and multi-agent workflows."
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+# Task Management
+
+ClawVault's task system is **file-based and frontmatter-driven**. Every task is a Markdown file with YAML frontmatter, stored in your vault's `tasks/` directory. This means tasks are searchable, version-controlled, and fully compatible with Obsidian.
+
+## Creating Tasks
+
+```bash
+clawvault task add "Implement auth flow" --project api --owner clawdious --priority high
+```
+
+This creates a Markdown file in `tasks/` with frontmatter:
+
+```yaml
+---
+id: task-a1b2c3
+title: Implement auth flow
+status: todo
+project: api
+owner: clawdious
+priority: high
+created: 2026-02-14T13:00:00Z
+---
+```
+
+### Options
+
+| Flag | Description | Example |
+|------|-------------|---------|
+| `--project` | Project grouping | `--project api` |
+| `--owner` | Assigned agent or person | `--owner clawdious` |
+| `--priority` | `low`, `medium`, `high`, `critical` | `--priority high` |
+| `--tags` | Comma-separated tags | `--tags "backend,urgent"` |
+
+## Listing & Filtering
+
+```bash
+# All tasks
+clawvault task list
+
+# Filter by project
+clawvault task list --project api
+
+# Filter by owner and status
+clawvault task list --owner clawdious --status in-progress
+
+# Combine filters
+clawvault task list --project api --priority high --status todo
+```
+
+Output shows a compact table with ID, title, status, owner, and priority.
+
+## Updating Status
+
+Every status change requires a reason and supports optional metadata:
+
+```bash
+clawvault task update a1b2c3 --status in-progress --reason "starting work" --confidence 0.9
+```
+
+### Available Statuses
+
+`todo` → `in-progress` → `review` → `done`
+
+You can also set `blocked` from any active status:
+
+```bash
+clawvault task update a1b2c3 --status blocked --reason "waiting on API keys"
+```
+
+### Completing Tasks
+
+The `done` shorthand completes a task in one step:
+
+```bash
+clawvault task done a1b2c3 --reason "shipped to production"
+```
+
+## Backlog
+
+The backlog is a separate staging area for ideas and future work:
+
+```bash
+# Add to backlog
+clawvault backlog add "Refactor logging system" --project infra
+
+# List backlog items
+clawvault backlog list
+clawvault backlog list --project infra
+
+# Promote to active task
+clawvault backlog promote b4c5d6 --owner clawdious --priority medium
+```
+
+Promoting a backlog item creates a proper task file in `tasks/` and removes it from the backlog.
+
+## Blocked Task Triage
+
+Quickly see what's stuck:
+
+```bash
+# All blocked tasks
+clawvault blocked
+
+# Only escalated blocked tasks
+clawvault blocked --escalated
+```
+
+<Callout type="warn">
+Escalated tasks have been blocked 3 or more times. These need human attention — review them daily.
+</Callout>
+
+## Transition Ledger
+
+Every status change is logged to a JSONL file in `ledger/task-transitions.jsonl`. This gives you a complete audit trail:
+
+```jsonl
+{"id":"a1b2c3","from":"todo","to":"in-progress","reason":"starting work","agent":"clawdious","confidence":0.9,"ts":"2026-02-14T13:05:00Z"}
+{"id":"a1b2c3","from":"in-progress","to":"done","reason":"shipped","agent":"clawdious","ts":"2026-02-14T15:30:00Z"}
+```
+
+Query transitions:
+
+```bash
+# All transitions for a task
+clawvault task transitions a1b2c3
+
+# All transitions by an agent
+clawvault task transitions --agent clawdious
+
+# Transitions in a time range
+clawvault task transitions --since 2026-02-01
+```
+
+### Auto-Escalation
+
+When a task moves to `blocked` **3 or more times**, ClawVault automatically sets an escalation flag in the task's frontmatter. These show up in `clawvault blocked --escalated` and in the Obsidian Bases `blocked.base` view.
+
+### Regression Detection
+
+Backward transitions (e.g., `review` → `in-progress`, `done` → `todo`) are flagged in the ledger with `"regression": true`. This helps identify tasks that keep bouncing back and may need a different approach.
+
+## Obsidian Integration
+
+ClawVault generates [Obsidian Bases](https://obsidian.md/blog/bases/) views for visual task management:
+
+| Base File | View |
+|-----------|------|
+| `all-tasks.base` | Every task, sortable by status/priority/date |
+| `blocked.base` | Blocked tasks with escalation indicators |
+| `by-project.base` | Tasks grouped by project |
+| `by-owner.base` | Tasks grouped by owner |
+| `backlog.base` | Backlog items with priority sorting |
+
+These are generated during `clawvault init` and `clawvault setup`. Open them in Obsidian for spreadsheet-like views of your tasks.
+
+You can also use the **Kanban plugin** in Obsidian to get a drag-and-drop board view of your tasks, organized by status columns.
+
+## Multi-Agent Workflows
+
+ClawVault is built for environments where multiple agents (and humans) work on the same vault:
+
+- **Owner tracking**: Every task has an `--owner` field. Filter by owner to see each agent's workload.
+- **Agent transitions**: The ledger records which agent made each status change, so you can trace who did what.
+- **Cost metadata**: Attach `--cost` to transitions to track resource usage per task.
+- **Confidence scores**: Use `--confidence` (0.0–1.0) to signal how certain an agent is about a transition.
+
+```bash
+# See what agent-2 is working on
+clawvault task list --owner agent-2 --status in-progress
+
+# Check all transitions by a specific agent
+clawvault task transitions --agent agent-2
+```
+
+## Best Practices
+
+<Callout type="info">
+**Always use `--reason`**. Every status change should explain why. Your future self (and other agents) will thank you.
+</Callout>
+
+- **Checkpoint before heavy work**: Run `clawvault checkpoint` before starting a complex task so you can recover if something goes wrong.
+- **Review escalated tasks daily**: `clawvault blocked --escalated` surfaces tasks that keep getting stuck. These usually need a human decision.
+- **Use backlog for ideas**: Don't create active tasks for "someday" items. Put them in the backlog and promote when ready.
+- **Track confidence**: When an agent isn't sure about a result, `--confidence 0.6` signals that a review is warranted.
+
+## Related
+
+- [Task command reference](/commands/task)
+- [Backlog command reference](/commands/backlog)
+- [Multi-Agent Guide](./multi-agent)
+- [Obsidian Integration](./obsidian)
