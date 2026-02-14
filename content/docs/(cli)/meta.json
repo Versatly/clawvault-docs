@@ -1,4 +1,7 @@
 {
+  "title": "CLI",
+  "description": "ClawVault CLI documentation",
+  "root": true,
   "pages": [
     "---Introduction---",
     "getting-started",

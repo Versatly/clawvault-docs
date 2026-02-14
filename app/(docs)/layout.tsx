@@ -14,20 +14,6 @@ export default function RootDocsLayout({
         title: 'ClawVault',
         url: '/',
       }}
-      sidebar={{
-        tabs: [
-          {
-            title: 'CLI',
-            description: 'ClawVault CLI documentation',
-            url: '/getting-started/introduction',
-          },
-          {
-            title: 'Obsidian Plugin',
-            description: 'Visual memory management for Obsidian',
-            url: '/obsidian-plugin',
-          },
-        ],
-      }}
       links={[
         {
           text: 'GitHub',
