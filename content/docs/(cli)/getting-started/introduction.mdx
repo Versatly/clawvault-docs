@@ -29,7 +29,7 @@ ClawVault treats agent memory the way a knowledge worker treats their notes: typ
 
 Every piece of information has a **category** that determines where it lives and how it is retrieved. A decision goes in `decisions/`, a person goes in `people/`, a lesson goes in `lessons/`. This means "show me all decisions" actually works -- because decisions were stored as decisions, not buried in a wall of text.
 
-The [memory type taxonomy](/docs/concepts/memory-types) provides eight types based on Benthic's classification: fact, feeling, decision, lesson, commitment, preference, relationship, and project.
+The [memory type taxonomy](/concepts/memory-types) provides eight types based on Benthic's classification: fact, feeling, decision, lesson, commitment, preference, relationship, and project.
 
 ### Local Search
 
@@ -47,7 +47,7 @@ clawvault vsearch "what database should we use"
 
 Wiki-links (`[[entity]]`) in document content and frontmatter relation fields (`related`, `depends_on`, `blocks`, `people`) automatically build a typed knowledge graph. The graph index tracks nodes, edges, and degree centrality, enabling queries like "what is connected to this project" or "which references are unresolved."
 
-See [Vault Structure](/docs/advanced/vault-structure) for details on the graph index format.
+See [Vault Structure](/advanced/vault-structure) for details on the graph index format.
 
 ### Session Continuity
 
@@ -96,7 +96,7 @@ ClawVault consists of four components, two of which are optional:
 1. **ClawVault CLI** -- the primary interface. Commands for storing, searching, sleeping, waking, observing, and managing vault content.
 2. **Vault** -- a directory of Markdown files with `.clawvault.json` config. Plain text, human-readable, Git-friendly.
 3. **qmd** (optional) -- provides BM25 and vector search. Without it, ClawVault cannot initialize or search. Install via `bun install -g github:tobi/qmd`.
-4. **OpenClaw Hook** (optional) -- automatic integration with the OpenClaw agent framework. Provides context death detection on startup, auto-checkpoint before `/new`, and memory injection on session start. See [Hook Setup](/docs/openclaw/hook-setup).
+4. **OpenClaw Hook** (optional) -- automatic integration with the OpenClaw agent framework. Provides context death detection on startup, auto-checkpoint before `/new`, and memory injection on session start. See [Hook Setup](/integrations/openclaw/hook-setup).
 
 ## Who ClawVault Is For
 
@@ -121,8 +121,8 @@ ClawVault trades the simplicity of a single file for structured categories that 
 
 ## Next Steps
 
-- [Installation](/docs/getting-started/installation) -- install ClawVault and qmd
-- [Quick Start](/docs/getting-started/quick-start) -- hands-on walkthrough
-- [Hook Setup](/docs/openclaw/hook-setup) -- automatic OpenClaw integration
-- [Vault Structure](/docs/advanced/vault-structure) -- understand the file layout
-- [Environment Variables](/docs/advanced/environment-variables) -- configuration reference
+- [Installation](/getting-started/installation) -- install ClawVault and qmd
+- [Quick Start](/getting-started/quick-start) -- hands-on walkthrough
+- [Hook Setup](/integrations/openclaw/hook-setup) -- automatic OpenClaw integration
+- [Vault Structure](/advanced/vault-structure) -- understand the file layout
+- [Environment Variables](/advanced/environment-variables) -- configuration reference
