@@ -8,6 +8,17 @@ description: Release history for ClawVault — every version, every feature, eve
   Subscribe via RSS
 </a>
 
+## v2.3.1 — February 14, 2026
+
+### Added
+- **WebDAV server** — `clawvault serve` now handles WebDAV protocol on `/webdav/` path prefix. Enables Obsidian mobile sync via the [Remotely Save](https://github.com/remotely-save/remotely-save) plugin over Tailscale. Supports GET, PUT, DELETE, MKCOL, PROPFIND, OPTIONS, HEAD, MOVE, and COPY operations.
+
+### Improved
+- Tailscale server module refactored for WebDAV route integration.
+- 51 new WebDAV tests (553 total passing).
+
+---
+
 ## v2.3.0 — February 14, 2026
 
 ### Added

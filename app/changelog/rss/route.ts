@@ -1,6 +1,9 @@
 const baseUrl = 'https://docs.clawvault.dev';
 
 const releases = [
+  { version: '2.3.1', date: '2026-02-14', summary: 'WebDAV server on clawvault serve — enables Obsidian mobile sync via Remotely Save plugin over Tailscale.' },
+  { version: '2.3.0', date: '2026-02-14', summary: 'Task tracking primitives (task/backlog/blocked), Canvas dashboard generator, vault activity stats, Tailscale networking (serve/peers/net-search), 16 default categories, ledger structure in init.' },
+  { version: '2.2.1', date: '2026-02-14', summary: 'Init experience upgrade — 16 categories, ledger structure pre-created, welcome note, improved CLI output.' },
   { version: '2.2.0', date: '2026-02-14', summary: 'Ledger-first observer, scored importance model replacing emoji priorities, reflection engine, replay from ChatGPT/Claude/OpenCode exports, archive, rebuild, migrate-observations, graph guardrails with --max-hops.' },
   { version: '2.1.2', date: '2026-02-13', summary: 'Observation compressor now captures business milestones — client demos, pricing decisions, strategy pivots, contracts, and proposals treated as first-class project events.' },
   { version: '2.1.1', date: '2026-02-13', summary: 'Compressor priority rules improved — version releases, PR merges, and shipped features enforced as critical observations.' },
