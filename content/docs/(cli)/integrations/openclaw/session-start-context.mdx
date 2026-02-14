@@ -1,6 +1,6 @@
 ---
 title: "Session Start Context Injection"
-description: "Automatic context injection at session start using session:start events and --profile auto for intelligent memory retrieval."
+description: "Planned automatic context injection at session start using session:start events and --profile auto for intelligent memory retrieval."
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
@@ -8,17 +8,22 @@ import { Callout } from "fumadocs-ui/components/callout";
 
 # Session Start Context Injection
 
-The ClawVault hook automatically injects relevant context when new OpenClaw sessions start, giving agents immediate access to important background information.
+<Callout type="warn">
+**Forward-compatible feature.** The `session:start` event is not yet implemented in OpenClaw. The hook handler includes a ready-made handler that will activate automatically when OpenClaw adds this event. The design below describes intended behavior.
 
-## How It Works
+For **current** session context, use `clawvault wake` manually or rely on the `gateway:startup` hook for context death detection.
+</Callout>
 
-When OpenClaw starts a new session:
+When OpenClaw adds `session:start`, the ClawVault hook will automatically inject relevant context at the beginning of new sessions.
 
-1. **Event Trigger:** OpenClaw fires a `session:start` event
-2. **Context Analysis:** Hook analyzes current situation and available memories
-3. **Profile Selection:** Determines appropriate context profile (`auto`, `planning`, `incident`, etc.)
-4. **Memory Retrieval:** Retrieves relevant memories using graph-aware search
-5. **Context Injection:** Injects formatted context into session start
+## Planned Behavior
+
+When OpenClaw fires a `session:start` event, the hook will:
+
+1. **Context Analysis:** Analyze current situation and available memories
+2. **Profile Selection:** Determine appropriate context profile (`auto`, `planning`, `incident`, etc.)
+3. **Memory Retrieval:** Retrieve relevant memories using graph-aware search
+4. **Context Injection:** Inject formatted context into session start
 
 ## Profile Auto Selection
 
@@ -124,40 +129,23 @@ Injected context follows a consistent, parseable format:
 *Context generated: 2024-01-15 15:30:42 | Profile: handoff | Memories: 6*
 ```
 
-## Configuration Options
+## Configuration
 
-### Context Injection Settings
-```bash
-# Enable/disable context injection
-clawvault config set context_injection_enabled true
+<Callout type="info">
+Context injection is controlled by hardcoded constants in the hook handler (`handler.js`). A `clawvault config` command for runtime tuning is planned for a future release.
+</Callout>
 
-# Control injection detail level 
-clawvault config set context_injection_detail standard # minimal, standard, detailed
+Current tuning constants in `handler.js`:
 
-# Set memory count limits
-clawvault config set context_max_memories 8
-```
+| Constant | Value | Purpose |
+|----------|-------|---------|
+| `MAX_CONTEXT_RESULTS` | 4 | Max vault memories injected |
+| `MAX_CONTEXT_PROMPT_LENGTH` | 500 | Max chars of user prompt sent to search |
+| `MAX_CONTEXT_SNIPPET_LENGTH` | 220 | Max chars per memory snippet |
+| `MAX_RECAP_RESULTS` | 6 | Max session recap messages |
+| `MAX_RECAP_SNIPPET_LENGTH` | 220 | Max chars per recap message |
 
-### Profile Selection Tuning
-```bash
-# Handoff threshold (hours since last session)
-clawvault config set handoff_threshold_hours 8
-
-# Incident detection sensitivity
-clawvault config set incident_detection_sensitivity medium # low, medium, high
-
-# Default profile fallback
-clawvault config set default_context_profile default
-```
-
-### Performance Controls
-```bash
-# Max time for context generation
-clawvault config set context_injection_timeout 3000 # 3 seconds
-
-# Disable context for very large vaults
-clawvault config set skip_context_vault_size_mb 500
-```
+To adjust, edit the constants directly in your hook's `handler.js`.
 
 ## Memory Selection Algorithm
 
@@ -231,74 +219,37 @@ Context: Goals + project status + strategic decisions
 
 **Diagnosis:**
 ```bash
-# Check session:start event handling
-clawvault compat | grep session:start
-
-# Verify context injection enabled
-clawvault config get context_injection_enabled
+# Check hook registration
+openclaw hooks list
 
 # Test context generation manually
 clawvault context --profile auto "session start"
-```
-
-**Solutions:**
-```bash
-# Enable injection if disabled
-clawvault config set context_injection_enabled true
-
-# Reinstall hook if event handling broken
-openclaw hooks install clawvault
 
 # Check vault accessibility
 clawvault doctor
 ```
 
-### Wrong Profile Selection
-
-**Symptoms:**
-- Gets incident profile during normal work
-- Gets default profile during crises
-- Profile selection seems random
-
-**Diagnosis:**
-```bash
-# Test profile selection logic
-clawvault context --explain --profile auto "test"
-
-# Check profile configuration
-clawvault config get incident_detection_sensitivity
-```
-
 **Solutions:**
 ```bash
-# Adjust detection sensitivity
-clawvault config set incident_detection_sensitivity low
+# Reinstall hook
+clawhub install clawvault
 
-# Override with specific profile
-clawvault config set default_context_profile planning
+# Use wake command as workaround
+clawvault wake
+```
 
-# Manual profile testing
+### Wrong Profile Selection
+
+Test profile selection manually:
+```bash
 clawvault context --profile incident "production issue"
+clawvault context --profile planning "roadmap review"
+clawvault context --profile handoff "resuming work"
 ```
 
 ### Context Generation Too Slow
 
-**Symptoms:**
-- Session start delayed significantly 
-- Timeout errors in logs
-- Context appears incomplete
-
-**Solutions:**
-```bash
-# Reduce timeout
-clawvault config set context_injection_timeout 2000
-
-# Limit memory count
-clawvault config set context_max_memories 5
-
-# Use minimal detail level
-clawvault config set context_injection_detail minimal
-```
+Edit `MAX_CONTEXT_RESULTS` and `MAX_RECAP_RESULTS` constants in `handler.js` to reduce injection size.
 
 ## Manual Context Injection
 
@@ -319,13 +270,10 @@ clawvault context --profile incident "production problem"
 clawvault context --profile handoff "resuming work"
 ```
 
-### Bypass Hook for Testing
+### Test Without Hook
 ```bash
-# Disable automatic injection temporarily
-clawvault config set context_injection_enabled false
-
-# Test manual injection
-clawvault wake # includes context retrieval
+# Use wake command directly (includes context retrieval)
+clawvault wake
 ```
 
 ## Best Practices

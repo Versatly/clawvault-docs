@@ -8,6 +8,27 @@ description: Release history for ClawVault — every version, every feature, eve
   Subscribe via RSS
 </a>
 
+## v2.4.2 — February 14, 2026
+
+### Fixed
+- **`--minimal` flag** now correctly skips tasks, bases, and graph via new `initFlags` parameter in `vault.init()` and `createVault()`.
+- **`--categories` flag** passes custom category list through to `createVault()` correctly.
+- **`--no-bases` flag** wired through `initFlags.skipBases` in `vault.init()`.
+- **Existing vault detection** — `init` now errors with "A ClawVault already exists" instead of silently overwriting.
+- **Welcome note guard** — `createWelcomeNote()` checks `this.config.categories.includes('inbox')` before writing.
+- **Bases guard** — `createBasesFiles()` only runs when `this.config.categories.includes('tasks')`.
+- All init options (`--minimal`, `--categories`, `--no-bases`, `--no-tasks`, `--no-graph`, `--canvas`, `--theme`, `--name`) fully wired in CLI registration.
+
+---
+
+## v2.4.1 — February 14, 2026
+
+### Changed
+- **README rewritten** from scratch (~6.5KB) to reflect v2.4.x features.
+- **Package metadata** updated — new description, keywords for context profiles, canvas dashboards, neural themes.
+
+---
+
 ## v2.4.0 — February 14, 2026
 
 ### Added
@@ -65,7 +86,7 @@ description: Release history for ClawVault — every version, every feature, eve
 ### Added
 - **Ledger-first observer architecture** — raw transcripts preserved in `ledger/raw/<source>/` as the canonical source of truth. Compiled observations are derived views in `ledger/observations/YYYY/MM/DD.md`.
 - **Scored importance model** — replaces emoji priorities with typed, scored format: `[type|c=confidence|i=importance]`. Types: decision, preference, fact, commitment, milestone, lesson, relationship, project.
-- **`clawvault reflect`** — promotes stable observation patterns into weekly reflections (`ledger/reflections/YYYY-WNN.md`). Runs automatically weekly via hook.
+- **`clawvault reflect`** — promotes stable observation patterns into weekly reflections (`ledger/reflections/YYYY-WNN.md`). Can be scheduled via cron or run manually.
 - **`clawvault replay`** — ingest historical exports from ChatGPT, Claude, OpenCode, or OpenClaw into the observation pipeline.
 - **`clawvault rebuild`** — regenerate compiled observations from raw ledger transcripts.
 - **`clawvault archive`** — move old observations to `ledger/archive/` (default 14 days retention).

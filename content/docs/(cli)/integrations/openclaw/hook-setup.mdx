@@ -67,7 +67,7 @@ The hook directory must contain a `handler.js` file that exports a default async
 
 ## Hook Events
 
-The hook listens on three lifecycle events. Event names are normalized and matched flexibly -- separators like `.`, `:`, and `/` are treated interchangeably.
+The hook listens on two active lifecycle events, with forward-compatible handlers for future events. Event names are normalized and matched flexibly -- separators like `.`, `:`, and `/` are treated interchangeably.
 
 ### gateway:startup
 
@@ -90,32 +90,20 @@ Fires when a user issues the `/new` command to reset the session. The hook:
 
 This prevents information loss on manual session resets.
 
-### cron.weekly
+### session:start (forward-compatible)
 
-_Added in v2.2.0_
-
-Fires on a weekly schedule. The hook:
-
-1. Runs `clawvault reflect` to generate a weekly reflection summary
-2. Stores the reflection in `ledger/reflections/YYYY-WNN.md`
-3. Surfaces patterns, recurring themes, and notable trends from the week's observations
-
-This provides automatic weekly introspection without manual intervention.
-
-### session:start
-
-Fires at the beginning of a new session, after the first user message is available. The hook:
-
-1. Extracts the session key from the event context
-2. Fetches a session recap using `clawvault session-recap` (recent conversation turns)
-3. Extracts the initial user prompt and searches the vault for relevant memories using `clawvault context`
-4. Injects both the recap and relevant memories as a system message
-
-This gives the agent immediate access to prior conversation context and relevant vault knowledge.
-
-<Callout type="info">
-The hook caps context injection at 4 memory results and 6 recap messages to avoid consuming excessive tokens.
+<Callout type="warn">
+`session:start` is not yet implemented in OpenClaw. The handler is included as forward-compatible dead code — it will activate automatically when OpenClaw adds this event.
 </Callout>
+
+When available, this event will fire at the beginning of a new session. The hook will:
+
+1. Extract the session key from the event context
+2. Fetch a session recap using `clawvault session-recap` (recent conversation turns)
+3. Extract the initial user prompt and search the vault for relevant memories using `clawvault context`
+4. Inject both the recap and relevant memories as a system message
+
+The hook caps context injection at 4 memory results and 6 recap messages to avoid consuming excessive tokens.
 
 ## Configuration
 

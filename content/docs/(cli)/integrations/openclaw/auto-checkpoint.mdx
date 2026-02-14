@@ -82,33 +82,12 @@ No context death detected
 
 ## Configuration
 
-Auto-checkpoint behavior is controlled by ClawVault settings:
+Auto-checkpoint runs automatically when the hook is installed — no configuration needed. The hook handler has a built-in 15-second timeout for subprocess calls.
 
-### Enable/Disable Auto-checkpoint
+To verify auto-checkpoint is working:
 ```bash
-# Check current status
-clawvault config get auto_checkpoint_enabled
-
-# Enable (default)
-clawvault config set auto_checkpoint_enabled true
-
-# Disable
-clawvault config set auto_checkpoint_enabled false
-```
-
-### Checkpoint Detail Level
-```bash
-# Minimal checkpoints (faster)
-clawvault config set checkpoint_detail minimal
-
-# Full checkpoints (more context, slower) 
-clawvault config set checkpoint_detail full
-```
-
-### Timeout Settings
-```bash
-# Max time to spend on auto-checkpoint (default: 5 seconds)
-clawvault config set auto_checkpoint_timeout 5000
+openclaw hooks list | grep clawvault
+clawvault compat
 ```
 
 ## Performance Characteristics
@@ -214,35 +193,14 @@ Each checkpoint includes:
 # Check hook status
 openclaw hooks list | grep clawvault
 
-# Check configuration
-clawvault config get auto_checkpoint_enabled
+# Run compatibility check
+clawvault compat
 ```
 
 **Solutions:**
 ```bash
-# Enable hook if disabled
-openclaw hooks enable clawvault
-
-# Enable auto-checkpoint if disabled
-clawvault config set auto_checkpoint_enabled true
-
-# Reinstall hook if broken
-openclaw hooks install clawvault
-```
-
-### Checkpoint Creation Too Slow
-
-**Symptoms:**
-- Noticeable delay before session reset
-- Timeout warnings in logs
-
-**Solutions:**
-```bash
-# Reduce checkpoint detail level
-clawvault config set checkpoint_detail minimal
-
-# Reduce timeout (faster but might fail more)
-clawvault config set auto_checkpoint_timeout 2000
+# Reinstall hook
+clawhub install clawvault
 
 # Check vault health
 clawvault doctor
@@ -250,26 +208,15 @@ clawvault doctor
 
 ### Missing Context After Reset
 
-**Symptoms:**
-- `clawvault wake` shows no recent activity
-- Recovery context is incomplete
-
-**Diagnosis:**
 ```bash
 # Check recent checkpoints
 clawvault recover --list
 
-# Check for checkpoint errors 
-clawvault doctor
-```
-
-**Solutions:**
-```bash
 # Manual checkpoint before important work
 clawvault checkpoint --working-on "important task"
 
-# Adjust checkpoint detail level
-clawvault config set checkpoint_detail full
+# Check vault health
+clawvault doctor
 ```
 
 ## Best Practices
@@ -290,14 +237,14 @@ clawvault config set checkpoint_detail full
 
 ## Disable Auto-checkpoint
 
-If you prefer full manual control:
+To disable auto-checkpoint, remove or rename the ClawVault hook:
 
 ```bash
-# Disable auto-checkpoint but keep other hook features
-clawvault config set auto_checkpoint_enabled false
+# Remove hook entirely
+rm -rf ~/.openclaw/hooks/clawvault
 
-# Or disable entire hook
-openclaw hooks disable clawvault
+# Or just remove the handler
+mv ~/.openclaw/hooks/clawvault/handler.js ~/.openclaw/hooks/clawvault/handler.js.disabled
 ```
 
 You can still use manual checkpoints:

@@ -153,30 +153,14 @@ export async function handle(event) {
 }
 ```
 
-## Configuration Options
+## Configuration
 
-### Detection Sensitivity
+Context death detection runs automatically with no configuration required. The behavior is controlled by the hook handler logic in `handler.js`.
+
+To verify detection is working:
 ```bash
-# Enable/disable context death detection
-clawvault config set death_detection_enabled true
-
-# Minimum session duration before tracking (default: 5 minutes)
-clawvault config set death_tracking_threshold 300
-```
-
-### Alert Behavior 
-```bash
-# Alert verbosity (minimal, standard, detailed)
-clawvault config set death_alert_level standard
-
-# Auto-clear flag without agent interaction
-clawvault config set auto_clear_death_flag false
-```
-
-### Recovery Integration
-```bash
-# Auto-run recovery on death detection
-clawvault config set auto_recovery_on_death false
+clawvault compat
+clawvault doctor
 ```
 
 ## Manual Death Detection
@@ -232,60 +216,22 @@ clawvault recover --clear
 # Check hook status
 openclaw hooks list | grep clawvault
 
-# Check death detection config
-clawvault config get death_detection_enabled
-
 # Look for recent death flags
 ls -la .clawvault/dirty-death.flag
+
+# Run compatibility check
+clawvault compat
 ```
 
 **Solutions:**
 ```bash
-# Enable hook if disabled
-openclaw hooks enable clawvault
+# Reinstall hook
+clawhub install clawvault
 
-# Enable detection if disabled
-clawvault config set death_detection_enabled true
-
-# Reinstall hook if broken 
-openclaw hooks install clawvault
-```
-
-### False Death Detection
-
-**Symptoms:**
-- Death alerts appear after normal shutdowns
-- Dirty death flag never clears automatically
-
-**Causes:**
-- Hook not running during normal shutdown
-- Session cleanup failing
-- Permission issues with flag file
-
-**Solutions:**
-```bash
 # Manual flag clear
 clawvault recover --clear
 
-# Check vault permissions
-clawvault doctor
-
-# Adjust detection threshold
-clawvault config set death_tracking_threshold 600 # 10 minutes
-```
-
-### Alert Not Appearing
-
-**Symptoms:**
-- Death flag exists but agent doesn't see alert
-- Recovery works manually but no automatic alert
-
-**Diagnosis:**
-```bash
-# Check gateway startup event handling
-clawvault compat --strict
-
-# Look for injection errors
+# Check vault health
 clawvault doctor
 ```
 
