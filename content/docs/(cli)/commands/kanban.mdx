@@ -1,0 +1,104 @@
+---
+title: "kanban"
+description: "Sync Obsidian Kanban boards with task frontmatter"
+---
+
+<span className="cv-version">v2.4.6</span>
+
+The `kanban` command generates [Obsidian Kanban](https://github.com/mgmeyers/obsidian-kanban) boards from your vault's tasks, and can reverse-sync changes made on the board back into task frontmatter.
+
+## Usage
+
+```bash
+clawvault kanban sync [options]
+clawvault kanban import [options]
+```
+
+### `kanban sync` options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--output <path>` | Board markdown path | `Board.md` |
+| `--group-by <field>` | Grouping field: `status`, `priority`, `project`, `owner` | `status` |
+| `--filter-project <project>` | Only include tasks from a project | all |
+| `--filter-owner <owner>` | Only include tasks for an owner | all |
+| `--include-done` | Include completed tasks | false |
+
+### `kanban import` options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--output <path>` | Board markdown path | `Board.md` |
+
+## Examples
+
+```bash
+# Generate a Kanban board grouped by status
+clawvault kanban sync
+
+# Group by priority instead
+clawvault kanban sync --group-by priority
+
+# Only show tasks for a specific project
+clawvault kanban sync --filter-project clawvault
+
+# Include done tasks
+clawvault kanban sync --include-done
+
+# Write to a custom path
+clawvault kanban sync --output boards/sprint.md
+
+# Reverse-sync: import board changes back into task frontmatter
+clawvault kanban import
+
+# Import from a custom board path
+clawvault kanban import --output boards/sprint.md
+```
+
+## Sync: Tasks → Board
+
+`kanban sync` reads all tasks from `tasks/` and generates an Obsidian Kanban-compatible markdown file. Cards include:
+
+- Wiki-linked task title (`[[slug|Title]]`)
+- Priority emoji (🔥 critical, 🔴 high, 🟡 medium, 🟢 low)
+- Project as hashtag (`#project-name`)
+- Owner as mention (`@owner`)
+- Tags as hashtags
+- Due date with 📅 icon
+- ⛔ indicator for blocked tasks
+
+Tasks within each lane are sorted by due date (earliest first), then by creation date.
+
+### Grouping
+
+The `--group-by` flag controls how lanes are organized:
+
+| Group By | Lanes |
+|----------|-------|
+| `status` | Open, In Progress, Blocked, Done |
+| `priority` | 🔥 Critical, 🔴 High, 🟡 Medium, 🟢 Low, ⚪ Unset |
+| `project` | One lane per project + "No Project" |
+| `owner` | One lane per owner + "Unassigned" |
+
+## Import: Board → Tasks
+
+`kanban import` reads the generated board file and updates task frontmatter to match the board's lane assignments. The `clawvault-group-by` frontmatter key in the board file determines which field gets updated.
+
+For example, if a board is grouped by `status` and you drag a card from "Open" to "In Progress" in Obsidian, running `kanban import` will update that task's `status` field to `in-progress`.
+
+```bash
+$ clawvault kanban import
+✓ Imported kanban board: /path/to/vault/Board.md
+  Grouped by: status
+  Updated 2 task field(s):
+  - write-api-docs: status open -> in-progress
+  - fix-auth-bug: status in-progress -> done
+```
+
+Tasks referenced on the board that no longer exist in `tasks/` are reported as missing.
+
+## Details
+
+The board file includes Obsidian Kanban plugin metadata in YAML frontmatter (`kanban-plugin: basic`) and a settings block at the end. ClawVault adds `clawvault-group-by` and `clawvault-last-sync` fields to track sync state. The Done lane is collapsed by default.

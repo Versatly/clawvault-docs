@@ -20,6 +20,7 @@
     "---Task Management---",
     "task",
     "task-transitions",
+    "kanban",
     "backlog",
     "blocked",
     "---Memory---",
@@ -47,6 +48,9 @@
     "dashboard",
     "canvas",
     "sync",
+    "---Configuration---",
+    "config",
+    "route",
     "---Networking---",
     "tailscale"
   ]

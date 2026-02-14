@@ -1,9 +1,9 @@
 ---
 title: "recover"
-description: "Detect context death and restore checkpoint/handoff context"
+description: "Detect context death, inspect checkpoints, and restore session state"
 ---
 
-The `recover` command checks whether the previous session exited cleanly and, if not, restores the latest checkpoint and handoff context.
+The `recover` command checks whether the previous session exited cleanly and, if not, restores the latest checkpoint and handoff context. It also supports non-destructive inspection of the dirty-death flag and browsing checkpoint history.
 
 ## Usage
 
@@ -16,22 +16,76 @@ clawvault recover [options]
 | Flag | Description | Default |
 |------|-------------|---------|
 | `--clear` | Clear the dirty death flag after recovery | false |
+| `--check` | Inspect the dirty death flag without clearing it | false |
+| `--list` | List saved checkpoints (newest first) | false |
 | `--verbose` | Show full checkpoint and handoff content | false |
 | `-v, --vault <path>` | Vault path | Nearest vault |
 | `--json` | Output as JSON | false |
 
+<Callout type="info">
+`--check` and `--list` cannot be used together.
+</Callout>
+
 ## Examples
 
 ```bash
-# Check for context death
+# Full recovery (detect death, show state, suggest next steps)
 clawvault recover
 
 # Recover and clear the dirty flag
 clawvault recover --clear
 
+# Non-destructive: just check if the death flag is set
+clawvault recover --check
+
+# Browse checkpoint history
+clawvault recover --list
+
+# Checkpoint history as JSON (useful for tooling)
+clawvault recover --list --json
+
 # Full recovery details as JSON
 clawvault recover --verbose --json
 ```
+
+## `--check` — Inspect the Death Flag
+
+<span className="cv-version">v2.4.5</span>
+
+The `--check` flag performs a **read-only** inspection of the dirty-death flag. It reports whether a context death occurred, the death timestamp, and the age of the last checkpoint — without clearing the flag or triggering recovery logic.
+
+This is useful for automation, health checks, or scripts that need to know if a session died without side effects.
+
+```bash
+$ clawvault recover --check
+⚠️ Dirty death flag is set.
+Death time: 2026-02-14T15:30:00.000Z
+Last checkpoint: 2026-02-14T15:28:12.000Z (2 minutes ago)
+Use `clawvault recover --clear` after reviewing recovery details.
+```
+
+If the flag is clear:
+
+```bash
+$ clawvault recover --check
+✓ Dirty death flag is clear.
+```
+
+## `--list` — Checkpoint History
+
+<span className="cv-version">v2.4.5</span>
+
+The `--list` flag displays all saved checkpoints from the `.clawvault/checkpoints/` directory, sorted newest-first. Each entry shows the timestamp, what was being worked on, focus context, and the source file.
+
+```bash
+$ clawvault recover --list
+TIMESTAMP                    WORKING_ON           FOCUS            FILE
+2026-02-14T15:28:12.000Z     docs update          kanban page      checkpoint-1707923292.json
+2026-02-14T14:00:05.000Z     task filters          overdue flag     checkpoint-1707918005.json
+2026-02-13T22:10:30.000Z     route commands        test subcommand  checkpoint-1707861030.json
+```
+
+If no checkpoints exist in the history directory, the command falls back to the single `last-checkpoint.json` file.
 
 ## Details
 

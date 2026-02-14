@@ -24,6 +24,11 @@ clawvault task show <slug> [options]
 | `--project <project>` | Project name | none |
 | `--priority <priority>` | Priority (`critical`, `high`, `medium`, `low`) | low |
 | `--due <date>` | Due date (`YYYY-MM-DD`) | none |
+| `--tags <tags>` | Comma-separated tags | none |
+| `--description <text>` | One-line task summary | none |
+| `--estimate <estimate>` | Time estimate (e.g. `2h`, `1d`, `1w`) | none |
+| `--parent <slug>` | Parent task slug (for subtasks) | none |
+| `--depends-on <slugs>` | Comma-separated dependency slugs | none |
 
 ### `task list` options
 
@@ -34,6 +39,9 @@ clawvault task show <slug> [options]
 | `--project <project>` | Filter by project | all |
 | `--status <status>` | Filter by status (`open`, `in-progress`, `blocked`, `done`) | all non-done |
 | `--priority <priority>` | Filter by priority | all |
+| `--due` | Show only tasks with due dates (sorted by due date) | false |
+| `--tag <tag>` | Filter by tag | all |
+| `--overdue` | Show overdue tasks that are not done | false |
 | `--json` | Output as JSON | false |
 
 ### `task update` options
@@ -47,6 +55,11 @@ clawvault task show <slug> [options]
 | `--priority <priority>` | New priority | unchanged |
 | `--blocked-by <text>` | Blocker reason or dependency | unchanged |
 | `--due <date>` | New due date (`YYYY-MM-DD`) | unchanged |
+| `--tags <tags>` | Comma-separated tags | unchanged |
+| `--description <text>` | One-line task summary | unchanged |
+| `--estimate <estimate>` | Time estimate (e.g. `2h`, `1d`, `1w`) | unchanged |
+| `--parent <slug>` | Parent task slug | unchanged |
+| `--depends-on <slugs>` | Comma-separated dependency slugs | unchanged |
 
 ### `task done` options
 
@@ -67,11 +80,29 @@ clawvault task show <slug> [options]
 # Add a task
 clawvault task add "Ship onboarding flow" --priority high --project growth --owner sam
 
+# Add a task with enriched fields
+clawvault task add "Write API docs" --due 2026-02-20 --tags "docs,v2" --estimate 4h --parent ship-onboarding-flow
+
+# Add a task with dependencies
+clawvault task add "Deploy staging" --depends-on "write-api-docs,fix-auth-bug" --priority critical
+
 # List active tasks for a project
 clawvault task list --project growth
 
+# List tasks with due dates (sorted by due date)
+clawvault task list --due
+
+# List overdue tasks
+clawvault task list --overdue
+
+# Filter by tag
+clawvault task list --tag docs
+
 # Mark a task as blocked with reason
 clawvault task update ship-onboarding-flow --status blocked --blocked-by "waiting for legal review"
+
+# Update enriched fields
+clawvault task update write-api-docs --estimate 6h --tags "docs,v2,priority"
 
 # Complete a task
 clawvault task done ship-onboarding-flow
@@ -80,6 +111,31 @@ clawvault task done ship-onboarding-flow
 clawvault task show ship-onboarding-flow --json
 ```
 
+## Enriched Task Fields
+
+<span className="cv-version">v2.4.6</span>
+
+Tasks support additional frontmatter fields for richer project tracking:
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| `due` | Due date in `YYYY-MM-DD` format | `2026-02-20` |
+| `tags` | Array of string tags | `["docs", "v2"]` |
+| `description` | One-line summary of the task | `"Update CLI reference for new flags"` |
+| `estimate` | Time estimate | `"2h"`, `"1d"`, `"1w"` |
+| `parent` | Slug of a parent task (subtask relationship) | `"ship-onboarding-flow"` |
+| `depends_on` | Array of task slugs this task depends on | `["write-api-docs", "fix-auth-bug"]` |
+
+These fields appear in `task show` output and are used by the [`kanban`](/commands/kanban) command when generating board cards.
+
+### Filtering with Enriched Fields
+
+The `task list` command supports three filters based on enriched fields:
+
+- **`--due`** — Shows only tasks that have a due date set, sorted by due date ascending.
+- **`--tag <tag>`** — Filters tasks to those containing the specified tag.
+- **`--overdue`** — Shows tasks whose due date has passed and whose status is not `done`.
+
 ## Details
 
-Tasks are markdown files in `tasks/` with a slug-based filename (`<slug>.md`). Frontmatter tracks status and workflow metadata, including `status`, `priority`, `project`, `owner`, `blocked_by`, `due`, `tags`, `created`, `updated`, and `completed`.
+Tasks are markdown files in `tasks/` with a slug-based filename (`<slug>.md`). Frontmatter tracks status and workflow metadata, including `status`, `priority`, `project`, `owner`, `blocked_by`, `due`, `tags`, `description`, `estimate`, `parent`, `depends_on`, `created`, `updated`, and `completed`.

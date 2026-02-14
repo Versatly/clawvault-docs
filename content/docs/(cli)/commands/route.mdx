@@ -1,0 +1,77 @@
+---
+title: "route"
+description: "Manage custom observation entity routing rules"
+---
+
+<span className="cv-version">v2.4.5</span>
+
+The `route` command manages custom routing rules that control where observation entities are filed. Routes use pattern matching (substring or regex) to direct entities to specific vault folders.
+
+## Usage
+
+```bash
+clawvault route list
+clawvault route add <pattern> <target>
+clawvault route remove <pattern>
+clawvault route test <text>
+```
+
+### Common options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+
+## Examples
+
+```bash
+# List all custom routes
+clawvault route list
+# PRIORITY  PATTERN        TARGET
+# --------  -------        ------
+# 2         /^bug:/i       issues/bugs
+# 1         meeting notes  meetings
+
+# Add a substring route
+clawvault route add "meeting notes" meetings
+# => ✓ Route added
+#      Pattern: meeting notes
+#      Target: meetings
+#      Priority: 1
+
+# Add a regex route
+clawvault route add "/^bug:/i" issues/bugs
+# => ✓ Route added
+#      Pattern: /^bug:/i
+#      Target: issues/bugs
+#      Priority: 2
+
+# Test which route matches a string
+clawvault route test "bug: login form crashes on Safari"
+# => ✓ Route matched
+#      Pattern: /^bug:/i
+#      Target: issues/bugs
+#      Priority: 2
+
+# Test with no match
+clawvault route test "random thought"
+# => No route matched.
+
+# Remove a route by pattern
+clawvault route remove "meeting notes"
+# => ✓ Removed route: meeting notes
+```
+
+## How Routing Works
+
+Routes are evaluated in **priority order** (highest first). Each route has:
+
+- **Pattern** — A substring match (case-insensitive) or a regex literal (e.g. `/^bug:/i`).
+- **Target** — A vault-relative folder path where matching entities are stored.
+- **Priority** — Assigned automatically (increments with each new rule).
+
+When a new observation is processed, its text is tested against all routes. The first match determines the target folder. If no route matches, the default category-based routing applies.
+
+## Details
+
+Routes are stored in the `routes` array of `.clawvault.json`. Duplicate patterns are rejected. Regex patterns must use the `/pattern/flags` literal syntax. Target paths are normalized — leading/trailing slashes are stripped, and relative segments (`.`, `..`) are rejected.

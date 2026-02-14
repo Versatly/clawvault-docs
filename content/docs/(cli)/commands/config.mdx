@@ -1,0 +1,90 @@
+---
+title: "config"
+description: "Read and modify runtime configuration for your vault"
+---
+
+<span className="cv-version">v2.4.5</span>
+
+The `config` command lets you inspect and modify runtime settings stored in `.clawvault.json`. All values use dot-notation keys and are validated against a set of supported configuration options.
+
+## Usage
+
+```bash
+clawvault config get <key>
+clawvault config set <key> <value>
+clawvault config list
+clawvault config reset [--confirm]
+```
+
+### `config get` options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+
+### `config set` options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+
+### `config list` options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+
+### `config reset` options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--confirm` | Required to confirm destructive reset | false |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+
+## Supported Keys
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `name` | string | Vault folder name | Display name for the vault |
+| `categories` | string[] | Default category set | Memory categories (comma-separated when setting) |
+| `theme` | enum | `none` | Canvas theme: `neural`, `minimal`, `none` |
+| `observe.model` | string | `gemini-2.0-flash` | Model used by `observe` command |
+| `observe.provider` | enum | `gemini` | Observation provider: `anthropic`, `openai`, `gemini` |
+| `context.maxResults` | integer | `5` | Max results returned by `context` command |
+| `context.defaultProfile` | enum | `default` | Context profile: `default`, `planning`, `incident`, `handoff`, `auto` |
+| `graph.maxHops` | integer | `2` | Max link traversal depth for graph commands |
+
+## Examples
+
+```bash
+# Read a value
+clawvault config get observe.provider
+# => gemini
+
+# Set a value
+clawvault config set observe.model claude-sonnet-4-20250514
+# => ✓ Updated observe.model
+#      Value: claude-sonnet-4-20250514
+
+# Set categories (comma-separated)
+clawvault config set categories "inbox,decisions,lessons,projects"
+
+# List all config values
+clawvault config list
+# KEY                      VALUE
+# -------                  -----
+# categories               inbox, decisions, patterns, ...
+# context.defaultProfile   default
+# context.maxResults       5
+# ...
+
+# Reset to defaults (requires --confirm)
+clawvault config reset --confirm
+# => ✓ Config reset to defaults
+```
+
+## Details
+
+Configuration is stored in `.clawvault.json` at the vault root. The `config` commands read and write to this file with type validation and coercion. Array values (like `categories`) can be passed as comma-separated strings and are stored as JSON arrays.
+
+Resetting config restores all managed keys to their defaults but preserves any unmanaged keys in the file. The `--confirm` flag is required to prevent accidental resets.
