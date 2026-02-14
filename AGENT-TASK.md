@@ -1,134 +1,72 @@
-# Build ClawVault Docs with Fumadocs
+# Fix Sidebar Dropdown on Mobile
 
-Build a BEAUTIFUL documentation site using Fumadocs (Next.js). Dependencies are already installed in this directory.
+## Problem
 
-## Reference
+The docs site at docs.clawvault.dev has two sidebar tabs (CLI and Obsidian Plugin) configured via `root: true` in their respective `meta.json` files. On mobile, the sidebar dropdown/mode-switcher for switching between these tabs is broken — it doesn't render or function correctly.
 
-- **Fumadocs docs:** https://fumadocs.dev/docs — READ THESE for setup patterns
-- **Brand guidelines:** Read `BRAND.md` in this directory for all colors, typography, visual style
-- **Content source:** All 27 markdown docs are in `content-source/` — move them into the correct Fumadocs content structure
-- **ClawVault source:** `/home/frame/Projects/clawvault/SKILL.md` for reference
+## Current Architecture
 
-## What You Must Build
+- **Framework:** Fumadocs (fumadocs-ui v16.6.0, fumadocs-core v16.6.0, fumadocs-mdx v14.2.7)
+- **Next.js 16** with Tailwind CSS v4
+- **Two root tabs:**
+  - `content/docs/(cli)/meta.json` — `"root": true, "title": "CLI"`
+  - `content/docs/obsidian-plugin/meta.json` — `"root": true, "title": "Obsidian Plugin"`
+- **Root meta.json:** `content/docs/meta.json` — `{"pages": ["(cli)", "obsidian-plugin"]}`
 
-### 1. Fumadocs Project Structure
+## Key Files
 
-Follow the official Fumadocs setup guide EXACTLY:
-- `app/layout.tsx` — root layout with RootProvider
-- `app/(docs)/layout.tsx` — docs layout with DocsLayout
-- `app/(docs)/[[...slug]]/page.tsx` — docs page component
-- `content/docs/` — MDX content directory
-- `lib/source.ts` — source configuration
-- `source.config.ts` — fumadocs-mdx config
-- `next.config.mjs` — with fumadocs-mdx plugin (createMDX)
-- `postcss.config.mjs` — with @tailwindcss/postcss
-- `app/global.css` — import tailwindcss + fumadocs-ui preset
-- `tsconfig.json` — proper Next.js + fumadocs config
+- `app/(docs)/layout.tsx` — DocsLayout configuration
+- `app/lib/source.ts` — Source loader with fumadocs-mdx
+- `source.config.ts` — defineDocs config
+- `app/global.css` — Theme overrides (dark mode, gold accent)
+- `content/docs/meta.json` — Root page listing
+- `content/docs/(cli)/meta.json` — CLI tab (root: true)
+- `content/docs/obsidian-plugin/meta.json` — Obsidian Plugin tab (root: true)
 
-### 2. Content Structure
+## What to Fix
 
-Move content from `content-source/` to `content/docs/` in this structure:
-```
-content/docs/
-├── index.mdx (landing/intro page)
-├── getting-started/
-│   ├── meta.json (sidebar ordering)
-│   ├── introduction.mdx
-│   ├── installation.mdx
-│   └── quick-start.mdx
-├── concepts/
-│   ├── meta.json
-│   ├── memory-types.mdx
-│   ├── observational-memory.mdx
-│   ├── memory-graph.mdx
-│   ├── context-profiles.mdx
-│   └── context-death-recovery.mdx
-├── commands/
-│   ├── meta.json
-│   ├── wake-sleep.mdx
-│   ├── remember-capture.mdx
-│   ├── search-vsearch.mdx
-│   ├── context.mdx
-│   ├── graph.mdx
-│   ├── compat.mdx
-│   ├── doctor.mdx
-│   ├── link.mdx
-│   ├── repair-session.mdx
-│   └── template.mdx
-├── openclaw/
-│   ├── meta.json
-│   ├── hook-setup.mdx
-│   ├── auto-checkpoint.mdx
-│   ├── context-death-detection.mdx
-│   └── session-start-context.mdx
-├── advanced/
-│   ├── meta.json
-│   ├── vault-structure.mdx
-│   ├── qmd-integration.mdx
-│   ├── wiki-links-entity-routing.mdx
-│   └── environment-variables.mdx
-└── changelog.mdx
+1. **Mobile sidebar:** The sidebar tab switcher/dropdown must work on mobile viewports. When you open the mobile sidebar (hamburger menu), you should see a dropdown at the top to switch between "CLI" and "Obsidian Plugin" tabs.
+
+2. **Desktop sidebar:** The tab switcher should also work properly on desktop — showing tabs at the top of the sidebar.
+
+3. **Match Fumadocs default behavior:** The `root: true` convention in meta.json should automatically create sidebar tabs. Check if there's a configuration issue in `DocsLayout` or `source` that prevents proper tab rendering.
+
+## Fumadocs Sidebar Tabs Documentation
+
+From fumadocs.dev: Sidebar Tabs are folders with `root: true` in meta.json. By default, the tab trigger is displayed as a Dropdown component. You can also explicitly configure them:
+
+```tsx
+<DocsLayout
+  sidebar={{
+    tabs: [
+      {
+        title: 'CLI',
+        description: 'ClawVault CLI documentation',
+        url: '/getting-started/introduction',
+      },
+      {
+        title: 'Obsidian Plugin',
+        description: 'Visual memory management',
+        url: '/obsidian-plugin',
+      },
+    ],
+  }}
+/>
 ```
 
-Each `meta.json` controls sidebar ordering:
-```json
-{
-  "title": "Getting Started",
-  "pages": ["introduction", "installation", "quick-start"]
-}
-```
+If the automatic approach via `root: true` doesn't work, try the explicit `sidebar.tabs` approach.
 
-### 3. Theme & Branding (CRITICAL — must look premium)
-
-Read BRAND.md for full specs. Key points:
-- **Dark mode default**
-- **Colors:** Deep navy #0d1826 background, gold #d4af37 accents, cream #f5f0e8 text
-- **Use Fumadocs CSS variables** to override the theme — see fumadocs.dev/docs/ui/theme
-- **Custom font:** Use Inter for body, JetBrains Mono for code (from Google Fonts)
-- **The site must look as polished as fumadocs.dev itself**
-
-In `app/global.css`:
-```css
-@import 'tailwindcss';
-@import 'fumadocs-ui/css/neutral.css';
-@import 'fumadocs-ui/css/preset.css';
-
-/* Override with ClawVault brand colors */
-:root {
-  /* Override fumadocs CSS variables with ClawVault colors */
-}
-```
-
-### 4. Layout Configuration
-
-In the docs layout, configure:
-- Site title: "ClawVault™"
-- Nav links: GitHub, npm, Website (clawvault.dev)
-- Sidebar with all sections properly ordered
-- Search enabled (Fumadocs built-in)
-- Footer with links
-
-### 5. Build & Verify
+## Testing
 
 ```bash
-npm run build
+npm run build   # Must pass with zero errors
+npm run dev     # Check mobile and desktop sidebar behavior
 ```
 
-Must pass with zero errors. All 27+ pages must render.
+## Constraints
 
-### 6. Vercel Config
-
-Add `vercel.json`:
-```json
-{
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next"
-}
-```
-
-## DO NOT
-
-- Do not use placeholder content — all pages have real content in content-source/
-- Do not skip the brand theming — it must look premium
-- Do not use default Fumadocs colors — override everything with ClawVault palette
-- Do not forget meta.json files for sidebar ordering
+- Do NOT change the content structure or page content
+- Do NOT change the color theme (gold accent #e8a430)
+- Keep the existing nav links (GitHub)
+- Zero new dependencies unless absolutely required
+- Must work on both mobile AND desktop viewports
