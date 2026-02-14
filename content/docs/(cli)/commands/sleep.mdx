@@ -1,0 +1,53 @@
+---
+title: "sleep"
+description: "End a session with structured handoff, optional git commit, and observation processing"
+---
+
+The `sleep` command closes a work session with a durable handoff so the next session can resume quickly and safely.
+
+## Usage
+
+```bash
+clawvault sleep <summary> [options]
+```
+
+### Required
+
+- `<summary>` — What you were working on (comma-separated for multiple items)
+
+### Options
+
+| Flag | Description | Interactive Prompt |
+|------|-------------|--------------------|
+| `--next <items>` | Next steps to take | "Next steps (comma-separated):" |
+| `--blocked <items>` | Current blockers | "Blocked items (comma-separated):" |
+| `--decisions <items>` | Key decisions made | No prompt |
+| `--questions <items>` | Open questions | No prompt |
+| `--feeling <text>` | How the session felt | No prompt |
+| `--session <key>` | Session key override | No prompt |
+| `--session-transcript <path>` | Transcript path for auto-observe | Auto-detected |
+| `--reflect` | Run reflection pass after handoff | No prompt |
+| `--index` | Update qmd index after handoff | false |
+| `--no-git` | Skip git commit prompt | N/A |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+
+## Examples
+
+```bash
+# End session with summary only (interactive prompts for next/blocked)
+clawvault sleep "auth refactor and token validation"
+
+# Fully specified handoff
+clawvault sleep "built onboarding API" \
+  --next "write integration tests,deploy staging" \
+  --blocked "waiting for vendor docs" \
+  --decisions "use Redis cache" \
+  --feeling "focused"
+
+# Include transcript ingestion and reflection
+clawvault sleep "closed incident follow-up" --session-transcript ./session.jsonl --reflect
+```
+
+## Details
+
+When next/blocked values are missing and the shell is interactive, `sleep` prompts for them. It then writes a handoff document, clears context-death flags, optionally updates qmd index, optionally commits dirty git state, and best-effort processes observations from the session transcript.

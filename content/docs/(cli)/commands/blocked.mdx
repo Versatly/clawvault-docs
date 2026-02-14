@@ -1,0 +1,37 @@
+---
+title: "blocked"
+description: "Show all currently blocked tasks"
+---
+
+The `blocked` command gives a focused view of tasks with `status: blocked`, including blocker reasons and project context.
+
+## Usage
+
+```bash
+clawvault blocked [options]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--project <project>` | Filter blocked tasks by project | all projects |
+| `--json` | Output as JSON | false |
+
+## Examples
+
+```bash
+# Show all blocked work
+clawvault blocked
+
+# Show blocked tasks in one project
+clawvault blocked --project growth
+
+# JSON output for automation
+clawvault blocked --json
+```
+
+## Details
+
+This command is equivalent to listing tasks filtered by `status=blocked`, but with output optimized for triage: title, blocker (`blocked_by`), owner, project, and updated time.

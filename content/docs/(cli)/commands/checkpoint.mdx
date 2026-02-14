@@ -1,0 +1,43 @@
+---
+title: "checkpoint"
+description: "Save quick state checkpoints for context death resilience"
+---
+
+The `checkpoint` command records your current working state so recovery has recent context if a session crashes or resets unexpectedly.
+
+## Usage
+
+```bash
+clawvault checkpoint [options]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--working-on <text>` | What you are currently working on | — |
+| `--focus <text>` | Current focus area | — |
+| `--blocked <text>` | What is blocking progress | — |
+| `--urgent` | Trigger OpenClaw wake after checkpoint | false |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--json` | Output as JSON | false |
+
+## Examples
+
+```bash
+# Quick checkpoint
+clawvault checkpoint --working-on "auth refactor" --focus "token validation"
+
+# Checkpoint with blocker info
+clawvault checkpoint \
+  --working-on "API integration" \
+  --focus "rate limiting" \
+  --blocked "waiting for vendor docs"
+
+# Trigger urgent wake notification
+clawvault checkpoint --working-on "prod outage triage" --urgent
+```
+
+## Details
+
+Checkpoints are written to `.clawvault/last-checkpoint.json` and update the context-death dirty flag. During heavy work, frequent checkpoints reduce restart cost after interruptions.

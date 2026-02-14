@@ -1,0 +1,38 @@
+---
+title: "recover"
+description: "Detect context death and restore checkpoint/handoff context"
+---
+
+The `recover` command checks whether the previous session exited cleanly and, if not, restores the latest checkpoint and handoff context.
+
+## Usage
+
+```bash
+clawvault recover [options]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--clear` | Clear the dirty death flag after recovery | false |
+| `--verbose` | Show full checkpoint and handoff content | false |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--json` | Output as JSON | false |
+
+## Examples
+
+```bash
+# Check for context death
+clawvault recover
+
+# Recover and clear the dirty flag
+clawvault recover --clear
+
+# Full recovery details as JSON
+clawvault recover --verbose --json
+```
+
+## Details
+
+Recovery inspects the dirty-death flag and latest checkpoint metadata, then looks for the newest handoff in `handoffs/`. In normal workflows, `recover` runs automatically as part of `wake`; direct use is most helpful for debugging or automation.

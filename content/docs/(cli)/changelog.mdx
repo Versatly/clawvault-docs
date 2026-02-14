@@ -11,7 +11,7 @@ description: Release history for ClawVault — every version, every feature, eve
 ## v2.3.1 — February 14, 2026
 
 ### Added
-- **WebDAV server** — `clawvault serve` now handles WebDAV protocol on `/webdav/` path prefix. Enables Obsidian mobile sync via the [Remotely Save](https://github.com/remotely-save/remotely-save) plugin over Tailscale. Supports GET, PUT, DELETE, MKCOL, PROPFIND, OPTIONS, HEAD, MOVE, and COPY operations.
+- **WebDAV server for Obsidian mobile sync** — `clawvault serve` now supports WebDAV on `/webdav/` for [Remotely Save](https://github.com/remotely-save/remotely-save) over Tailscale. Supports GET, PUT, DELETE, MKCOL, PROPFIND, OPTIONS, HEAD, MOVE, and COPY.
 
 ### Improved
 - Tailscale server module refactored for WebDAV route integration.
@@ -22,10 +22,12 @@ description: Release history for ClawVault — every version, every feature, eve
 ## v2.3.0 — February 14, 2026
 
 ### Added
-- **Task tracking primitives** — `clawvault task` (add/list/update/done/show), `clawvault backlog` (add/list/promote), `clawvault blocked`. Tasks stored as markdown with frontmatter (status, owner, project, priority, blocked_by, due).
-- **Canvas dashboard** — `clawvault canvas` generates an Obsidian JSON Canvas file with active tasks, blocked items, backlog, knowledge graph stats, vault activity, and data flow diagram. File nodes are clickable in Obsidian.
-- **Vault activity stats** — canvas dashboard now shows observation count, reflection count, task completion rates, and document counts per category.
-- **Tailscale networking** — `clawvault serve` (HTTP API on Tailscale IP), `clawvault peers` (manage vault peers), `clawvault net-search` (cross-vault search). Trust levels: read, read-write, full. Zero new dependencies.
+- **Task management** — `clawvault task` with `add`, `list`, `update`, `done`, and `show`.
+- **Backlog management** — `clawvault backlog` with `add`, `list`, and `promote`.
+- **Blocked view** — `clawvault blocked` for quick triage of blocked work.
+- **Canvas dashboard** — `clawvault canvas` generates an Obsidian JSON Canvas dashboard.
+- **Vault activity stats in canvas** — observation/reflection/task/session/document metrics included in generated dashboard.
+- **Tailscale networking** — `clawvault serve`, `clawvault peers`, and `clawvault net-search` for multi-vault collaboration.
 - **New default categories** — `lessons`, `agents`, `commitments`, `handoffs`, `research`, `tasks`, `backlog` (16 total, up from 9).
 - **Ledger structure in init** — `clawvault init` now creates `ledger/raw/`, `ledger/observations/`, `ledger/reflections/` from day one.
 - **Welcome note** — new vaults get a welcome note in `inbox/` with quick-start commands.

@@ -1,0 +1,85 @@
+---
+title: "task"
+description: "Manage tasks as markdown files in your vault"
+---
+
+The `task` command lets you create, track, and complete work items stored in your vault's `tasks/` folder.
+
+## Usage
+
+```bash
+clawvault task add <title> [options]
+clawvault task list [options]
+clawvault task update <slug> [options]
+clawvault task done <slug> [options]
+clawvault task show <slug> [options]
+```
+
+### `task add` options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--owner <owner>` | Task owner | none |
+| `--project <project>` | Project name | none |
+| `--priority <priority>` | Priority (`critical`, `high`, `medium`, `low`) | low |
+| `--due <date>` | Due date (`YYYY-MM-DD`) | none |
+
+### `task list` options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--owner <owner>` | Filter by owner | all |
+| `--project <project>` | Filter by project | all |
+| `--status <status>` | Filter by status (`open`, `in-progress`, `blocked`, `done`) | all non-done |
+| `--priority <priority>` | Filter by priority | all |
+| `--json` | Output as JSON | false |
+
+### `task update` options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--status <status>` | New status (`open`, `in-progress`, `blocked`, `done`) | unchanged |
+| `--owner <owner>` | New owner | unchanged |
+| `--project <project>` | New project | unchanged |
+| `--priority <priority>` | New priority | unchanged |
+| `--blocked-by <text>` | Blocker reason or dependency | unchanged |
+| `--due <date>` | New due date (`YYYY-MM-DD`) | unchanged |
+
+### `task done` options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+
+### `task show` options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--json` | Output as JSON | false |
+
+## Examples
+
+```bash
+# Add a task
+clawvault task add "Ship onboarding flow" --priority high --project growth --owner sam
+
+# List active tasks for a project
+clawvault task list --project growth
+
+# Mark a task as blocked with reason
+clawvault task update ship-onboarding-flow --status blocked --blocked-by "waiting for legal review"
+
+# Complete a task
+clawvault task done ship-onboarding-flow
+
+# Show full task details as JSON
+clawvault task show ship-onboarding-flow --json
+```
+
+## Details
+
+Tasks are markdown files in `tasks/` with a slug-based filename (`<slug>.md`). Frontmatter tracks status and workflow metadata, including `status`, `priority`, `project`, `owner`, `blocked_by`, `due`, `tags`, `created`, `updated`, and `completed`.

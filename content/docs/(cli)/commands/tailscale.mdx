@@ -1,0 +1,76 @@
+---
+title: "tailscale"
+description: "Network your vault over Tailscale for multi-vault collaboration"
+---
+
+ClawVault networking commands let you expose a vault API on your tailnet, manage trusted peers, and run cross-vault search.
+
+## Usage
+
+```bash
+clawvault serve [options]
+clawvault peers [list]
+clawvault peers add <ip> --trust <level>
+clawvault net-search <query>
+```
+
+## `clawvault serve`
+
+Expose your vault over Tailscale.
+
+```bash
+clawvault serve [--port 7283] [--funnel] [--background] [--stop]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--port <number>` | Port to serve on | 7283 |
+| `--funnel` | Enable Tailscale Funnel (public exposure) | false |
+| `--background` | Run in background mode | false |
+| `--stop` | Stop an active serve process | false |
+
+## `clawvault peers`
+
+Manage trusted vault peers.
+
+```bash
+clawvault peers
+clawvault peers list
+clawvault peers add <ip> --trust read|read-write|full
+```
+
+### Trust levels
+
+| Level | Access |
+|-------|--------|
+| `read` | Read and search only |
+| `read-write` | Read plus write observations |
+| `full` | Full vault access |
+
+## `clawvault net-search`
+
+Search connected vault peers over Tailscale.
+
+```bash
+clawvault net-search <query>
+```
+
+## Examples
+
+```bash
+# Start serving this vault on tailnet
+clawvault serve
+
+# Add a trusted peer
+clawvault peers add 100.70.233.52 --trust read
+
+# Query memories across peers
+clawvault net-search "database migration decision"
+```
+
+## Details
+
+`serve` exposes your local vault API to your Tailscale network, `peers` controls trust and peer registry, and `net-search` runs federated search across connected vaults without requiring public cloud sync.

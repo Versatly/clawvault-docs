@@ -1,0 +1,44 @@
+---
+title: "canvas"
+description: "Generate an Obsidian JSON Canvas dashboard for your vault"
+---
+
+The `canvas` command builds a `dashboard.canvas` file that visualizes vault activity, knowledge graph signals, and execution flow in Obsidian.
+
+## Usage
+
+```bash
+clawvault canvas [options]
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--output <path>` | Output canvas file path | `<vault>/dashboard.canvas` |
+
+## Examples
+
+```bash
+# Generate dashboard.canvas in the vault root
+clawvault canvas
+
+# Write to a custom canvas path
+clawvault canvas --output views/weekly-dashboard.canvas
+
+# Build canvas for a different vault
+clawvault canvas -v ~/work-vault
+```
+
+## Details
+
+Generated canvas groups include:
+
+- Knowledge graph stats and top entities
+- Active tasks, blocked tasks, backlog, and recently done work
+- Recent decisions and observation summaries
+- Vault activity stats (documents, sessions, ledger, reflections)
+- Observation pipeline flow diagram
+
+The file follows the Obsidian JSON Canvas specification and can be opened directly inside Obsidian.

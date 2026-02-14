@@ -1,0 +1,35 @@
+---
+title: "setup"
+description: "Auto-discover and configure a ClawVault from an existing workspace"
+---
+
+The `setup` command finds or creates a vault path and initializes the ClawVault structure automatically.
+
+## Usage
+
+```bash
+clawvault setup
+```
+
+## Options
+
+`setup` has no command-line flags. It resolves the target path from:
+
+1. `CLAWVAULT_PATH` (if set)
+2. `~/.openclaw/workspace/memory`
+3. `./memory`
+4. `~/memory`
+
+## Examples
+
+```bash
+# Auto-discover nearest/default memory path
+clawvault setup
+
+# Force a specific path via environment variable
+CLAWVAULT_PATH=~/work/memory clawvault setup
+```
+
+## Details
+
+`setup` ensures category folders and `.clawvault.json` exist, then attempts qmd collection setup when qmd is installed. For manual vault creation at a specific path, use `clawvault init [path]`.

@@ -1,0 +1,44 @@
+---
+title: "wake"
+description: "Start a session with context recovery, recap, and observation highlights"
+---
+
+The `wake` command is ClawVault's session bootstrap. It checks for context death, restores checkpoint context, and builds a recap for fast restart.
+
+## Usage
+
+```bash
+clawvault wake [options]
+```
+
+### What Wake Does
+
+1. Checks for context death and clears the dirty flag
+2. Generates a recap from recent handoffs
+3. Includes recent observations (structural and potential importance)
+4. Generates an executive summary when an LLM is available
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--handoff-limit <n>` | Max recent handoffs to include | 3 |
+| `--brief` | Compact output for token efficiency | true |
+| `--no-summary` | Skip LLM executive summary generation | false |
+
+## Examples
+
+```bash
+# Standard wake flow
+clawvault wake
+
+# Include more handoffs
+clawvault wake --handoff-limit 5
+
+# Skip executive summary generation
+clawvault wake --no-summary
+```
+
+## Details
+
+`wake` is typically the first command in each session. It pairs with `sleep` for continuity and with `checkpoint` for high-frequency recovery during intensive work.
