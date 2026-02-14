@@ -1,9 +1,12 @@
 {
   "pages": [
+    "---Introduction---",
     "getting-started",
     "concepts",
-    "commands",
+    "---Usage---",
     "guides",
+    "commands",
+    "---Configuration---",
     "integrations",
     "advanced",
     "changelog"
