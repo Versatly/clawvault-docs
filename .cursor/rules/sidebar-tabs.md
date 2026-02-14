@@ -20,11 +20,19 @@ The sidebar tab switcher (CLI / Obsidian Plugin dropdown) requires explicit `get
 - Clicking a tab shows that section's sidebar pages
 - Both tabs should have proper icons and descriptions
 
+## Homepage Redirect
+
+The homepage `/` sits OUTSIDE both tab groups, so the sidebar shows collapsed tabs with no tree.
+A redirect in `next.config.mjs` sends `/` → `/getting-started/introduction` to always land inside the CLI tab.
+
+**NEVER remove this redirect** or visitors will see an empty sidebar on first load.
+
 ## History
 
-This has been broken and fixed **3 times**:
+This has been broken and fixed **4+ times**:
 1. Initial build — `(cli)` route group broke auto-detection
 2. Agent commit removed sidebar config during docs update
 3. Wrong import path caused silent failure
+4. Homepage showed empty sidebar because `/` isn't inside either tab group
 
-**If you're editing layout.tsx, verify the dropdown works after your change.**
+**If you're editing layout.tsx or next.config.mjs, verify the dropdown works after your change.**
