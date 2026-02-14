@@ -2,6 +2,7 @@
   "title": "CLI",
   "description": "ClawVault CLI documentation",
   "root": true,
+  "icon": "Terminal",
   "pages": [
     "---Introduction---",
     "getting-started",
