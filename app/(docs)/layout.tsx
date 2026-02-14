@@ -10,42 +10,13 @@ export default function RootDocsLayout({
 }) {
   const pageTree = source.getPageTree();
   
-  // Get tabs from page tree (folders with root: true in meta.json)
-  // If automatic detection doesn't find tabs, fall back to explicit configuration
-  let tabs = getSidebarTabs(pageTree);
+  // getSidebarTabs reads folders with root: true in meta.json
+  // Both (cli)/meta.json and obsidian-plugin/meta.json have root: true
+  const tabs = getSidebarTabs(pageTree);
   
-  if (tabs.length === 0) {
-    // Fallback: manually configure tabs with URL sets for proper active state detection
-    // CLI pages are at root level (getting-started, commands, concepts, etc.)
-    // Obsidian Plugin pages are under /obsidian-plugin/
-    const cliUrls = new Set<string>();
-    const obsidianUrls = new Set<string>();
-    
-    // Collect all page URLs and categorize them
-    for (const page of source.getPages()) {
-      if (page.url.startsWith('/obsidian-plugin')) {
-        obsidianUrls.add(page.url);
-      } else if (page.url !== '/') {
-        // All non-root, non-obsidian pages belong to CLI
-        cliUrls.add(page.url);
-      }
-    }
-    
-    tabs = [
-      {
-        title: 'CLI',
-        description: 'ClawVault CLI documentation',
-        url: '/getting-started/introduction',
-        urls: cliUrls,
-      },
-      {
-        title: 'Obsidian Plugin',
-        description: 'Visual memory management',
-        url: '/obsidian-plugin',
-        urls: obsidianUrls,
-      },
-    ];
-  }
+  // RULE: Never remove or modify this getSidebarTabs call.
+  // The (cli) route group breaks Fumadocs auto-detection without it.
+  // See: commit 2183c5c3, fixed 3 times already. Do NOT touch.
 
   return (
     <DocsLayout
@@ -62,7 +33,7 @@ export default function RootDocsLayout({
         },
       ]}
       sidebar={{
-        tabs,
+        tabs: tabs.length > 0 ? tabs : undefined,
       }}
     >
       {children}
