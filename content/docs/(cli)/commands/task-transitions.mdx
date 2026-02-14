@@ -1,0 +1,138 @@
+---
+title: "task transitions"
+description: "Query task state transition history with agent, regression, and timeline filters"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+# task transitions
+
+_Added in v2.4.4_
+
+Every task status change in ClawVault emits a typed event to an append-only transition ledger. This enables diagnostics, audit trails, and automatic escalation — turning your Kanban board into an actionable diagnostic tool.
+
+## Transition Ledger
+
+When `task update` or `task done` changes a task's status, a JSONL event is appended to `ledger/transitions/YYYY-MM-DD.jsonl`:
+
+```json
+{
+  "task_id": "implement-auth-flow",
+  "agent_id": "clawdious",
+  "from_status": "open",
+  "to_status": "in-progress",
+  "timestamp": "2026-02-14T18:30:00.000Z",
+  "confidence": 0.95,
+  "cost_tokens": 12500,
+  "reason": "Starting auth implementation"
+}
+```
+
+### Fields
+
+| Field | Source | Description |
+|-------|--------|-------------|
+| `task_id` | Task filename (slug) | Which task changed |
+| `agent_id` | `OPENCLAW_AGENT_ID` env var, or `"manual"` | Who made the change |
+| `from_status` | Previous frontmatter status | Where it was |
+| `to_status` | New status | Where it went |
+| `timestamp` | ISO-8601 | When it happened |
+| `confidence` | `--confidence` flag, default 1.0 | Agent's confidence in the transition |
+| `cost_tokens` | `OPENCLAW_TOKEN_ESTIMATE` env var | Token cost of the work that led to this change |
+| `reason` | `--reason` flag | Why the status changed |
+
+## Usage
+
+### Query all transitions
+
+```bash
+clawvault task transitions
+```
+
+### Query transitions for a specific task
+
+```bash
+clawvault task transitions implement-auth-flow
+```
+
+### Filter by agent
+
+```bash
+clawvault task transitions --agent clawdious
+```
+
+### Show only regressions (failed transitions)
+
+```bash
+clawvault task transitions --failed
+```
+
+Regressions are backward transitions that indicate problems:
+- `done` → `open` (reopened)
+- `done` → `blocked` (completed but now stuck)
+- `in-progress` → `blocked` (work stalled)
+
+### JSON output
+
+```bash
+clawvault task transitions --json
+```
+
+## Recording Transitions
+
+Transitions are recorded automatically when you change task status:
+
+```bash
+# Basic status change — logs transition with agent_id from env
+clawvault task update my-task --status in-progress
+
+# With confidence and reason
+clawvault task update my-task --status blocked \
+  --confidence 0.8 \
+  --reason "Waiting for API keys from DevOps"
+
+# Completing a task
+clawvault task done my-task \
+  --reason "Auth flow implemented and tested" \
+  --confidence 0.95
+```
+
+## Auto-Escalation
+
+When a task accumulates **3 or more blocked transitions**, ClawVault automatically sets `escalation: true` in the task's frontmatter. This signals that the task needs human attention or a different approach.
+
+```bash
+# View only escalated tasks
+clawvault blocked --escalated
+```
+
+<Callout type="warn">
+Escalation is automatic and append-only. Once a task is marked for escalation, it stays marked until manually resolved. This prevents silent failures in multi-agent workflows.
+</Callout>
+
+## Multi-Agent Diagnostics
+
+The transition ledger is particularly powerful in multi-agent setups:
+
+```bash
+# Which agent moved the most tasks today?
+clawvault task transitions --json | jq 'group_by(.agent_id) | map({agent: .[0].agent_id, count: length})'
+
+# Find tasks that multiple agents struggled with
+clawvault task transitions --failed --json | jq 'group_by(.task_id) | map(select(length > 1))'
+```
+
+## Storage
+
+Transitions are stored as JSONL (one JSON object per line) in:
+
+```
+vault/
+└── ledger/
+    └── transitions/
+        ├── 2026-02-14.jsonl
+        ├── 2026-02-15.jsonl
+        └── ...
+```
+
+Files are date-partitioned for easy archival and grep-friendly querying. The format is append-only — transitions are never modified or deleted.

@@ -8,6 +8,25 @@ description: Release history for ClawVault — every version, every feature, eve
   Subscribe via RSS
 </a>
 
+## v2.4.4 — February 14, 2026
+
+### Added
+- **Task State Transition Ledger** — every task status change emits a typed JSONL event to `ledger/transitions/YYYY-MM-DD.jsonl` with `task_id`, `agent_id`, `from_status`, `to_status`, `timestamp`, `confidence`, `cost_tokens`, and `reason`.
+- **`clawvault task transitions [task_id]`** — query transition history with `--agent`, `--failed`, and `--json` filters.
+- **`--confidence` and `--reason` flags** on `task update` and `task done` commands.
+- **Regression detection** — flags backward transitions (done→open, done→blocked, in-progress→blocked).
+- **Auto-escalation** — tasks with 3+ blocked transitions automatically get `escalation: true` in frontmatter.
+- **`clawvault blocked --escalated`** — filter for escalated tasks only.
+
+---
+
+## v2.4.3 — February 14, 2026
+
+### Changed
+- Updated npm description and keywords to reflect v2.4.x features (context profiles, canvas dashboards, neural themes).
+
+---
+
 ## v2.4.2 — February 14, 2026
 
 ### Fixed
