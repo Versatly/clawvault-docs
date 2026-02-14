@@ -146,17 +146,8 @@ qmd collection update clawvault-memory --mask "**/*.md" --exclude "**/node_modul
 ```
 
 ### ClawVault QMD Integration
-```bash
-# Enable/disable qmd integration
-clawvault config set qmd_enabled true
 
-# Set collection name
-clawvault config set qmd_collection_name clawvault-memory
-
-# Configure search timeouts
-clawvault config set search_timeout_ms 5000
-clawvault config set vsearch_timeout_ms 10000
-```
+QMD integration is configured during `clawvault init` (via `--qmd` and `--qmd-collection` flags) and stored in `.clawvault.json`. There is no `clawvault config` command — edit `.clawvault.json` directly if you need to change the collection name.
 
 ## Index Management
 
@@ -176,8 +167,8 @@ Set up automatic index updates:
 # Add to crontab for daily updates
 echo "0 1 * * * qmd update" | crontab -
 
-# Or use ClawVault hook for real-time updates
-clawvault config set auto_qmd_update true
+# Or use --no-index on store/capture to skip auto-updates
+# (auto-updates are enabled by default on store/capture commands)
 ```
 
 ### Index Status

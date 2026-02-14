@@ -331,32 +331,23 @@ Total: 4 files link to pedro
 
 ## Advanced Routing Configuration
 
-### Custom Routing Rules
+Entity routing is determined by the `remember` command's type parameter and the vault's category structure. There is no separate `config set` or `route` command — routing is implicit based on the memory type you specify:
+
 ```bash
-# Set routing patterns
-clawvault config set entity_routing_rules '{
- "people": ["team", "manager", "client", "dr-", "mrs-"],
- "projects": ["app", "system", "platform", "website"], 
- "decisions": ["choice", "decision", "selected", "decided"],
- "lessons": ["learned", "insight", "pattern", "principle"]
-}'
+# Route to people/ category
+clawvault remember relationship "Pedro" --content "..."
+
+# Route to projects/ category
+clawvault remember project "ClawVault" --content "..."
+
+# Route to decisions/ category
+clawvault remember decision "Database Choice" --content "..."
+
+# Route to lessons/ category
+clawvault remember lesson "Caching Insight" --content "..."
 ```
 
-### Routing Override
-```bash
-# Force specific entity routing
-clawvault route add "clawvault" projects/clawvault.md
-clawvault route add "pedro" people/pedro/index.md
-```
-
-### Routing History
-```bash
-# View routing decisions
-clawvault route log
-
-# Fix misrouted entity
-clawvault route move "api-design" decisions/ projects/
-```
+To customize category directories, use `--categories` during `clawvault init` or edit `.clawvault.json` directly.
 
 ## Best Practices
 
@@ -397,30 +388,21 @@ projects/clawvault/technical-specs.md
 
 **Solutions:**
 ```bash
-# Check auto-linking rules
-clawvault config get auto_linking_enabled
-
 # Run linking manually
 clawvault link --all
 
 # Check entity detection
-clawvault entities list
+clawvault entities
+
+# Check for orphaned/broken links
+clawvault link --orphans
 ```
 
 ### Wrong Routing Destination
 **Problem:** Entities going to wrong folders
 
 **Solutions:**
-```bash
-# Check routing rules
-clawvault config get entity_routing_rules
-
-# Move misrouted entities
-clawvault route move "entity-name" correct-folder/
-
-# Add explicit routing rule
-clawvault route add "entity-name" path/to/file.md
-```
+Move the file manually to the correct category directory. ClawVault uses directory-based routing — the category is determined by which folder the file lives in.
 
 ### Broken Link Explosion
 **Problem:** Too many orphaned links after reorganization

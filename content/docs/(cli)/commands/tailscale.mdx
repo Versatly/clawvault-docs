@@ -1,25 +1,58 @@
 ---
 title: "tailscale"
-description: "Network your vault over Tailscale for multi-vault collaboration"
+description: "Sync and discover vaults over Tailscale networks"
 ---
 
-ClawVault networking commands let you expose a vault API on your tailnet, manage trusted peers, and run cross-vault search.
+import { Callout } from "fumadocs-ui/components/callout";
 
-## Usage
+ClawVault provides four Tailscale commands for vault networking: status, sync, serve, and discover. Each has a short alias (`ts-*`).
+
+## clawvault tailscale-status
+
+Show Tailscale connection status and peers.
 
 ```bash
-clawvault serve [options]
-clawvault peers [list]
-clawvault peers add <ip> --trust <level>
-clawvault net-search <query>
+clawvault tailscale-status [options]
+# alias: clawvault ts-status
 ```
 
-## `clawvault serve`
+### Options
 
-Expose your vault over Tailscale.
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--json` | Output as JSON | false |
+| `--peers` | Show all peers including offline | false |
+
+## clawvault tailscale-sync
+
+Sync vault with a peer on the Tailscale network.
 
 ```bash
-clawvault serve [--port 7283] [--funnel] [--background] [--stop]
+clawvault tailscale-sync [options]
+# alias: clawvault ts-sync
+```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--peer <hostname>` | Peer hostname or IP to sync with | **Required** |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--port <number>` | Port on the peer | 8384 |
+| `--direction <dir>` | Sync direction: `push`, `pull`, or `bidirectional` | `bidirectional` |
+| `--dry-run` | Show what would be synced without making changes | false |
+| `--delete-orphans` | Delete files that exist locally but not on peer (pull only) | false |
+| `--categories <list>` | Comma-separated list of categories to sync | All |
+| `--https` | Use HTTPS for connection | false |
+| `--json` | Output as JSON | false |
+
+## clawvault tailscale-serve
+
+Serve vault for sync over Tailscale.
+
+```bash
+clawvault tailscale-serve [options]
+# alias: clawvault ts-serve
 ```
 
 ### Options
@@ -27,50 +60,53 @@ clawvault serve [--port 7283] [--funnel] [--background] [--stop]
 | Flag | Description | Default |
 |------|-------------|---------|
 | `-v, --vault <path>` | Vault path | Nearest vault |
-| `--port <number>` | Port to serve on | 7283 |
-| `--funnel` | Enable Tailscale Funnel (public exposure) | false |
-| `--background` | Run in background mode | false |
-| `--stop` | Stop an active serve process | false |
+| `--port <number>` | Port to serve on | 8384 |
+| `--funnel` | Expose via Tailscale Funnel (public internet) | false |
+| `--background` | Run in background | false |
+| `--stop` | Stop serving | false |
 
-## `clawvault peers`
+## clawvault tailscale-discover
 
-Manage trusted vault peers.
-
-```bash
-clawvault peers
-clawvault peers list
-clawvault peers add <ip> --trust read|read-write|full
-```
-
-### Trust levels
-
-| Level | Access |
-|-------|--------|
-| `read` | Read and search only |
-| `read-write` | Read plus write observations |
-| `full` | Full vault access |
-
-## `clawvault net-search`
-
-Search connected vault peers over Tailscale.
+Discover ClawVault peers on the Tailscale network.
 
 ```bash
-clawvault net-search <query>
+clawvault tailscale-discover [options]
+# alias: clawvault ts-discover
 ```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--port <number>` | Port to check | 8384 |
+| `--json` | Output as JSON | false |
 
 ## Examples
 
 ```bash
+# Check Tailscale status
+clawvault ts-status
+
 # Start serving this vault on tailnet
-clawvault serve
+clawvault ts-serve
 
-# Add a trusted peer
-clawvault peers add 100.70.233.52 --trust read
+# Discover vaults on your tailnet
+clawvault ts-discover
 
-# Query memories across peers
-clawvault net-search "database migration decision"
+# Sync with a peer (bidirectional)
+clawvault ts-sync --peer my-laptop
+
+# Pull from peer, specific categories
+clawvault ts-sync --peer server --direction pull --categories "decisions,lessons"
+
+# Dry run to preview sync
+clawvault ts-sync --peer server --dry-run
 ```
 
 ## Details
 
-`serve` exposes your local vault API to your Tailscale network, `peers` controls trust and peer registry, and `net-search` runs federated search across connected vaults without requiring public cloud sync.
+The Tailscale commands use your existing Tailscale network for peer-to-peer vault synchronization. No cloud accounts or third-party sync services required — data travels directly between your machines over WireGuard tunnels.
+
+<Callout type="warn">
+  `--funnel` on `tailscale-serve` exposes your vault API to the public internet via Tailscale Funnel. Use with caution.
+</Callout>

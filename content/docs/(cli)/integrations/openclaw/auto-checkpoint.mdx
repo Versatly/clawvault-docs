@@ -145,7 +145,7 @@ The hook is designed to fail gracefully:
 clawvault doctor
 
 # Manual recovery if auto-checkpoint failed
-clawvault recover --manual
+clawvault recover --verbose
 ```
 
 ## Checkpoint Storage
@@ -209,8 +209,8 @@ clawvault doctor
 ### Missing Context After Reset
 
 ```bash
-# Check recent checkpoints
-clawvault recover --list
+# Check recovery state
+clawvault recover --verbose
 
 # Manual checkpoint before important work
 clawvault checkpoint --working-on "important task"
