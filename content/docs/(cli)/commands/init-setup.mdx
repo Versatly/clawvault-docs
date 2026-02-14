@@ -1,6 +1,6 @@
 ---
 title: "init & setup"
-description: "Initialize a new vault or auto-discover an existing one"
+description: "Initialize a new vault or auto-discover and configure an existing one"
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
@@ -22,50 +22,81 @@ clawvault init [path] [options]
 | `-n, --name <name>` | Vault name | Directory name |
 | `--qmd` | Set up qmd semantic search collection | false |
 | `--qmd-collection <name>` | qmd collection name | Vault name |
+| `--no-bases` | Skip Obsidian Bases file generation | false |
+| `--no-tasks` | Skip `tasks/` and `backlog/` directories | false |
+| `--no-graph` | Skip initial graph build | false |
+| `--categories <list>` | Comma-separated custom categories | Default 16 |
+| `--canvas <template>` | Generate a canvas on init (`default`, `brain`, `project-board`, `sprint`) | None |
+| `--theme <style>` | Graph color theme: `neural`, `minimal`, `none` | `none` |
+| `--minimal` | Minimal vault — memory categories only, no tasks/bases/graph | false |
 
 ### Examples
 
 ```bash
-# Initialize in current directory
-clawvault init
+# Full initialization with all defaults
+clawvault init ~/my-vault --name "work-memory"
 
-# Initialize with a name and semantic search
-clawvault init ~/my-vault --name "work-memory" --qmd
+# Initialize with neural graph theme and brain canvas
+clawvault init ~/agent-memory --theme neural --canvas brain
 
-# Initialize with custom qmd collection
-clawvault init ./memory --qmd --qmd-collection my-agent
+# Minimal vault for a lightweight agent
+clawvault init ./memory --minimal
+
+# Custom categories only
+clawvault init ./memory --categories "notes,research,code,docs"
+
+# Skip task management, just memory
+clawvault init ~/vault --no-tasks --no-bases
 ```
-
-This creates the `.clawvault/` configuration directory with vault metadata, category folders, and search indexes.
 
 ## clawvault setup
 
 **Auto-discover and configure a ClawVault from an existing memory folder.**
 
 ```bash
-clawvault setup
+clawvault setup [options]
 ```
 
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Target vault path | Auto-discovered |
+| `--theme <style>` | Graph color theme: `neural`, `minimal`, `none` | `neural` |
+| `--graph-colors` / `--no-graph-colors` | Opt in/out of Obsidian graph theming | Included |
+| `--bases` / `--no-bases` | Opt in/out of Obsidian Bases task views | Included |
+| `--canvas [template]` | Generate canvas dashboard | Not generated |
+| `--force` | Overwrite existing configuration files | Skip existing |
+
 <Callout type="info">
-  `setup` has no options — it automatically finds the nearest OpenClaw memory folder and configures it as a ClawVault. This is the fastest way to get started if you already have an OpenClaw workspace.
+  By default, `setup` applies the **neural** graph theme and generates Obsidian Bases views for task management. Use `--no-graph-colors` or `--no-bases` to skip these.
 </Callout>
 
-### What Setup Does
-
-1. Discovers the OpenClaw memory folder (via `OPENCLAW_HOME` or standard paths)
-2. Creates `.clawvault/` configuration if missing
-3. Builds the search index
-4. Validates vault structure
-
-### Example
+### Examples
 
 ```bash
-# From your OpenClaw workspace
-cd ~/.openclaw/workspace/memory
+# Full setup with neural theme (default behavior)
 clawvault setup
+
+# Setup with brain architecture canvas
+clawvault setup --canvas brain
+
+# Structure only — no visual config
+clawvault setup --no-graph-colors --no-bases
+
+# Force-refresh all configs
+clawvault setup --force --canvas project-board
+
+# Target a specific vault
+clawvault setup -v ~/projects/agent-memory
 ```
 
 ## When to Use Which
 
-- **`init`** — Starting fresh, or creating a vault outside of OpenClaw
-- **`setup`** — Already have a memory folder from OpenClaw and want to add ClawVault on top
+| Scenario | Command |
+|----------|---------|
+| Starting fresh | `clawvault init [path]` |
+| Existing OpenClaw workspace | `clawvault setup` |
+| Lightweight agent vault | `clawvault init --minimal` |
+| Add visual config to existing vault | `clawvault setup --force` |
+| Agent needs task management only | `clawvault init --no-graph --canvas project-board` |

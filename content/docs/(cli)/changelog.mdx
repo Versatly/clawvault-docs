@@ -8,6 +8,27 @@ description: Release history for ClawVault — every version, every feature, eve
   Subscribe via RSS
 </a>
 
+## v2.4.0 — February 14, 2026
+
+### Added
+- **Brain Architecture Canvas** — `clawvault canvas --template brain` generates a 4-quadrant system overview: Hippocampus (vault structure + content flow), Direction (stats + decisions), Agent Workspace (active/blocked/backlog), and Knowledge Graph (stats + top entities + category bars).
+- **Owner-Centric Project Board** — `clawvault canvas --template project-board` redesigned with status columns, priority icons, owner cards (🤖 agents / 👤 humans), and backlog grouped by project.
+- **Canvas Customization** — new flags: `--owner` (filter by owner), `--width`/`--height` (dimensions), `--include-done` (show completed tasks), `--list-templates`.
+- **Setup Command Overhaul** — `clawvault setup` now supports `--theme neural|minimal|none`, `--graph-colors`/`--no-graph-colors`, `--bases`/`--no-bases`, `--canvas [template]`, `--force`, and `-v --vault`.
+- **Init Command Flags** — `--no-bases`, `--no-tasks`, `--no-graph`, `--categories <list>`, `--canvas <template>`, `--theme`, `--minimal` for full customization of new vaults.
+- **Neural Graph Theme** — dark background, colored nodes by category/tag, green neural-network links, golden glow on focused nodes. Applied via CSS snippet + Obsidian graph.json colorGroups.
+- **Obsidian Bases Views** — 5 auto-generated `.base` files on setup/init: all-tasks, blocked, by-project, by-owner, backlog.
+
+### Fixed
+- Date handling for bare dates in frontmatter — `blocked`, `backlog list`, and canvas templates no longer crash on Date objects.
+
+### Changed
+- Default setup theme is `neural`.
+- Brain canvas uses grouped architecture layout (was radial).
+- Project board uses text cards with owner/priority metadata (was file nodes).
+
+---
+
 ## v2.3.1 — February 14, 2026
 
 ### Added

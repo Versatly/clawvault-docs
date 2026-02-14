@@ -1,35 +1,85 @@
 ---
 title: "setup"
-description: "Auto-discover and configure a ClawVault from an existing workspace"
+description: "Auto-discover and configure a ClawVault with graph colors, Bases views, and canvas dashboards"
 ---
 
-The `setup` command finds or creates a vault path and initializes the ClawVault structure automatically.
+The `setup` command finds or creates a vault path, initializes the structure, and optionally configures Obsidian graph colors, Bases task views, and canvas dashboards.
 
 ## Usage
 
 ```bash
-clawvault setup
+clawvault setup [options]
 ```
 
 ## Options
 
-`setup` has no command-line flags. It resolves the target path from:
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Target vault path | Auto-discovered |
+| `--theme <style>` | Graph color theme: `neural`, `minimal`, `none` | `neural` |
+| `--graph-colors` | Set up graph color scheme for Obsidian | Included by default |
+| `--no-graph-colors` | Skip graph color configuration | — |
+| `--bases` | Generate Obsidian Bases views for task management | Included by default |
+| `--no-bases` | Skip Bases file generation | — |
+| `--canvas [template]` | Generate a canvas dashboard (`default`, `brain`, `project-board`, `sprint`) | Not generated |
+| `--no-canvas` | Skip canvas generation | — |
+| `--force` | Overwrite existing configuration files | Skip existing |
 
-1. `CLAWVAULT_PATH` (if set)
-2. `~/.openclaw/workspace/memory`
-3. `./memory`
-4. `~/memory`
+## Vault Discovery
+
+When no `--vault` flag is provided, `setup` resolves the target from:
+
+1. `CLAWVAULT_PATH` environment variable (if set)
+2. `~/.openclaw/workspace/memory` (OpenClaw default)
+3. `./memory` (current directory)
+4. `~/memory` (home directory)
+
+## Graph Themes
+
+### `neural` (default)
+
+Dark background (#0a0a0a), colored nodes by category and tag:
+- People: cyan · Projects: green · Decisions: orange · Lessons: yellow
+- Commitments: red · Tasks: teal · Observations: purple
+- Green neural-network links, golden glow on focused nodes
+
+Writes a CSS snippet to `.obsidian/snippets/clawvault-graph.css`, enables it in `appearance.json`, and configures `graph.json` colorGroups by folder path.
+
+### `minimal`
+
+Subtle category colors without dark background. Lighter touch for vaults with existing themes.
+
+### `none`
+
+Skips all graph color configuration.
+
+## Obsidian Bases Views
+
+When Bases are generated, these files are created in the vault root:
+
+| File | Description |
+|------|-------------|
+| `all-tasks.base` | Table + card views grouped by status |
+| `blocked.base` | Blocked tasks with days-blocked formula |
+| `by-project.base` | Tasks grouped by project |
+| `by-owner.base` | Tasks grouped by owner (agent or human) |
+| `backlog.base` | Backlog items by source and project |
 
 ## Examples
 
 ```bash
-# Auto-discover nearest/default memory path
+# Full setup with neural theme (default)
 clawvault setup
 
-# Force a specific path via environment variable
-CLAWVAULT_PATH=~/work/memory clawvault setup
+# Setup with brain architecture canvas
+clawvault setup --canvas brain
+
+# Minimal setup — structure only, no visual config
+clawvault setup --no-graph-colors --no-bases
+
+# Force-overwrite existing configs
+clawvault setup --force --theme neural
+
+# Target a specific vault
+clawvault setup -v ~/projects/agent-memory
 ```
-
-## Details
-
-`setup` ensures category folders and `.clawvault.json` exist, then attempts qmd collection setup when qmd is installed. For manual vault creation at a specific path, use `clawvault init [path]`.
