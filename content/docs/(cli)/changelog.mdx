@@ -8,6 +8,19 @@ description: Release history for ClawVault — every version, every feature, eve
   Subscribe via RSS
 </a>
 
+## v2.5.4 — February 15, 2026
+
+### Fixed
+- Hardened cross-platform qmd result path normalization so search and context scoring behave consistently on Windows and Unix.
+- Fixed WebDAV path safety/root containment handling to remove false 403s and improve secure path resolution on Windows.
+- Stabilized cross-platform test setup for WebDAV temp vaults and shell-init path expectations.
+
+### Improved
+- Reliability baseline now validates cleanly with full passing suite after path portability fixes (`449/449`).
+- Updated skill guidance to emphasize runtime verification and integration checks (`openclaw --version`, `clawvault compat`).
+
+---
+
 ## v2.5.3 — February 15, 2026
 
 ### Fixed
