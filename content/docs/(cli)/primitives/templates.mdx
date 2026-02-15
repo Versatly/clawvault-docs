@@ -1,0 +1,136 @@
+---
+title: "Templates"
+description: "Reusable markdown templates with frontmatter schemas for consistent memory creation"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+# Templates
+
+Templates are reusable markdown files with pre-defined frontmatter schemas. They ensure consistency when creating decisions, handoffs, daily notes, and other structured documents.
+
+## Built-in Templates
+
+ClawVault ships with these templates:
+
+| Template | Purpose |
+|----------|---------|
+| `daily-note` | Daily log with date-based frontmatter |
+| `decision` | Decision record (Context / Decision / Alternatives / Consequences) |
+| `handoff` | Session handoff (Summary / Next / Blocked / Decisions) |
+| `lesson` | Lesson learned (What happened / What I learned / What I'll do differently) |
+| `person` | Person profile (name, role, contact, notes) |
+| `project` | Project overview (goals, team, timeline) |
+| `checkpoint` | Quick state snapshot for context death resilience |
+
+## CLI Commands
+
+### `template list`
+
+List all available templates (built-in and custom).
+
+```bash
+clawvault template list
+```
+
+| Flag | Description |
+|------|-------------|
+| `-v, --vault <path>` | Vault path |
+
+### `template create`
+
+Create a new file from a template.
+
+```bash
+# Create a decision record
+clawvault template create decision --title "Use Postgres over MongoDB"
+
+# Create a daily note
+clawvault template create daily-note --title "2026-02-15"
+
+# Create a person profile
+clawvault template create person --title "Justin Dukes"
+```
+
+| Flag | Description |
+|------|-------------|
+| `-t, --title <title>` | Document title |
+| `-v, --vault <path>` | Vault path |
+
+### `template add`
+
+Add a custom template from an existing file.
+
+```bash
+clawvault template add ~/my-templates/standup.md
+```
+
+| Flag | Description |
+|------|-------------|
+| `-v, --vault <path>` | Vault path |
+
+## Creating Custom Templates
+
+Custom templates are markdown files stored in `templates/` in your vault. Any markdown file in that folder becomes available via `template create`.
+
+### Example: Standup template
+
+Create `templates/standup.md`:
+
+```markdown
+---
+title: "Standup — {{date}}"
+type: standup
+created: {{timestamp}}
+---
+
+## Yesterday
+-
+
+## Today
+-
+
+## Blockers
+-
+```
+
+Then use it:
+
+```bash
+clawvault template create standup --title "Standup — 2026-02-15"
+```
+
+### Example: Meeting notes template
+
+Create `templates/meeting.md`:
+
+```markdown
+---
+title: "{{title}}"
+type: meeting
+attendees: []
+created: {{timestamp}}
+---
+
+## Agenda
+-
+
+## Notes
+-
+
+## Action Items
+-
+
+## Decisions
+-
+```
+
+<Callout type="info">
+Template variables like `{{date}}` and `{{timestamp}}` are replaced at creation time. The `{{title}}` variable is replaced by the `--title` flag value.
+</Callout>
+
+## Best Practices
+
+- **Use templates for recurring documents** — if you create the same structure more than twice, make it a template
+- **Keep frontmatter consistent** — templates enforce schema consistency across documents of the same type
+- **Version your templates** — they live in your vault, so they're version-controlled with git

@@ -1,0 +1,141 @@
+---
+title: "Handoffs"
+description: "Session transition records for continuity across context resets"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+# Handoffs
+
+Handoffs are session transition records. When an agent finishes a work session, `sleep` creates a handoff that captures what happened, what's next, and what's blocked. When the agent starts again, `wake` reads recent handoffs to restore context.
+
+This is how agents survive context death — the gap between sessions where all in-memory state is lost.
+
+## Structure
+
+A handoff captures:
+
+| Field | Description |
+|-------|-------------|
+| `summary` | What was accomplished this session |
+| `next` | What should happen next (comma-separated items) |
+| `blocked` | What's currently blocked |
+| `decisions` | Key decisions made during the session |
+| `questions` | Open questions that need answers |
+| `feeling` | Emotional/energy state (helps calibrate next session) |
+
+## File Structure
+
+Handoffs are stored in `handoffs/` with timestamp-based filenames:
+
+```markdown
+---
+title: "Session handoff — 2026-02-15 14:30"
+session: clawdious:main
+created: 2026-02-15T14:30:00Z
+---
+
+## Summary
+Implemented JWT auth middleware and wrote integration tests. All 12 tests passing.
+
+## Next Steps
+- Deploy to staging for QA
+- Update API docs with new auth headers
+- Set up key rotation cron job
+
+## Blocked
+- Waiting on Pedro's security review before production deploy
+
+## Decisions
+- Using RS256 signing instead of HS256 for key rotation support
+- Access tokens expire in 15 minutes, refresh tokens in 7 days
+
+## Questions
+- Should we support API key auth as a fallback for CI/CD?
+
+## Feeling
+Productive session. Auth system is solid. Slightly concerned about the refresh token edge cases.
+```
+
+## CLI Commands
+
+### `sleep`
+
+End a session and create a handoff.
+
+```bash
+clawvault sleep "Implemented JWT auth, all tests passing" \
+  --next "deploy to staging,update API docs" \
+  --blocked "waiting on security review" \
+  --decisions "RS256 over HS256,15min access tokens" \
+  --questions "API key fallback for CI?" \
+  --feeling "productive, slightly concerned about edge cases"
+```
+
+| Flag | Description |
+|------|-------------|
+| `-n, --next <items>` | Next steps (comma-separated) |
+| `-b, --blocked <items>` | Blocked items (comma-separated) |
+| `-d, --decisions <items>` | Key decisions (comma-separated) |
+| `-q, --questions <items>` | Open questions (comma-separated) |
+| `-f, --feeling <state>` | Emotional/energy state |
+| `-s, --session <key>` | Session key |
+| `--session-transcript <path>` | Transcript path for auto-observe |
+| `--reflect` | Run weekly reflection after handoff |
+| `--index` | Update qmd index after handoff |
+| `--no-git` | Skip git commit prompt |
+| `-v, --vault <path>` | Vault path |
+
+`sleep` can also trigger the observe pipeline on the session transcript (`--session-transcript`) and optionally run a reflection pass (`--reflect`).
+
+### `wake`
+
+Start a session by recovering context from recent handoffs.
+
+```bash
+# Brief recap (default)
+clawvault wake
+
+# Full recap with more detail
+clawvault wake --full
+
+# Include more handoff history
+clawvault wake --handoff-limit 5
+```
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-n, --handoff-limit <n>` | Number of recent handoffs to include | 3 |
+| `--full` | Show full recap | brief |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+
+`wake` outputs:
+- Recent handoff summaries
+- Current task status (open and blocked tasks)
+- Any context death recovery info (from `checkpoint`/`recover`)
+
+## The Sleep → Wake Cycle
+
+```
+Session starts → clawvault wake (read handoffs, recover context)
+        ↓
+Work happens (tasks, decisions, observations)
+        ↓
+Session ends → clawvault sleep "summary" (create handoff)
+        ↓
+Context dies (session reset, crash, /new)
+        ↓
+Next session → clawvault wake (reads the handoff, picks up where you left off)
+```
+
+<Callout type="warn">
+If a session crashes without `sleep`, use `clawvault recover` to check for context death. The ClawVault hook auto-checkpoints before `/new`, but unexpected crashes may lose context.
+</Callout>
+
+## Best Practices
+
+- **Always sleep before ending a session** — even a brief summary is better than nothing
+- **Be specific in next steps** — "deploy to staging" beats "continue working"
+- **Record blockers honestly** — future-you needs to know what's stuck
+- **Use feeling** — it helps calibrate the next session's energy and approach
+- **Include decisions** — the handoff is often the only record of in-session choices

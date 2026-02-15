@@ -5,6 +5,8 @@ description: "Manage tasks as markdown files in your vault"
 
 The `task` command lets you create, track, and complete work items stored in your vault's `tasks/` folder.
 
+For a comprehensive guide to the task primitive — frontmatter schema, transition logging, Kanban integration, and workflows — see [Primitives → Tasks](/docs/primitives/tasks).
+
 ## Usage
 
 ```bash
@@ -13,6 +15,7 @@ clawvault task list [options]
 clawvault task update <slug> [options]
 clawvault task done <slug> [options]
 clawvault task show <slug> [options]
+clawvault task transitions [task_id] [options]
 ```
 
 ### `task add` options
@@ -72,6 +75,7 @@ clawvault task show <slug> [options]
 | `--clear-depends-on` | Clear dependencies | — |
 | `--confidence <value>` | Transition confidence (0-1) | — |
 | `--reason <reason>` | Reason for status change | — |
+| `--clear-reason` | Clear reason | — |
 
 ### `task done` options
 
@@ -86,6 +90,15 @@ clawvault task show <slug> [options]
 | Flag | Description | Default |
 |------|-------------|---------|
 | `-v, --vault <path>` | Vault path | Nearest vault |
+| `--json` | Output as JSON | false |
+
+### `task transitions` options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--agent <id>` | Filter by agent | all |
+| `--failed` | Show only regression transitions | false |
 | `--json` | Output as JSON | false |
 
 ## Examples
