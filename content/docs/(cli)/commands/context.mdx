@@ -239,21 +239,6 @@ clawvault context "query" --budget auto
 - 25% - Graph neighbors 
 - 15% - Metadata and structure
 
-## Verbose Mode
-
-Get detailed scoring explanations:
-
-```bash
-clawvault context "database migration" -v --format json
-```
-
-**Explain fields:**
-- `semanticScore` - Query relevance (0-1)
-- `graphScore` - Connection strength (0-1) 
-- `temporalScore` - Recency factor (0-1)
-- `signals` - Why this result surfaced
-- `rationale` - Human-readable explanation
-
 ## Integration Patterns
 
 ### OpenClaw Hook Integration
@@ -309,8 +294,6 @@ diff default.md incident.md
 ```
 
 ### Graph Expansion (--max-hops)
-
-_Updated in v2.2.0: `--max-hops` replaces `--graph-depth` (which remains as an alias)._
 
 ```bash
 # Shallow traversal (faster, focused)

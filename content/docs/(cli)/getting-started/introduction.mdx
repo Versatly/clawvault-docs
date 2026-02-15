@@ -95,7 +95,7 @@ ClawVault consists of four components, two of which are optional:
 
 1. **ClawVault CLI** -- the primary interface. Commands for storing, searching, sleeping, waking, observing, and managing vault content.
 2. **Vault** -- a directory of Markdown files with `.clawvault.json` config. Plain text, human-readable, Git-friendly.
-3. **qmd** (optional) -- provides BM25 and vector search. Without it, ClawVault cannot initialize or search. Install via `bun install -g github:tobi/qmd`.
+3. **qmd** (optional) -- provides BM25 and vector search. Without it, ClawVault's search commands (`search`, `vsearch`) will not work, but all other features function normally. Install via `npm install -g github:tobi/qmd`.
 4. **OpenClaw Hook** (optional) -- automatic integration with the OpenClaw agent framework. Provides context death detection on startup, auto-checkpoint before `/new`, and memory injection on session start. See [Hook Setup](/integrations/openclaw/hook-setup).
 
 ## Who ClawVault Is For

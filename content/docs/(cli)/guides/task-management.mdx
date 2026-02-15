@@ -23,7 +23,7 @@ This creates a Markdown file in `tasks/` with frontmatter:
 ---
 id: task-a1b2c3
 title: Implement auth flow
-status: todo
+status: open
 project: api
 owner: clawdious
 priority: high
@@ -97,7 +97,7 @@ clawvault task update a1b2c3 --status in-progress --reason "starting work" --con
 
 ### Available Statuses
 
-`todo` → `in-progress` → `review` → `done`
+`open` → `in-progress` → `blocked` → `done`
 
 You can also set `blocked` from any active status:
 

@@ -61,21 +61,6 @@ clawvault remember project "User Dashboard Redesign" \
 
 ### Advanced Examples
 
-#### With Tags and Templates
-```bash
-clawvault remember decision "API Rate Limiting Strategy" \
- --content "Implement token bucket with Redis backend" \
- --tags "api,performance,redis" \
- --template decision
-```
-
-#### Custom Categories
-```bash
-clawvault remember fact "Production Database Config" \
- --content "Host: prod-db.company.com, Port: 5432" \
- --category infrastructure
-```
-
 #### Wiki-Links in Content
 ```bash
 clawvault remember decision "Choose React over Vue" \
@@ -258,13 +243,6 @@ clawvault remember decision "Use TypeScript" --content "Decided to use TypeScrip
 ```bash
 clawvault remember project "Mobile App v2" \
  --content "Related to [[api-redesign-decision]] and [[react-native-preference]]. Targets Q2 launch."
-```
-
-### Tag for Discovery
-```bash
-clawvault remember lesson "Database Connection Pooling" \
- --content "PgBouncer reduced connection overhead by 60%" \
- --tags "database,performance,postgresql,optimization"
 ```
 
 ## Error Handling

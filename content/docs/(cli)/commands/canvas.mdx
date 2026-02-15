@@ -1,9 +1,9 @@
 ---
 title: "canvas"
-description: "Generate Obsidian JSON Canvas dashboards with multiple templates"
+description: "Generate an Obsidian JSON Canvas dashboard from vault state"
 ---
 
-The `canvas` command generates visual dashboards as Obsidian JSON Canvas files. Choose from built-in templates or filter by project, owner, or scope.
+The `canvas` command generates a visual dashboard as an Obsidian JSON Canvas file from your vault's current state — tasks, projects, graph stats, and observations.
 
 ## Usage
 
@@ -18,43 +18,14 @@ clawvault canvas [options]
 | `-v, --vault <path>` | Vault path | Nearest vault |
 | `--output <path>` | Output canvas file path | `dashboard.canvas` |
 
-## Templates
-
-### `default` — Two-Column Dashboard
-
-The original layout with knowledge graph stats on the left and task triage on the right. Includes data flow diagram, vault activity metrics, and observation summaries.
-
-### `brain` — Brain Architecture
-
-A 4-quadrant system overview inspired by neuroscience-themed knowledge management:
-
-- **Hippocampus** (top-left): vault structure with category card grid, content flow pipeline
-- **Direction** (top-right): vault stats, recent decisions, open loops
-- **Agent Workspace** (bottom-left): 3-column task triage — active, blocked, backlog
-- **Knowledge Graph** (bottom-right): node/edge stats, most-connected entities, category bars
-
-### `project-board` — Owner-Centric Task Board
-
-Kanban-style board focused on task management for agents and humans:
-
-- Status columns: Open / In Progress / Blocked / Done
-- Priority icons: 🔴 critical, 🟠 high, 🟡 medium
-- Owner cards distinguishing agents (🤖) from humans (👤)
-- Backlog grouped by project
-- Blocked-by edges connecting dependent tasks
-
-### `sprint` — Sprint Focus
-
-Weekly focus board with sprint metrics, recent decisions, and open loops.
-
 ## Examples
 
 ```bash
-# Default dashboard
+# Generate default dashboard
 clawvault canvas
 
 # Custom output path
-clawvault canvas --output brain-dashboard.canvas
+clawvault canvas --output my-dashboard.canvas
 
 # Specific vault
 clawvault canvas -v ~/my-vault
@@ -64,4 +35,4 @@ clawvault canvas -v ~/my-vault
 
 Canvas files follow the [JSON Canvas specification](https://jsoncanvas.org) and open directly in Obsidian. File nodes are clickable — task cards link to their markdown files.
 
-The `brain` template reads from the memory graph index (run `clawvault graph build` first for best results). The `project-board` template reads from `tasks/` and `backlog/` directories.
+The generated dashboard includes vault statistics, task triage columns, and knowledge graph metrics drawn from your vault's current state.

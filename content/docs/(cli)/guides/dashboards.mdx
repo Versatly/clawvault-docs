@@ -12,78 +12,27 @@ ClawVault generates **Obsidian JSON Canvas** files for visual dashboards, plus t
 ## Canvas Command
 
 ```bash
-clawvault canvas [template] [options]
+clawvault canvas [options]
 ```
 
 Generate a visual canvas file that opens in Obsidian's Canvas view:
 
 ```bash
-# Default template
+# Generate dashboard
 clawvault canvas
 
-# Specific template
-clawvault canvas brain
-clawvault canvas project-board --project api
-clawvault canvas sprint --owner clawdious
+# Custom output path
+clawvault canvas --output brain-dashboard.canvas
 ```
 
-### Templates
-
-#### `default`
-
-A general-purpose canvas showing vault health, recent activity, and key metrics. Good starting point for any vault.
-
-#### `brain`
-
-The **Brain Architecture** template — a 4-quadrant layout designed for agent workspaces:
-
-| Quadrant | Purpose |
-|----------|---------|
-| **Hippocampus** (top-left) | Recent memories, daily notes, active context |
-| **Direction** (top-right) | Goals, commitments, active projects |
-| **Agent Workspace** (bottom-left) | Current tasks, in-progress work, blockers |
-| **Knowledge Graph** (bottom-right) | Connected concepts, people, decisions |
-
-```bash
-clawvault canvas brain
-```
-
-This is the recommended layout for agents using ClawVault as their primary memory system.
-
-#### `project-board`
-
-A **Kanban-style** board with columns for each task status:
-
-- **Todo** — tasks waiting to start
-- **In Progress** — active work
-- **Review** — awaiting review
-- **Blocked** — stuck tasks (highlighted)
-- **Done** — completed (opt-in with `--include-done`)
-
-Tasks show priority icons (🔴 critical, 🟠 high, 🟡 medium) and owner cards (🤖 for agents, 👤 for humans).
-
-```bash
-clawvault canvas project-board --project api
-clawvault canvas project-board --include-done
-```
-
-#### `sprint`
-
-A focused view of current sprint work, filtered by owner or project. Shows task counts, completion percentage, and blocked items.
-
-```bash
-clawvault canvas sprint --owner clawdious
-```
-
-### Customization Flags
+### Options
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `--owner <name>` | Filter to a specific owner | All owners |
-| `--project <name>` | Filter to a specific project | All projects |
-| `--width <px>` | Canvas width | `1200` |
-| `--height <px>` | Canvas height | `800` |
-| `--include-done` | Include completed tasks | `false` |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--output <path>` | Output canvas file path | `dashboard.canvas` |
+
+The generated dashboard includes vault statistics, task triage columns, and knowledge graph metrics.
 
 ## Text Dashboard
 

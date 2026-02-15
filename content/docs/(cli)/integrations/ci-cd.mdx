@@ -53,22 +53,10 @@ Exit code: 1
 Verify that the OpenClaw hook is correctly installed and functional:
 
 ```bash
-clawvault doctor --ci
+clawvault doctor
 ```
 
-The `--ci` flag outputs machine-readable results and returns a non-zero exit code on failure:
-
-```bash
-$ clawvault doctor --ci
-vault_path: /home/agent/.openclaw/workspace/memory
-vault_valid: true
-hook_installed: true
-hook_version: 3
-qmd_available: true
-search_index: valid
-graph_index: valid
-config_valid: true
-```
+`doctor` checks vault structure, hook installation, qmd availability, and graph index health. It returns a non-zero exit code when critical issues are found.
 
 ## Automated Vault Health Checks
 
@@ -79,16 +67,16 @@ Combine multiple checks into a single validation step:
 set -e
 
 # Check vault configuration
-clawvault doctor --ci
+clawvault doctor
 
 # Verify compatibility
 clawvault compat --strict
 
-# Validate search index
-clawvault reindex --dry-run
+# Rebuild search index
+clawvault reindex
 
 # Check for orphaned links
-clawvault link --orphans --ci
+clawvault link --orphans
 
 echo "All health checks passed"
 ```

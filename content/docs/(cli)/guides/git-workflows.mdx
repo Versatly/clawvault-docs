@@ -56,14 +56,13 @@ The `sleep` command supports automatic Git commits. When the agent ends a sessio
 
 ```bash
 clawvault sleep "finished auth module" \
-  --next "write tests" \
-  --git-commit
+  --next "write tests"
 ```
 
-This stages all changed vault files and creates a commit with the sleep summary as the message. To also push:
+By default, `sleep` prompts to commit dirty git state. Use `--no-git` to skip the prompt:
 
 ```bash
-clawvault sleep "finished auth module" --git-commit --git-push
+clawvault sleep "finished auth module" --no-git
 ```
 
 ### Automating Commits

@@ -31,13 +31,19 @@ Conversation transcript
 4. **Routing**: High-value items are auto-routed to typed categories (decisions, lessons, etc.)
 5. **Storage**: The compressed observation lands in `observations/` with frontmatter
 
-## Priority Levels
+## Scored Importance System
 
-| Level | Emoji | Meaning | Examples |
-|-------|-------|---------|---------|
-| Critical | 🔴 | Must not be lost — decisions, commitments, credentials | "We decided to use JWT tokens", "Pedro wants weekly reports" |
-| Notable | 🟡 | Worth remembering — insights, preferences, patterns | "The team prefers async standups", "React Server Components worked well" |
-| Routine | 🟢 | Low-value context — general discussion, debugging steps | "Tried three approaches to fix the bug", "Discussed lunch plans" |
+_Updated in v2.2.0_
+
+Observations use scored importance tags with the format `[type|c=confidence|i=importance]`:
+
+| Importance | Score | Retention | Examples |
+|------------|-------|-----------|---------|
+| **Structural** | >= 0.8 | Permanent | Decisions, version releases, client demos, blockers |
+| **Potential** | 0.4–0.79 | Long-term | Deploys, tools built, preferences, architecture discussions |
+| **Contextual** | < 0.4 | Decays after 7 days | Routine tasks, intermediate steps, minor fixes |
+
+Available types: `decision`, `preference`, `fact`, `commitment`, `milestone`, `lesson`, `relationship`, `project`.
 
 ## File Structure
 

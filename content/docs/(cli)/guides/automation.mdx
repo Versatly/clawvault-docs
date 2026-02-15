@@ -15,22 +15,19 @@ ClawVault is designed to run unattended. Observation sweeps, memory maintenance,
 The `observe` command compresses raw session transcripts into categorized observations. Running it on a schedule ensures no session data is left unprocessed.
 
 ```bash
-# Run every 30 minutes
-*/30 * * * * cd /path/to/vault && clawvault observe --compress 2>&1 >> /var/log/clawvault-observe.log
+# Run active observation every 30 minutes
+*/30 * * * * cd /path/to/vault && clawvault observe --active 2>&1 >> /var/log/clawvault-observe.log
 ```
 
-For vaults with high session volume, split observation into two passes:
+For one-shot compression of specific files, use `--compress <file>`:
 
 ```bash
-# Fast rule-based pass every 15 minutes
-*/15 * * * * clawvault observe
-
-# LLM-compressed pass every 2 hours
-0 */2 * * * clawvault observe --compress
+# Compress a specific transcript
+clawvault observe --compress ~/sessions/latest.jsonl
 ```
 
 <Callout type="info">
-The `--compress` flag requires an LLM API key (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, or `GEMINI_API_KEY`). Without it, `observe` falls back to rule-based extraction.
+The `--compress` flag requires an LLM API key (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, or `GEMINI_API_KEY`) and a file path argument. The `--active` mode is recommended for automated observation of running sessions.
 </Callout>
 
 ## OpenClaw Heartbeat Integration
