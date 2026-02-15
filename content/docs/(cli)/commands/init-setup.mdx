@@ -26,7 +26,7 @@ clawvault init [path] [options]
 | `--no-tasks` | Skip `tasks/` and `backlog/` directories | false |
 | `--no-graph` | Skip initial graph build | false |
 | `--categories <list>` | Comma-separated custom categories | Default 16 |
-| `--canvas <template>` | Generate a canvas on init (`default`, `brain`, `project-board`, `sprint`) | None |
+| `--canvas` | Generate a vault status canvas dashboard on init | false |
 | `--theme <style>` | Graph color theme: `neural`, `minimal`, `none` | `none` |
 | `--minimal` | Minimal vault — memory categories only, no tasks/bases/graph | false |
 
@@ -65,7 +65,7 @@ clawvault setup [options]
 | `--theme <style>` | Graph color theme: `neural`, `minimal`, `none` | `neural` |
 | `--graph-colors` / `--no-graph-colors` | Opt in/out of Obsidian graph theming | Included |
 | `--bases` / `--no-bases` | Opt in/out of Obsidian Bases task views | Included |
-| `--canvas [template]` | Generate canvas dashboard | Not generated |
+| `--canvas` / `--no-canvas` | Generate canvas dashboard | Not generated |
 | `--force` | Overwrite existing configuration files | Skip existing |
 
 <Callout type="info">

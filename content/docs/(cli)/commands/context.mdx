@@ -55,12 +55,14 @@ graph TD
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `--profile <name>` | Context profile (default/planning/incident/handoff/auto) | default |
-| `--format <fmt>` | Output format (markdown/json) | markdown |
-| `--budget <tokens>` | Target token budget for results | 2000 |
+| `-n, --limit <n>` | Max results | 5 |
+| `--format <format>` | Output format (markdown/json) | markdown |
+| `--recent` | Boost recent documents | true |
+| `--include-observations` | Include observation memories in output | true |
+| `--budget <number>` | Optional token budget for assembled context | — |
+| `--profile <profile>` | Context profile (default/planning/incident/handoff/auto) | default |
 | `--max-hops <n>` | Maximum graph expansion hops | 2 |
-| `--graph-depth <n>` | Graph traversal depth (alias for --max-hops) | 2 |
-| `-v, --verbose` | Include explain metadata | false |
+| `-v, --vault <path>` | Vault path | Nearest vault |
 
 ## Context Profiles
 

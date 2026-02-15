@@ -24,7 +24,21 @@ clawvault link --backlinks people/pedro.md
 
 # Find broken wiki-links
 clawvault link --orphans
+
+# Rebuild backlinks index
+clawvault link --rebuild
 ```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--all` | Link all files in vault | false |
+| `--backlinks <file>` | Show backlinks to a file | — |
+| `--dry-run` | Show what would be linked without changing files | false |
+| `--orphans` | List broken wiki-links | false |
+| `--rebuild` | Rebuild backlinks index | false |
+| `-v, --vault <path>` | Vault path | Nearest vault |
 
 ## Commands
 

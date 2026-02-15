@@ -53,10 +53,10 @@ clawvault remember project "User Dashboard Redesign" \
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `--content <text>` | Main content (required) | - |
-| `--tags <list>` | Comma-separated tags | None |
-| `--category <name>` | Override default category | Derived from type |
-| `--template <name>` | Use document template | None |
+| `--content <content>` | Content body | — |
+| `-f, --file <file>` | Read content from file | — |
+| `--stdin` | Read content from stdin | false |
+| `-v, --vault <path>` | Vault path | Nearest vault |
 | `--no-index` | Skip qmd index update | false |
 
 ### Advanced Examples
@@ -110,8 +110,8 @@ clawvault capture "Auth flow breaks when user has no email - investigate TokenEr
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `--title <text>` | Custom title (auto-generated if empty) | From content |
-| `--category <name>` | Category to store in | inbox |
+| `-t, --title <title>` | Note title | Auto-generated from content |
+| `-v, --vault <path>` | Vault path | Nearest vault |
 | `--no-index` | Skip qmd index update | false |
 
 ### Auto-Title Generation

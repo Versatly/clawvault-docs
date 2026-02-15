@@ -100,8 +100,8 @@ $ clawvault compat
 | Flag | Description | Default |
 |------|-------------|---------|
 | `--strict` | Exit non-zero on warnings (CI mode) | false |
-| `--format <fmt>` | Output format (text/json) | text |
 | `--base-dir <path>` | Custom project root for testing | Current directory |
+| `--json` | Output as JSON | false |
 
 ## Strict Mode for CI
 
@@ -214,7 +214,7 @@ clawvault context "query" --profile auto
 Get machine-readable compatibility data:
 
 ```bash
-clawvault compat --format json
+clawvault compat --json
 ```
 
 ```json
@@ -284,7 +284,7 @@ jobs:
  run: npm install -g clawvault
  
  - name: Validate Compatibility
- run: clawvault compat --strict --format json > compat-report.json
+ run: clawvault compat --strict --json > compat-report.json
  
  - name: Upload Report
  uses: actions/upload-artifact@v3
@@ -379,7 +379,7 @@ $ clawvault compat
 
 ```bash
 # Daily compatibility monitoring
-0 9 * * * /usr/local/bin/clawvault compat --strict --format json > /var/log/clawvault-compat.json
+0 9 * * * /usr/local/bin/clawvault compat --strict --json > /var/log/clawvault-compat.json
 
 # Alert on failures 
 if ! clawvault compat --strict; then
@@ -391,7 +391,7 @@ fi
 
 ```bash
 # Generate health report
-clawvault compat --format json | jq '.summary'
+clawvault compat --json | jq '.summary'
 
 {
  "totalChecks": 15,

@@ -87,12 +87,11 @@ Run `clawvault link --orphans` to fix orphan nodes.
 
 ## Options
 
-| Flag | Description |
-|------|-------------|
-| `--refresh` | Rebuild graph index from scratch |
-| `--format <fmt>` | Output format (text/json) | 
-| `--components` | Show connected component details |
-| `--orphans` | List only orphan (unconnected) nodes |
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--refresh` | Rebuild graph index before showing summary | false |
+| `--json` | Output as JSON | false |
+| `-v, --vault <path>` | Vault path | Nearest vault |
 
 ## Graph Index Management
 

@@ -53,17 +53,11 @@ Weekly focus board with sprint metrics, recent decisions, and open loops.
 # Default dashboard
 clawvault canvas
 
-# Brain architecture overview
-clawvault canvas --template brain --output brain-dashboard.canvas
+# Custom output path
+clawvault canvas --output brain-dashboard.canvas
 
-# Project board filtered by owner
-clawvault canvas --template project-board --owner clawdious
-
-# Project-scoped board
-clawvault canvas --template project-board --project hale-pet-door
-
-# List all available templates
-clawvault canvas --list-templates
+# Specific vault
+clawvault canvas -v ~/my-vault
 ```
 
 ## Details

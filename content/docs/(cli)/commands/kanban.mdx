@@ -24,8 +24,9 @@ clawvault kanban sync [options]
 
 | Flag | Description | Default |
 |------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
 | `--output <path>` | Output board file path | `Board.md` |
-| `--group-by <mode>` | Lane grouping (`status`, `priority`, `project`, `owner`) | `status` |
+| `--group-by <field>` | Lane grouping (`status`, `priority`, `project`, `owner`) | `status` |
 | `--filter-project <project>` | Include only tasks from one project | all |
 | `--filter-owner <owner>` | Include only tasks for one owner | all |
 | `--include-done` | Include completed tasks/lane content | false |
@@ -48,8 +49,15 @@ clawvault kanban sync --filter-project api
 Reads an existing Kanban board markdown file and applies lane-driven updates back to task files.
 
 ```bash
-clawvault kanban import
+clawvault kanban import [options]
 ```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--output <path>` | Board markdown path | `Board.md` |
 
 During import, ClawVault detects lane changes and updates task frontmatter fields such as `status`, `priority`, `project`, and `owner`.
 

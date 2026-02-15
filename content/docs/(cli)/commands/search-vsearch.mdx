@@ -33,9 +33,13 @@ clawvault search "PostgreSQL connection"
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `-c, --category <name>` | Restrict to specific category | All categories |
-| `-l, --limit <number>` | Max results to return | 10 |
-| `--snippet-length <chars>` | Length of content snippets | 200 |
+| `-n, --limit <n>` | Max results to return | 10 |
+| `-c, --category <category>` | Filter by category | All categories |
+| `--tags <tags>` | Filter by tags (comma-separated) | — |
+| `--recent` | Boost recent documents | false |
+| `--full` | Include full content in results | false |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--json` | Output as JSON | false |
 
 ### Category Filtering
 
@@ -119,9 +123,13 @@ Same as `search`:
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `-c, --category <name>` | Restrict to specific category | All categories |
-| `-l, --limit <number>` | Max results to return | 10 |
-| `--snippet-length <chars>` | Length of content snippets | 200 |
+| `-n, --limit <n>` | Max results to return | 5 |
+| `-c, --category <category>` | Filter by category | All categories |
+| `--tags <tags>` | Filter by tags (comma-separated) | — |
+| `--recent` | Boost recent documents | false |
+| `--full` | Include full content in results | false |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--json` | Output as JSON | false |
 
 ### Example Output
 
