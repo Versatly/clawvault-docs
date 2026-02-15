@@ -22,21 +22,21 @@ clawvault wake [options]
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `--handoff-limit <n>` | Max recent handoffs to include | 3 |
-| `--brief` | Compact output for token efficiency | true |
-| `--no-summary` | Skip LLM executive summary generation | false |
+| `-n, --handoff-limit <n>` | Max recent handoffs to include | 3 |
+| `--full` | Show full recap (default is brief/compact) | false |
+| `-v, --vault <path>` | Vault path | auto-detected |
 
 ## Examples
 
 ```bash
-# Standard wake flow
+# Standard wake flow (brief by default)
 clawvault wake
 
 # Include more handoffs
 clawvault wake --handoff-limit 5
 
-# Skip executive summary generation
-clawvault wake --no-summary
+# Full verbose output
+clawvault wake --full
 ```
 
 ## Details
