@@ -66,7 +66,7 @@ Configuration            ✅ HEALTHY
 
 OpenClaw Integration     ⚠️  NEEDS ATTENTION
   └─ Hook installed     ✅ clawvault hook found
-  └─ Hook enabled       ❌ run: openclaw hooks enable clawvault
+  └─ Hook enabled       ❌ run: openclaw hooks install clawvault && openclaw hooks enable clawvault
   └─ Session access     ✅ ~/.openclaw/agents accessible
 
 Dependencies             ✅ HEALTHY
@@ -79,14 +79,14 @@ Data Integrity          ✅ HEALTHY
   └─ Orphan files       ✅ none found
 
 Overall Status: MOSTLY HEALTHY (1 issue)
-Next: Run 'openclaw hooks enable clawvault' to fix integration
+Next: Run 'openclaw hooks install clawvault && openclaw hooks enable clawvault' to fix integration
 ```
 
 ## Common Issues & Fixes
 
 ### Hook Not Enabled
 ```
-❌ Hook enabled: run: openclaw hooks enable clawvault
+❌ Hook enabled: run: openclaw hooks install clawvault && openclaw hooks enable clawvault
 ```
 **Fix:** Run the suggested command to enable the ClawVault hook.
 

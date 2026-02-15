@@ -1,371 +1,64 @@
 ---
 title: Session Start Context Injection
-description: Automatic context injection at session start using session:start events and --profile auto for intelligent memory retrieval.
+description: Hook-assisted context injection for new OpenClaw sessions using profile auto-selection.
 ---
 
 # Session Start Context Injection
 
-The ClawVault hook automatically injects relevant context when new OpenClaw sessions start, giving agents immediate access to important background information.
+The ClawVault hook can inject relevant memory context when OpenClaw starts a session.
 
 ## How It Works
 
-When OpenClaw starts a new session:
+On `session:start`, the hook:
 
-1. **Event Trigger:** OpenClaw fires a `session:start` event
-2. **Context Analysis:** Hook analyzes current situation and available memories
-3. **Profile Selection:** Determines appropriate context profile (`auto`, `planning`, `incident`, etc.)
-4. **Memory Retrieval:** Retrieves relevant memories using graph-aware search
-5. **Context Injection:** Injects formatted context into session start
+1. reads startup prompt/session cues
+2. calls `clawvault context "<prompt>" --format json --profile auto`
+3. injects top context bullets into initial session messages
 
-## Profile Auto Selection
+This improves first-turn quality and reduces "cold start" behavior.
 
-The `--profile auto` mode intelligently chooses the best context profile based on environmental cues:
+## Validate
 
-### Detection Signals
-
-| Signal | Profile | Rationale |
-|--------|---------|-----------|
-| Recent context death | `incident` | Need recovery-focused context |
-| Time since last session > 8 hours | `handoff` | Need transition context |
-| Active projects with recent updates | `planning` | Need strategic context |
-| High-priority items in inbox | `incident` | Need action-oriented context |
-| Normal continuation | `default` | Standard balanced context |
-
-### Profile Characteristics
-
-**Default Profile**
-- Balanced mix of recent memories
-- General context without bias
-- 3-5 key memories across categories
-
-**Planning Profile**  
-- Strategic and goal-oriented memories
-- Project status and roadmaps
-- Decision history and lessons learned
-
-**Incident Profile**
-- Recent urgent items and blockers
-- Error logs and troubleshooting context
-- Recovery procedures and contacts
-
-**Handoff Profile**
-- Session transition information
-- Incomplete tasks and next steps
-- Continuity markers and progress updates
-
-## Context Injection Format
-
-Injected context follows a consistent, parseable format:
-
-### Standard Injection
-```markdown
-# 🧠 Session Context (Auto-Selected: Default Profile)
-
-## Recent Memories
-- **Decision:** [[database-choice]] - Chose Postgres over SQLite for concurrency
-- **Lesson:** [[context-death-recovery]] - Checkpoint frequently during heavy work
-- **Project:** [[clawvault-docs]] - Documentation sprint in progress
-
-## Active Items
-- [ ] Finish OpenClaw integration documentation  
-- [ ] Test context injection with new hook
-- [ ] Review PR feedback on memory graph
-
-## Key Relationships
-- **[[pedro]]** - Project lead, daily standup at 9 AM
-- **[[justin-dukes]]** - Client contact for Hale Pet Door
-
-*Context generated: 2024-01-15 15:30:42 | Profile: default | Memories: 8*
-```
-
-### Incident Profile Injection
-```markdown
-# 🚨 Session Context (Auto-Selected: Incident Profile)
-
-## Urgent Items
-- **BLOCKER:** API keys expired for production deployment
-- **ERROR:** Memory graph rebuild failed, needs investigation  
-- **DEADLINE:** Client demo tomorrow at 2 PM
-
-## Recent Problems
-- [[production-outage-2024-01-14]] - Database connection issues resolved
-- [[api-rate-limiting]] - Temporary workaround in place
-
-## Recovery Resources
-- [[emergency-contacts]] - On-call rotation and escalation
-- [[deployment-rollback]] - Standard rollback procedures
-
-*Context generated: 2024-01-15 15:30:42 | Profile: incident | Memories: 12*
-```
-
-### Handoff Profile Injection
-```markdown
-# 🔄 Session Context (Auto-Selected: Handoff Profile)
-
-## Previous Session Summary
-- **Ended:** 8 hours ago (2024-01-15 07:30)
-- **Working on:** ClawVault documentation improvements
-- **Completed:** Commands section, repair-session docs
-- **In progress:** OpenClaw integration guides
-
-## Next Steps
-1. Finish auto-checkpoint documentation
-2. Create advanced usage examples
-3. Build and test documentation site
-
-## Handoff Notes
-- "Good progress on docs, integration section next"
-- "Examples need more real-world scenarios"
-- "Consider adding troubleshooting flowcharts"
-
-*Context generated: 2024-01-15 15:30:42 | Profile: handoff | Memories: 6*
-```
-
-## Configuration Options
-
-### Context Injection Settings
 ```bash
-# Enable/disable context injection
-clawvault config set context_injection_enabled true
-
-# Control injection detail level  
-clawvault config set context_injection_detail standard  # minimal, standard, detailed
-
-# Set memory count limits
-clawvault config set context_max_memories 8
+openclaw hooks install clawvault
+openclaw hooks enable clawvault
+openclaw hooks list --verbose
+openclaw hooks info clawvault
+openclaw hooks check
+clawvault compat --strict
 ```
 
-### Profile Selection Tuning
+Restart gateway after install/enable.
+
+## Manual Equivalent
+
+If you are not using hook automation:
+
 ```bash
-# Handoff threshold (hours since last session)
-clawvault config set handoff_threshold_hours 8
-
-# Incident detection sensitivity
-clawvault config set incident_detection_sensitivity medium  # low, medium, high
-
-# Default profile fallback
-clawvault config set default_context_profile default
-```
-
-### Performance Controls
-```bash
-# Max time for context generation
-clawvault config set context_injection_timeout 3000  # 3 seconds
-
-# Disable context for very large vaults
-clawvault config set skip_context_vault_size_mb 500
-```
-
-## Memory Selection Algorithm
-
-The context injection uses ClawVault's graph-aware search:
-
-### Stage 1: Candidate Collection
-- Recent memories (last 7 days)
-- High-priority items (decisions, urgent tasks)
-- Frequently referenced entities
-- Graph neighbors of current focus
-
-### Stage 2: Profile Filtering
-- **Default:** Balanced representation across categories
-- **Planning:** Emphasize goals, projects, strategic decisions
-- **Incident:** Prioritize problems, blockers, urgent items
-- **Handoff:** Focus on continuity, next steps, progress
-
-### Stage 3: Relevance Scoring
-- Recency weight (newer = higher score)
-- Priority weight (urgent = higher score)
-- Graph centrality (well-connected = higher score)  
-- Profile match (aligned with profile = higher score)
-
-### Stage 4: Selection and Formatting
-- Top N memories selected (configurable limit)
-- Formatted with consistent structure
-- Wiki-links preserved for navigation
-
-## Integration Examples
-
-### Normal Day Start
-```
-Session Start Conditions:
-- Last session: 12 hours ago
-- No urgent items
-- Ongoing projects active
-
-Auto-Selected Profile: handoff
-Context: Recent progress + next steps + project status
-```
-
-### Crisis Response
-```
-Session Start Conditions:  
-- Production alerts detected
-- High-priority items in inbox
-- Recent error logs
-
-Auto-Selected Profile: incident
-Context: Problems + blockers + emergency procedures
-```
-
-### Strategic Planning
-```
-Session Start Conditions:
-- Monday morning session
-- Goals review scheduled
-- Multiple projects updating
-
-Auto-Selected Profile: planning  
-Context: Goals + project status + strategic decisions
+clawvault wake
+clawvault context "current priorities" --profile handoff
 ```
 
 ## Troubleshooting
 
-### Context Not Appearing
+### no injected context at session start
 
-**Symptoms:**
-- New sessions start without context injection
-- Agent has no awareness of previous work
-
-**Diagnosis:**
 ```bash
-# Check session:start event handling
-clawvault compat | grep session:start
-
-# Verify context injection enabled
-clawvault config get context_injection_enabled
-
-# Test context generation manually
-clawvault context --profile auto "session start"
+openclaw hooks list --verbose
+openclaw hooks info clawvault
+clawvault compat
 ```
 
-**Solutions:**
+### wrong context shape
+
+Try explicit profile for diagnosis:
+
 ```bash
-# Enable injection if disabled
-clawvault config set context_injection_enabled true
-
-# Reinstall hook if event handling broken
-openclaw hooks install clawvault
-
-# Check vault accessibility
-clawvault doctor
+clawvault context "resuming work" --profile handoff --format json
+clawvault context "urgent production issue" --profile incident --format json
 ```
 
-### Wrong Profile Selection
+## AGENTS.md Safety Note
 
-**Symptoms:**
-- Gets incident profile during normal work
-- Gets default profile during crises
-- Profile selection seems random
-
-**Diagnosis:**
-```bash
-# Test profile selection logic
-clawvault context --explain --profile auto "test"
-
-# Check profile configuration
-clawvault config get incident_detection_sensitivity
-```
-
-**Solutions:**
-```bash
-# Adjust detection sensitivity
-clawvault config set incident_detection_sensitivity low
-
-# Override with specific profile
-clawvault config set default_context_profile planning
-
-# Manual profile testing
-clawvault context --profile incident "production issue"
-```
-
-### Context Generation Too Slow
-
-**Symptoms:**
-- Session start delayed significantly  
-- Timeout errors in logs
-- Context appears incomplete
-
-**Solutions:**
-```bash
-# Reduce timeout
-clawvault config set context_injection_timeout 2000
-
-# Limit memory count
-clawvault config set context_max_memories 5
-
-# Use minimal detail level
-clawvault config set context_injection_detail minimal
-```
-
-## Manual Context Injection
-
-You can trigger context injection manually:
-
-### Test Profile Selection
-```bash
-# See what profile would be auto-selected
-clawvault context --profile auto --explain "session start"
-```
-
-### Manual Profile Override
-```bash
-# Force specific profile
-clawvault context --profile incident "production problem"
-
-# Use in session start
-clawvault context --profile handoff "resuming work"
-```
-
-### Bypass Hook for Testing
-```bash
-# Disable automatic injection temporarily
-clawvault config set context_injection_enabled false
-
-# Test manual injection
-clawvault wake  # includes context retrieval
-```
-
-## Best Practices
-
-:::tip Optimizing Context Injection
-1. **Let auto-selection work** - it learns from your patterns
-2. **Maintain good memory hygiene** - clean, categorized memories improve selection
-3. **Use wiki-links liberally** - improves graph-aware retrieval
-4. **Monitor injection performance** - adjust timeouts if needed
-:::
-
-:::note When to Override
-Manual context control is useful for:
-- **Demos/presentations** - ensure specific context appears
-- **Deep work sessions** - focus context on single project
-- **Crisis situations** - force incident profile when auto-detection misses
-- **Strategic sessions** - force planning profile for goal work
-:::
-
-## Integration with Other Features
-
-### Checkpoint Recovery
-- Context injection includes recent checkpoint data
-- Combines with auto-checkpoint for seamless continuity
-- Handoff profile emphasizes checkpoint content
-
-### Context Death Detection
-- Death detection triggers incident profile selection
-- Recovery context injected alongside normal context
-- Provides comprehensive restart information
-
-### Memory Graph
-- Graph-aware search improves context relevance
-- Entity relationships inform memory selection
-- Wiki-links in context maintain graph connectivity
-
-## Performance Characteristics
-
-| Vault Size | Context Generation Time | Memory Count |
-|------------|------------------------|--------------|
-| Small (<100 files) | 50-200ms | 5-8 memories |
-| Medium (100-500 files) | 200-500ms | 6-10 memories |
-| Large (500-1000 files) | 500ms-1s | 8-12 memories |
-| Very Large (1000+ files) | 1-3s | 10-15 memories |
-
-Timeout protection ensures session start never blocks longer than configured limit (default: 3 seconds).
+Do not replace your full AGENTS.md when adding ClawVault.  
+Append a minimal workflow block (wake/checkpoint/sleep/context) to preserve existing agent behavior and constraints.

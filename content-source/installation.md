@@ -4,192 +4,109 @@ title: "Installation"
 
 # Installation
 
-ClawVault requires **Node.js 18+** and **qmd** for search functionality. This guide covers installation for both OpenClaw users and standalone usage.
+Use this as the canonical setup path for ClawVault + OpenClaw.
 
 ## Prerequisites
 
-### Node.js 18+
-ClawVault is built with modern Node.js. Check your version:
+- Node.js 18+
+- `qmd` installed and available on `PATH` (`qmd --version`)
 
-```bash
-node --version
-# Should show v18.0.0 or higher
-```
+ClawVault currently relies on qmd for core query and context workflows.
 
-If you need to install or upgrade Node.js:
-- **macOS/Linux**: Use [nvm](https://github.com/nvm-sh/nvm)
-- **Windows**: Download from [nodejs.org](https://nodejs.org/)
-
-### qmd (Required)
-ClawVault uses [qmd](https://github.com/Versatly/qmd) for local semantic search. Install it globally:
-
-```bash
-# Using bun (recommended)
-bun install -g qmd
-
-# Using npm
-npm install -g qmd
-```
-
-Verify qmd installation:
-```bash
-qmd --version
-```
-
-## Installation Methods
-
-### For OpenClaw Users (Recommended)
-
-If you're using [OpenClaw](https://openclaw.ai), install ClawVault as a skill:
-
-```bash
-# Install the skill
-clawhub install clawvault
-
-# Enable the hook system for automatic session continuity
-openclaw hooks enable clawvault
-```
-
-This gives you:
-- ✅ ClawVault CLI available globally
-- ✅ Automatic checkpoint before `/new` commands  
-- ✅ Context death detection on startup
-- ✅ Session start context injection
-
-### Standalone Installation
-
-Install ClawVault globally via npm:
+## 1) Install ClawVault CLI
 
 ```bash
 npm install -g clawvault
-```
-
-Verify installation:
-```bash
 clawvault --version
 ```
 
-## Initial Setup
-
-### 1. Initialize Your Vault
-
-Create your first vault with qmd integration:
+## 2) Initialize a Vault
 
 ```bash
-# Initialize with qmd collection
-clawvault init ~/memory --qmd-collection my-memory
-
-# Or specify a custom path  
-clawvault init /path/to/vault --qmd-collection vault-name
+clawvault init ~/memory --name my-brain --qmd-collection my-memory
+clawvault setup --theme neural --canvas
 ```
 
-This creates:
-```
-~/memory/
-├── .clawvault.json         # Config file
-├── .clawvault/             # Internal state
-│   └── graph-index.json    # Memory graph index
-├── decisions/              # Key choices
-├── lessons/                # Things learned
-├── people/                 # Relationships
-├── projects/               # Active work
-├── commitments/            # Promises & deadlines
-├── inbox/                  # Quick captures
-└── handoffs/               # Session continuity
-```
-
-### 2. Environment Setup (Optional)
-
-Set your vault path to avoid auto-discovery overhead:
+Optional environment setup:
 
 ```bash
 export CLAWVAULT_PATH="$HOME/memory"
 ```
 
-Or use shell integration for aliases and environment setup:
+## 3) OpenClaw Hook Setup (Canonical)
 
 ```bash
-# Add to your shell profile (~/.bashrc, ~/.zshrc)
+openclaw hooks install clawvault
+openclaw hooks enable clawvault
+
+# Verify discovery + eligibility + wiring
+openclaw hooks list --verbose
+openclaw hooks info clawvault
+openclaw hooks check
+clawvault compat
+```
+
+Restart your OpenClaw gateway process after installing/enabling hooks.
+
+## Skill vs Hook (Important)
+
+- `clawhub install clawvault` installs skill guidance into workspace flows.
+- `openclaw hooks install clawvault` installs the runtime hook pack.
+- `openclaw hooks enable clawvault` enables the hook entry in OpenClaw config.
+
+For lifecycle automation (`gateway:startup`, `command:new`, `session:start`, etc.), you need the hook install/enable flow.
+
+## AGENTS.md Guidance (Safe Change)
+
+Keep your existing AGENTS instructions. Append a minimal ClawVault block:
+
+```markdown
+## ClawVault
+- Run `clawvault wake` at session start.
+- Run `clawvault checkpoint` during heavy work.
+- Run `clawvault sleep "summary" --next "next steps"` at session end.
+- Use `clawvault context "<task>"` before complex planning/execution.
+```
+
+Do not replace your whole AGENTS.md unless you intentionally want to.
+
+## Shell Integration (Optional)
+
+```bash
 eval "$(clawvault shell-init)"
 ```
 
-This adds helpful aliases:
-- `cv` → `clawvault`
-- `wake` → `clawvault wake`  
-- `sleep` → `clawvault sleep`
-- `capture` → `clawvault capture`
+Current aliases added by shell-init:
 
-### 3. Verify Setup
-
-Run a health check to ensure everything is configured correctly:
-
-```bash
-clawvault doctor
-```
-
-You should see:
-```
-✅ ClawVault found: ~/memory
-✅ qmd available: v1.2.3
-✅ Collection registered: my-memory
-✅ Graph index: healthy
-✅ OpenClaw hooks: enabled (if using OpenClaw)
-```
-
-## Configuration
-
-### Vault Config (`.clawvault.json`)
-```json
-{
-  "version": "2.0.0",
-  "qmdCollection": "my-memory",
-  "createdAt": "2024-01-15T10:00:00Z"
-}
-```
-
-### Environment Variables
-
-| Variable | Purpose | Default |
-|----------|---------|---------|
-| `CLAWVAULT_PATH` | Vault location | Auto-discovery |
-| `GEMINI_API_KEY` | For observation compression | None (optional) |
-| `OPENCLAW_HOME` | OpenClaw directory | `~/.openclaw` |
+- `cvwake` -> `clawvault wake`
+- `cvsleep` -> `clawvault sleep`
+- `cvcheck` -> `clawvault doctor`
 
 ## Troubleshooting
 
-### Common Issues
+### `openclaw hooks enable clawvault` fails (hook not found)
 
-**"qmd not found"**
 ```bash
-# Install qmd globally
-npm install -g qmd
-# or
-bun install -g qmd
+openclaw hooks install clawvault
+openclaw hooks list --verbose
 ```
 
-**"No vault found"**  
-```bash
-# Set explicit path
-export CLAWVAULT_PATH="/path/to/vault"
+OpenClaw discovers hooks by precedence:
+1. workspace hooks (`<workspace>/hooks/`)
+2. managed hooks (`~/.openclaw/hooks/`)
+3. bundled hooks
 
-# Or initialize a new vault
-clawvault init ~/memory
+If a same-named hook exists in workspace hooks, it can shadow the managed hook.
+
+### qmd issues
+
+```bash
+qmd --version
+clawvault doctor
 ```
 
-**"Collection not registered"**
+### Validate integration state
+
 ```bash
-# Register your vault with qmd
-qmd collection add ~/memory --name my-memory --mask "**/*.md"
-qmd update && qmd embed
+clawvault compat --strict
 ```
-
-### Get Help
-
-- **Check status**: `clawvault doctor`
-- **OpenClaw compatibility**: `clawvault compat`
-- **GitHub Issues**: [clawvault/issues](https://github.com/Versatly/clawvault/issues)
-- **Discord**: [OpenClaw Community](https://discord.gg/openclaw)
-
-## Next Steps
-
-Now that ClawVault is installed, head to the [Quick Start Guide](./quick-start) to learn the essential commands and workflows.

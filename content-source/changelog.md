@@ -4,6 +4,20 @@ description: "Full release history for ClawVault — every version, every featur
 ---
 # Changelog
 
+## [2.5.3] — 2026-02-15
+
+### Fixed
+- Consolidated setup guidance into one canonical OpenClaw runtime path (`hooks install` + `hooks enable` + explicit verification).
+- Removed CLI/docs drift across installation, compat, context, wake/sleep, graph, qmd integration, and OpenClaw lifecycle docs.
+- Clarified skill-vs-hook distinction and added direct troubleshooting for hook discovery precedence conflicts.
+
+### Changed
+- Updated command references to match current runtime flags/options (`compat --json`, `graph --json`, `context --max-hops`, `sleep --session`).
+- Simplified docs content to executable workflows and removed speculative/undocumented flags and config keys.
+- Added safer AGENTS.md guidance: append ClawVault instructions instead of replacing existing prompt/bootstrap behavior.
+
+---
+
 ## [2.0.0] — 2026-02-13
 
 ### Added

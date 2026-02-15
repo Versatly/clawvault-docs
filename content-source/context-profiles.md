@@ -1,218 +1,57 @@
 ---
 title: "Context Profiles"
-description: "Task-specific context retrieval presets for different scenarios"
+description: "Profile presets for task-shaped context retrieval"
 ---
 
-Context profiles tune ClawVault's retrieval behavior for specific scenarios. Instead of one-size-fits-all context, profiles optimize what memories surface based on your current task.
+# Context Profiles
 
-## Available Profiles
+Use `clawvault context --profile <name>` to bias retrieval for your current workflow.
+
+## Supported Profiles
 
 ### default
-**Balanced retrieval for general work.**
-
-- Equal weight to semantic relevance and graph connections
-- Moderate temporal decay (recent items favored but not dominant)
-- Mixed memory types based on query content
-
-Best for: Regular development work, research, general questions
+Balanced retrieval for everyday work.
 
 ```bash
-clawvault context "API integration" --profile default
+clawvault context "auth implementation details" --profile default
 ```
 
 ### planning
-**Strategic context for roadmapping and architecture.**
-
-- Emphasizes **decisions**, **commitments**, and **projects**
-- Longer temporal window (includes older strategic context)
-- Prioritizes high-level connections over implementation details
-- Includes related **lessons** for informed planning
-
-Best for: Sprint planning, architecture reviews, project kickoffs
+Biases toward strategic memory (decisions, projects, commitments).
 
 ```bash
-clawvault context "Q1 roadmap" --profile planning
+clawvault context "Q1 roadmap priorities" --profile planning
 ```
 
 ### incident
-**Crisis mode - focus on recent problems and blockers.**
-
-- Heavy emphasis on **recent** memories (last 48 hours)
-- Prioritizes **errors**, **blockers**, and **critical decisions**
-- Includes related **people** (who to contact) and **facts** (system details)
-- Minimal historical context to reduce noise
-
-Best for: Production issues, debugging, urgent problems
+Biases toward recent blockers, failures, and urgent context.
 
 ```bash
-clawvault context "API timeouts production" --profile incident
+clawvault context "production API failures" --profile incident
 ```
 
 ### handoff
-**Session transition context for continuity.**
-
-- Focus on **recent handoffs**, **commitments**, and **active projects**
-- Includes **feelings** and subjective context for smooth transitions
-- Emphasizes **next steps** and **blockers** from recent sessions
-- Graph connections to related ongoing work
-
-Best for: Session starts, context recovery, team handoffs
+Biases toward transition continuity (recent handoffs, next steps, blockers).
 
 ```bash
-clawvault context "current work status" --profile handoff
+clawvault context "what was I working on" --profile handoff
 ```
 
-## Auto Profile Detection
-
-Use `--profile auto` to let ClawVault infer the best profile from your query:
+### auto
+Lets ClawVault infer the profile from prompt intent.
 
 ```bash
-clawvault context "urgent: database crashed" --profile auto
-# → Detected: incident (keywords: urgent, crashed)
-
-clawvault context "planning next quarter goals" --profile auto  
-# → Detected: planning (keywords: planning, quarter, goals)
-
-clawvault context "what was I working on yesterday" --profile auto
-# → Detected: handoff (keywords: working on, yesterday)
-
-clawvault context "how to implement OAuth" --profile auto
-# → Detected: default (general technical query)
+clawvault context "urgent outage in payments" --profile auto
 ```
 
-**Detection rules:**
-- **incident**: urgent, error, failed, broken, down, crash, bug
-- **planning**: roadmap, quarter, plan, strategy, architecture, goals
-- **handoff**: working on, yesterday, last session, status, progress
-- **default**: everything else
-
-## Profile Behavior Details
-
-### Temporal Weighting
-
-How each profile weighs recency:
-
-| Profile | Recent (1-2 days) | Medium (1 week) | Older (1+ months) |
-|---------|------------------|-----------------|-------------------|
-| incident | 90% | 8% | 2% |
-| handoff | 70% | 25% | 5% |
-| default | 40% | 40% | 20% |
-| planning | 25% | 35% | 40% |
-
-### Memory Type Preferences
-
-What types each profile emphasizes:
-
-**incident**
-- 🔴 High: errors, blockers, recent decisions
-- 🟡 Medium: people (contacts), facts (system info)
-- 🟢 Low: historical lessons, old projects
-
-**planning**  
-- 🔴 High: decisions, commitments, projects
-- 🟡 Medium: lessons, preferences, facts
-- 🟢 Low: feelings, daily observations
-
-**handoff**
-- 🔴 High: recent handoffs, commitments, projects
-- 🟡 Medium: feelings, blockers, next steps
-- 🟢 Low: old decisions, historical lessons
-
-**default**
-- 🟡 Balanced across all types based on semantic relevance
-
-### Graph Traversal Depth
-
-How far each profile explores connections:
-
-- **incident**: 1 hop (direct connections only)
-- **handoff**: 2 hops (close relationships)  
-- **default**: 2 hops (balanced exploration)
-- **planning**: 3 hops (broader context)
-
-## OpenClaw Integration
-
-The OpenClaw hook automatically uses context profiles:
-
-```javascript
-// In session:start event
-const profile = inferContextProfile(sessionQuery);
-const context = await vault.context(query, { profile: 'auto' });
-```
-
-This ensures new sessions get appropriately-scoped context without manual configuration.
-
-## Usage Examples
-
-### Morning Session Start
-```bash
-clawvault context "what needs attention today" --profile handoff
-```
-Returns: recent handoffs, pending commitments, blockers
-
-### Code Review Preparation  
-```bash
-clawvault context "authentication refactor decisions" --profile default
-```
-Returns: related technical decisions, implementation notes, connected discussions
-
-### Production Incident
-```bash
-clawvault context "payment processing down users complaining" --profile incident
-```
-Returns: recent errors, system facts, escalation contacts, similar past incidents
-
-### Sprint Planning Meeting
-```bash
-clawvault context "user dashboard roadmap Q1 priorities" --profile planning  
-```
-Returns: strategic decisions, project commitments, lessons from past sprints, stakeholder preferences
-
-## JSON Output with Explain
-
-Get detailed context signals with JSON format:
+## Pairing with Other Options
 
 ```bash
-clawvault context "database migration" --profile planning --format json
+clawvault context "database migration" --profile planning --max-hops 3 --budget 2500
+clawvault context "incident summary" --profile incident --format json
 ```
 
-```json
-{
-  "query": "database migration",
-  "profile": "planning",
-  "entries": [
-    {
-      "id": "decisions/database-choice",
-      "title": "Use PostgreSQL over SQLite",
-      "excerpt": "Need concurrent writes...",
-      "explain": {
-        "semanticScore": 0.87,
-        "graphScore": 0.65,
-        "temporalScore": 0.45,
-        "signals": ["direct_match", "connected_project", "recent_decision"],
-        "rationale": "High semantic relevance + connected to current migration project"
-      }
-    }
-  ]
-}
-```
+## Important
 
-This helps debug why certain memories surfaced and tune queries.
-
-## Customization
-
-Profiles are currently built-in, but you can approximate custom behavior:
-
-```bash
-# Incident-like behavior manually
-clawvault context "query" --recent-days 2 --types "errors,blockers"
-
-# Planning-like behavior
-clawvault context "query" --graph-depth 3 --types "decisions,projects"
-```
-
-:::note
-Custom profile creation is planned for future versions based on user feedback.
-:::
-
-Context profiles make ClawVault's retrieval contextually intelligent, surfacing the right memories for your current situation.
+- Profile tuning is currently done with supported `context` flags (`--profile`, `--max-hops`, `--budget`, etc.).
+- Avoid using undocumented flags such as `--types`, `--recent-days`, or `--graph-depth`; they are not part of the current CLI surface.
