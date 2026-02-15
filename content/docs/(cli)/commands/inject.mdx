@@ -1,0 +1,71 @@
+---
+title: "inject"
+description: "Pull relevant decisions, preferences, and rules into prompt context automatically"
+---
+
+The `inject` command bridges passive memory storage and active context engineering. It searches your vault for decisions, preferences, and rules relevant to a given message and returns them formatted for prompt injection.
+
+## Usage
+
+```bash
+clawvault inject <message> [options]
+```
+
+## How It Works
+
+Two-layer matching system:
+
+### Layer 1: Deterministic Matching (Default)
+
+Keyword and scope-based rules fire instantly with zero latency. Rules are defined in your vault's routing config and match on:
+- Entity names and wiki-links
+- Category scopes (decisions, preferences, patterns)
+- Custom scope labels
+
+### Layer 2: LLM Fuzzy Matching (Opt-in)
+
+When deterministic rules don't find enough results, an LLM classifies the message intent and searches for semantically relevant vault entries. Uses the shared LLM provider (same as observer).
+
+Enable with `--enable-llm`. Disabled by default to keep injection fast and predictable.
+
+## Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-n, --max-results <n>` | Maximum items to inject | auto |
+| `--scope <scope>` | Comma-separated scope filter override | all |
+| `--enable-llm` | Enable LLM fuzzy intent matching | false |
+| `--disable-llm` | Explicitly disable LLM matching | — |
+| `--format <format>` | Output format (`markdown` or `json`) | markdown |
+| `--model <model>` | Override LLM model for fuzzy matching | config default |
+| `-v, --vault <path>` | Vault path | auto-detected |
+
+## Examples
+
+```bash
+# Basic injection — deterministic matching only
+clawvault inject "How should we handle the Hale deployment?"
+
+# With LLM fuzzy matching for broader coverage
+clawvault inject --enable-llm "What's our pricing strategy?"
+
+# Scoped to specific categories
+clawvault inject --scope decisions,preferences "brand guidelines"
+
+# JSON output for programmatic use
+clawvault inject --format json "deployment checklist"
+
+# Limit results
+clawvault inject -n 3 "memory architecture decisions"
+```
+
+## Integration with OpenClaw
+
+The inject command is designed to be called automatically by agent hooks at the start of each turn. The OpenClaw ClawVault hook can invoke inject on every message, adding relevant context to the agent's prompt without manual intervention.
+
+## Tips
+
+- **Start deterministic-only.** Add `--enable-llm` only when you need broader semantic matching.
+- **Use scopes to reduce noise.** `--scope decisions` is more precise than searching everything.
+- **Global scope is unfiltered.** If no scope filter is set, all vault categories are searched.
+- **Pair with `route`** to control which observations land in which categories — cleaner categories mean better injection results.

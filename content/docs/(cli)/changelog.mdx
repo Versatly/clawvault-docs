@@ -8,24 +8,48 @@ description: Release history for ClawVault — every version, every feature, eve
   Subscribe via RSS
 </a>
 
-## v2.4.7 — February 15, 2026
+## v2.5.0 — February 15, 2026
 
-### Added
-- **Dynamic prompt injection** — `clawvault inject` with two-layer matching (deterministic rules + optional LLM classification).
-- **Pluggable compression backends** — observer supports Ollama, Minimax, GLM, and any OpenAI-compatible backend via config.
-- **First-class project primitive** — `clawvault project` for managing project entities with metadata, goals, and team.
-- **Transition logging** — centralized task state transition ledger with edge-case hardening.
+Two headline features that change how agents interact with their vaults.
+
+### 🧠 Dynamic Prompt Injection
+
+New `clawvault inject` command pulls relevant decisions, preferences, and rules directly into prompt context. Two-layer matching:
+
+1. **Deterministic matching** (default) — keyword and scope-based rules, zero latency
+2. **LLM fuzzy matching** (opt-in `--enable-llm`) — classifies message intent, finds relevant vault entries
+
+```bash
+clawvault inject "How should we handle the Hale deployment?"
+clawvault inject --enable-llm "What's our pricing strategy?"
+```
+
+### 📁 First-Class Project Primitive
+
+`clawvault project` with full lifecycle: `add`, `update`, `archive`, `list`, `show`, `tasks`, `board`.
+
+```bash
+clawvault project add "Site Machine" --owner pedro --client "Hale Pet Door" --status active
+clawvault project tasks site-machine
+clawvault project board --group-by client
+```
+
+Projects link to tasks, generate Obsidian Kanban boards, and support filtering by status/owner/client.
+
+### Also Added
+- **Pluggable compression backends** — Ollama, Minimax, GLM, any OpenAI-compatible backend.
+- **Centralized transition logging** — task state changes write to `transitions.jsonl` ledger.
 
 ### Improved
 - Canvas refactored to single generator (-2,081 lines).
-- LLM matching in inject disabled by default (deterministic-only unless `--llm`).
+- LLM matching in inject disabled by default (deterministic-only unless `--enable-llm`).
 - Test suite: **429 tests across 64 files**.
 
 ### Fixed
 - Ledger write failures no longer crash task updates.
 - Task list metadata visibility preserved.
 - Docs: 25 URL redirects for broken/guessable links.
-- Docs: Corrected `wake` command flags (`--brief`/`--no-summary` → `--full`).
+- Docs: Corrected `wake` command flags.
 
 ---
 

@@ -1,0 +1,143 @@
+---
+title: "project"
+description: "Manage projects with metadata, team, tasks, and Kanban boards"
+---
+
+The `project` command introduces a first-class project primitive to ClawVault. Projects are stored as markdown files with YAML frontmatter in `projects/` and link to tasks, team members, and clients.
+
+## Usage
+
+```bash
+clawvault project <subcommand> [options]
+```
+
+## Subcommands
+
+### `project add`
+
+Create a new project.
+
+```bash
+clawvault project add "Site Machine" \
+  --owner pedro \
+  --client "Hale Pet Door" \
+  --team "pedro,clawdious,joao" \
+  --status active \
+  --deadline 2026-03-01 \
+  --repo "https://github.com/Versatly/site-machine" \
+  --tags "client,priority" \
+  --description "E-commerce site rebuild"
+```
+
+| Flag | Description |
+|------|-------------|
+| `--owner <name>` | Project owner |
+| `--status <status>` | `active`, `paused`, `completed`, `archived` |
+| `--team <members>` | Comma-separated team members |
+| `--client <name>` | Client name |
+| `--tags <tags>` | Comma-separated tags |
+| `--description <text>` | One-line project summary |
+| `--deadline <date>` | Deadline (YYYY-MM-DD) |
+| `--repo <url>` | Repository URL |
+| `--url <url>` | Production URL |
+| `-v, --vault <path>` | Vault path |
+
+### `project update`
+
+Update an existing project's metadata.
+
+```bash
+clawvault project update site-machine --status paused --deadline 2026-04-01
+```
+
+Accepts the same flags as `add`.
+
+### `project archive`
+
+Archive a completed or abandoned project.
+
+```bash
+clawvault project archive site-machine
+```
+
+### `project list`
+
+List projects with optional filters.
+
+```bash
+clawvault project list
+clawvault project list --status active
+clawvault project list --client "Hale Pet Door"
+clawvault project list --owner pedro --json
+```
+
+| Flag | Description |
+|------|-------------|
+| `--status <status>` | Filter by status |
+| `--owner <name>` | Filter by owner |
+| `--client <name>` | Filter by client |
+| `--tag <tag>` | Filter by tag |
+| `--json` | JSON output |
+
+### `project show`
+
+Display full project details including frontmatter and content.
+
+```bash
+clawvault project show site-machine
+clawvault project show site-machine --json
+```
+
+### `project tasks`
+
+List all tasks linked to a project (via `project` field in task frontmatter).
+
+```bash
+clawvault project tasks site-machine
+clawvault project tasks site-machine --json
+```
+
+### `project board`
+
+Generate an Obsidian-compatible Kanban board for all projects.
+
+```bash
+clawvault project board
+clawvault project board --group-by client
+clawvault project board --output ~/vault/Projects-Board.md
+```
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--group-by <field>` | Group by `status`, `owner`, or `client` | status |
+| `--output <path>` | Board markdown output path | Projects-Board.md |
+
+## Linking Tasks to Projects
+
+When creating tasks, use the `--project` flag to associate them:
+
+```bash
+clawvault task add "Rebuild product pages" --project site-machine --owner joao
+```
+
+Then `clawvault project tasks site-machine` shows all linked tasks.
+
+## File Structure
+
+Projects are stored in `projects/` as markdown with YAML frontmatter:
+
+```markdown
+---
+title: Site Machine
+status: active
+owner: pedro
+team: [pedro, clawdious, joao]
+client: Hale Pet Door
+tags: [client, priority]
+deadline: 2026-03-01
+repo: https://github.com/Versatly/site-machine
+created: 2026-02-15
+---
+
+E-commerce site rebuild for Hale Pet Door.
+```
