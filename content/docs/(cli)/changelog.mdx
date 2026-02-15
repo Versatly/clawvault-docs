@@ -8,6 +8,20 @@ description: Release history for ClawVault — every version, every feature, eve
   Subscribe via RSS
 </a>
 
+## v2.5.3 — February 15, 2026
+
+### Fixed
+- Consolidated setup guidance into one canonical OpenClaw runtime path (`hooks install` + `hooks enable` + explicit verification).
+- Removed CLI/docs drift across installation, compat, context, wake/sleep, graph, qmd integration, and OpenClaw lifecycle docs.
+- Clarified skill-vs-hook distinction and added direct troubleshooting for hook discovery precedence conflicts.
+
+### Changed
+- Updated command references to match current runtime flags/options (`compat --json`, `graph --json`, `context --max-hops`, `sleep --session`).
+- Simplified docs content to executable workflows and removed speculative/undocumented flags and config keys.
+- Added safer AGENTS.md guidance: append ClawVault instructions instead of replacing existing prompt/bootstrap behavior.
+
+---
+
 ## v2.5.0 — February 15, 2026
 
 Two headline features that change how agents interact with their vaults.

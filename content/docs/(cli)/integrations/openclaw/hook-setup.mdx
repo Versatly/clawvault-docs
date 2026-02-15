@@ -1,236 +1,89 @@
 ---
-title: "Hook Setup"
-description: "Set up ClawVault hooks for automatic OpenClaw integration"
+title: OpenClaw Hook Setup
+description: Install and verify the ClawVault OpenClaw hook pack for context resilience and session-start context injection.
 ---
 
-import { Callout } from "fumadocs-ui/components/callout";
+This is the runtime hook setup for ClawVault. Use this when you want automatic lifecycle behavior in OpenClaw.
 
-# Hook Setup
-
-The ClawVault OpenClaw hook provides automatic context death resilience, session continuity, and memory injection. Once installed, it runs transparently on three gateway lifecycle events without requiring manual intervention.
-
-## Prerequisites
-
-Before installing the hook, ensure:
-
-1. **ClawVault is installed** and available on your `PATH`:
-
-```bash
-clawvault --version
-```
-
-2. **A vault is initialized** in your workspace:
-
-```bash
-clawvault status
-```
-
-If you do not have a vault yet, initialize one:
-
-```bash
-clawvault init ~/my-vault
-```
-
-3. **qmd is installed** (required for search and context features):
-
-```bash
-bun install -g github:tobi/qmd
-```
-
-4. **OpenClaw is running** with hook support enabled.
-
-## Installation
-
-### Step 1: Install ClawVault
+## Install + Enable
 
 ```bash
 npm install -g clawvault
+openclaw hooks install clawvault
+openclaw hooks enable clawvault
 ```
 
-Or via ClawHub (installs the skill, but does **not** auto-register the hook):
+Restart the OpenClaw gateway process after enabling.
+
+## Verify (Required)
 
 ```bash
-clawhub install clawvault
+openclaw hooks list --verbose
+openclaw hooks info clawvault
+openclaw hooks check
+clawvault compat
 ```
 
-### Step 2: Install the Hook
+## Events Used
 
-Register the hook with OpenClaw by pointing it at the hook directory inside the clawvault package:
+The ClawVault hook pack is built for:
+
+- `gateway:startup`
+- `gateway:heartbeat`
+- `command:new`
+- `session:start`
+- `compaction:memoryFlush`
+- `cron.weekly`
+
+## What It Automates
+
+- context death detection on startup
+- checkpoint before `/new`
+- task-aware context injection at session start (`--profile auto`)
+- active observation flush during relevant lifecycle events
+
+## Hook Discovery Clarification
+
+OpenClaw discovers hooks in this order:
+1. workspace hooks (`<workspace>/hooks/`)
+2. managed hooks (`~/.openclaw/hooks/`)
+3. bundled hooks
+
+If a hook with the same name exists in workspace hooks, it can shadow the managed hook install.
+
+## Troubleshooting
+
+### Hook not found when enabling
 
 ```bash
-openclaw hooks install "$(npm root -g)/clawvault/hooks/clawvault"
+openclaw hooks install clawvault
+openclaw hooks list --verbose
 ```
 
-<Callout type="info">
-The `clawhub install` command installs ClawVault as a skill but does **not** automatically register the OpenClaw hook. You must run `openclaw hooks install` separately.
-</Callout>
-
-### Step 3: Verify
-
-```bash
-openclaw hooks list
-```
-
-You should see `clawvault` with status `✓ ready` in the output.
-
-If the hook shows as disabled, enable it:
+Then enable again:
 
 ```bash
 openclaw hooks enable clawvault
 ```
 
-### Manual Installation
-
-Alternatively, copy the hook handler directly into your OpenClaw hooks directory:
+### Hook installed but not firing
 
 ```bash
-cp -r "$(npm root -g)/clawvault/hooks/clawvault" ~/.openclaw/hooks/clawvault
+openclaw hooks check
+openclaw hooks info clawvault
 ```
 
-The hook directory must contain a `handler.js` file that exports a default async function.
+Then restart gateway.
 
-## Hook Events
-
-The hook listens on two active lifecycle events, with forward-compatible handlers for future events. Event names are normalized and matched flexibly -- separators like `.`, `:`, and `/` are treated interchangeably.
-
-### gateway:startup
-
-Fires when the OpenClaw gateway starts. The hook:
-
-1. Locates the nearest vault (via `CLAWVAULT_PATH` or by walking up from the current directory)
-2. Runs `clawvault recover --clear` to check for context death
-3. If a death is detected, injects a system message into the event with recovery details
-4. Suggests running `clawvault wake` for full recovery context
-
-This ensures the agent is immediately aware if its previous session died unexpectedly.
-
-### command:new
-
-Fires when a user issues the `/new` command to reset the session. The hook:
-
-1. Creates an automatic checkpoint via `clawvault checkpoint`
-2. Records the session key and command source in the checkpoint metadata
-3. Preserves the agent's working state before the context is cleared
-
-This prevents information loss on manual session resets.
-
-### session:start (forward-compatible)
-
-<Callout type="warn">
-`session:start` is not yet implemented in OpenClaw. The handler is included as forward-compatible dead code — it will activate automatically when OpenClaw adds this event.
-</Callout>
-
-When available, this event will fire at the beginning of a new session. The hook will:
-
-1. Extract the session key from the event context
-2. Fetch a session recap using `clawvault session-recap` (recent conversation turns)
-3. Extract the initial user prompt and search the vault for relevant memories using `clawvault context`
-4. Inject both the recap and relevant memories as a system message
-
-The hook caps context injection at 4 memory results and 6 recap messages to avoid consuming excessive tokens.
-
-## Configuration
-
-The hook uses environment variables and vault auto-discovery. No separate configuration file is needed.
-
-### Vault Discovery
-
-The hook locates the vault in this order:
-
-1. `CLAWVAULT_PATH` environment variable (if set)
-2. Walk up from `process.cwd()` looking for a `.clawvault.json` file
-3. Check `memory/` subdirectory at each level (OpenClaw convention)
-
-If no vault is found, the hook silently skips its work and logs a message.
-
-### Environment Variables
-
-| Variable | Purpose |
-|----------|---------|
-| `CLAWVAULT_PATH` | Explicit vault path. Skips auto-discovery. |
-| `OPENCLAW_SESSION_KEY` | Session identifier, used by `checkpoint` for metadata. |
-| `OPENCLAW_AGENT_ID` | Agent identifier, used by `session-recap` to scope lookups. |
-| `OPENCLAW_MODEL` | Current model name, recorded in checkpoint metadata. |
-| `OPENCLAW_TOKEN_ESTIMATE` | Token usage estimate, recorded in checkpoint metadata. |
-
-These are typically set automatically by the OpenClaw runtime. You do not need to configure them manually.
-
-### Tuning Constants
-
-The following limits are hardcoded in the handler and control injection size:
-
-| Constant | Value | Purpose |
-|----------|-------|---------|
-| `MAX_CONTEXT_RESULTS` | 4 | Maximum vault memory results injected |
-| `MAX_CONTEXT_PROMPT_LENGTH` | 500 | Maximum characters of the user prompt sent to search |
-| `MAX_CONTEXT_SNIPPET_LENGTH` | 220 | Maximum characters per memory snippet |
-| `MAX_RECAP_RESULTS` | 6 | Maximum session recap messages injected |
-| `MAX_RECAP_SNIPPET_LENGTH` | 220 | Maximum characters per recap message |
-
-## Verifying the Hook
-
-Run the compatibility check to confirm your setup:
+### Compatibility check
 
 ```bash
-clawvault compat
+clawvault compat --strict
 ```
 
-This verifies:
-- ClawVault CLI is functional
-- A vault is discoverable
-- qmd is installed and working
-- The hook can execute vault commands
+## Skill vs Hook
 
-You can also check the gateway logs for hook activity:
+- `clawhub install clawvault` is skill/workspace guidance.
+- `openclaw hooks install clawvault` is runtime hook installation.
 
-```
-[clawvault] Checking for context death
-[clawvault] Clean startup - no context death
-```
-
-Or on session start:
-
-```
-[clawvault] Fetching session recap for context restoration
-[clawvault] Fetching vault memories for session start prompt
-[clawvault] Injected session context (3 recap, 2 memories)
-```
-
-## Security
-
-The hook follows strict security practices:
-
-- **No shell execution.** All subprocess calls use `execFileSync` with an argument array, preventing command injection.
-- **Input sanitization.** Session keys, prompts, and display strings are validated and stripped of control characters before use.
-- **Timeout enforcement.** Each `clawvault` subprocess has a 15-second timeout to prevent hangs.
-- **Vault path validation.** The vault path must be absolute, exist as a directory, and contain a `.clawvault.json` config file.
-
-## Troubleshooting
-
-### Hook not firing
-
-- Confirm the hook is listed: `openclaw hooks list`
-- Check that the event names match. The hook normalizes separators, so `gateway:startup`, `gateway.startup`, and `gateway/startup` all work.
-- Review gateway logs for `[clawvault]` prefixed messages.
-
-### "No vault found" in logs
-
-- Set `CLAWVAULT_PATH` explicitly to your vault directory.
-- Ensure the vault contains a `.clawvault.json` file: `ls /path/to/vault/.clawvault.json`
-- If using the OpenClaw workspace convention, ensure the vault is at `memory/` inside the workspace.
-
-### Context not injected on session start
-
-- The hook requires an initial user message in the event to search against. If the event has no messages array, injection is skipped.
-- Check that `clawvault context` works manually: `clawvault context "test query" -v /path/to/vault`
-- Check that `clawvault session-recap` works: `clawvault session-recap agent:myagent:main`
-
-### Auto-checkpoint failing on /new
-
-- Run `clawvault checkpoint --working-on "test"` manually to verify the checkpoint command works.
-- Ensure the vault directory is writable.
-
-### Recovery not detecting context death
-
-- Run `clawvault recover --clear -v /path/to/vault` manually.
-- Context death detection relies on checkpoint data. If no checkpoint was ever created, there is nothing to recover.
+Both can be useful; they are not the same mechanism.

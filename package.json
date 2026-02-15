@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "sync:content-source": "node scripts/sync-content-source.mjs",
+    "dev": "npm run sync:content-source && next dev",
+    "build": "npm run sync:content-source && next build",
     "start": "next start",
     "lint": "next lint"
   },
