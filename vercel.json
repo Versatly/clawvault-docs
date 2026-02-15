@@ -1,4 +1,31 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": ".next"
+  "outputDirectory": ".next",
+  "redirects": [
+    { "source": "/core-concepts", "destination": "/concepts/memory-types", "permanent": false },
+    { "source": "/core-concepts/:path*", "destination": "/concepts/:path*", "permanent": false },
+    { "source": "/getting-started", "destination": "/getting-started/introduction", "permanent": false },
+    { "source": "/commands/remember", "destination": "/commands/remember-capture", "permanent": false },
+    { "source": "/commands/capture", "destination": "/commands/remember-capture", "permanent": false },
+    { "source": "/commands/search", "destination": "/commands/search-vsearch", "permanent": false },
+    { "source": "/commands/vsearch", "destination": "/commands/search-vsearch", "permanent": false },
+    { "source": "/commands/memory", "destination": "/commands/store", "permanent": false },
+    { "source": "/commands/save", "destination": "/commands/store", "permanent": false },
+    { "source": "/commands/recall", "destination": "/commands/search-vsearch", "permanent": false },
+    { "source": "/commands/wake-up", "destination": "/commands/wake", "permanent": false },
+    { "source": "/commands/init", "destination": "/commands/init-setup", "permanent": false },
+    { "source": "/commands/setup", "destination": "/commands/init-setup", "permanent": false },
+    { "source": "/commands", "destination": "/commands/store", "permanent": false },
+    { "source": "/integrations/claude", "destination": "/integrations/ai-llms", "permanent": false },
+    { "source": "/integrations/openai", "destination": "/integrations/ai-llms", "permanent": false },
+    { "source": "/integrations/openclaw", "destination": "/integrations/openclaw/hook-setup", "permanent": false },
+    { "source": "/integrations", "destination": "/integrations/openclaw/hook-setup", "permanent": false },
+    { "source": "/guides", "destination": "/guides/task-management", "permanent": false },
+    { "source": "/reference", "destination": "/commands/store", "permanent": false },
+    { "source": "/api", "destination": "/commands/store", "permanent": false },
+    { "source": "/concepts", "destination": "/concepts/memory-types", "permanent": false },
+    { "source": "/install", "destination": "/getting-started/installation", "permanent": false },
+    { "source": "/quickstart", "destination": "/getting-started/quick-start", "permanent": false },
+    { "source": "/quick-start", "destination": "/getting-started/quick-start", "permanent": false }
+  ]
 }
