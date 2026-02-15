@@ -185,7 +185,7 @@ If your ClawVault is inside OpenClaw's `memory/` folder, both will work. If your
 
 ## qmd Integration
 
-Both search commands require [qmd](https://github.com/Versatly/qmd) for indexing:
+Both search commands require [qmd](https://github.com/tobi/qmd) for indexing:
 
 ### Installation
 ```bash
@@ -207,7 +207,7 @@ clawvault status
 qmd update && qmd embed
 
 # Rebuild index from scratch 
-qmd update --force && qmd embed --force
+qmd update && qmd embed
 ```
 
 ### Collection Setup
@@ -344,8 +344,7 @@ clawvault search "query" -c nonexistent
 ```bash
 # Good: Include searchable keywords
 clawvault remember lesson "PostgreSQL Connection Pooling with PgBouncer" \
- --content "Database performance issue solved with connection pooling" \
- --tags "postgresql,performance,database,pgbouncer"
+ --content "Database performance issue solved with connection pooling"
 
 # Less searchable: Vague titles
 clawvault remember lesson "Thing we learned" \

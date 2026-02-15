@@ -7,7 +7,7 @@ description: "Install ClawVault with Node.js 18+ and qmd for semantic search fun
 
 ClawVault requires **Node.js 18+** and **qmd** for search functionality. This guide covers installation for both OpenClaw users and standalone usage.
 
-Current release documented here: **v2.4.6**.
+Current release documented here: **v2.5.1**.
 
 ## Prerequisites
 
@@ -24,7 +24,7 @@ If you need to install or upgrade Node.js:
 - **Windows**: Download from [nodejs.org](https://nodejs.org/)
 
 ### qmd (Required)
-ClawVault uses [qmd](https://github.com/Versatly/qmd) for local semantic search. Install it globally:
+ClawVault uses [qmd](https://github.com/tobi/qmd) for local semantic search. Install it globally:
 
 ```bash
 # Using bun (recommended)
@@ -49,7 +49,13 @@ If you're using [OpenClaw](https://openclaw.ai), install ClawVault as a skill:
 # Install the skill
 clawhub install clawvault
 
-# Enable the hook system for automatic session continuity
+# Register the OpenClaw hook from the installed package
+openclaw hooks install "$(npm root -g)/clawvault/hooks/clawvault"
+
+# Verify registration
+openclaw hooks list
+
+# Enable it if needed
 openclaw hooks enable clawvault
 ```
 

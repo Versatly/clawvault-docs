@@ -20,7 +20,7 @@ Conversation transcript
         ↓
    Auto-routing to categories (decisions/, lessons/, preferences/, etc.)
         ↓
-   Stored in observations/ with scored frontmatter
+  Stored in ledger/observations/ with scored frontmatter
 ```
 
 ### The Pipeline
@@ -41,7 +41,7 @@ Conversation transcript
 
 ## File Structure
 
-Observations are stored in `observations/` with date-based filenames:
+Observations are stored in `ledger/observations/YYYY/MM/DD.md`:
 
 ```markdown
 ---
@@ -139,5 +139,5 @@ clawvault route test "We decided to enable 2FA for all users"
 ```
 
 <Callout type="info">
-For deeper theory on how observational memory works, see [Observational Memory](/docs/concepts/observational-memory).
+For deeper theory on how observational memory works, see [Observational Memory](/concepts/observational-memory).
 </Callout>

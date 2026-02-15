@@ -16,17 +16,17 @@ The `observe` command compresses raw session transcripts into categorized observ
 
 ```bash
 # Run every 30 minutes
-*/30 * * * * cd /path/to/vault && clawvault observe --compress 2>&1 >> /var/log/clawvault-observe.log
+*/30 * * * * cd /path/to/vault && clawvault observe --active 2>&1 >> /var/log/clawvault-observe.log
 ```
 
 For vaults with high session volume, split observation into two passes:
 
 ```bash
-# Fast rule-based pass every 15 minutes
+# Incremental pass every 15 minutes
 */15 * * * * clawvault observe
 
-# LLM-compressed pass every 2 hours
-0 */2 * * * clawvault observe --compress
+# Active-session sweep every 2 hours
+0 */2 * * * clawvault observe --active
 ```
 
 <Callout type="info">
@@ -48,7 +48,7 @@ Track when each task last ran in a state file to avoid redundant work:
 
 ```bash
 clawvault checkpoint --working-on "heartbeat maintenance"
-clawvault observe --compress
+clawvault observe --active
 clawvault link --all
 ```
 
@@ -69,8 +69,8 @@ You can also wire observation into shell events:
 ```bash
 # In .bashrc or .zshrc
 clawvault_post_session() {
-  clawvault observe --compress --quiet
-  clawvault link --all --quiet
+  clawvault observe --active
+  clawvault link --all
 }
 
 # Call after any long-running agent session
@@ -126,7 +126,9 @@ A complete automation setup for an OpenClaw agent:
 ### Install the OpenClaw hook
 
 ```bash
-clawvault setup
+npm install -g clawvault
+openclaw hooks install "$(npm root -g)/clawvault/hooks/clawvault"
+openclaw hooks enable clawvault
 ```
 
 This enables auto-checkpoint, context death detection, and session-start context injection.
@@ -139,10 +141,10 @@ crontab -e
 ```
 
 ```
-*/30 * * * * cd ~/vault && clawvault observe --compress --quiet
-0 3 * * * cd ~/vault && clawvault reindex --quiet
-0 4 * * 0 cd ~/vault && clawvault link --all --quiet
-0 5 * * 1 cd ~/vault && clawvault doctor --quiet
+*/30 * * * * cd ~/vault && clawvault observe --active
+0 3 * * * cd ~/vault && clawvault reindex
+0 4 * * 0 cd ~/vault && clawvault link --all
+0 5 * * 1 cd ~/vault && clawvault doctor
 ```
 </Step>
 <Step>

@@ -56,6 +56,8 @@ Working on step 1 of the wizard. Need to confirm copy with Pedro.
 | `depends_on` | array | — | Task slugs this depends on |
 | `blocked_by` | string | — | What's blocking this task |
 | `created` | string | ISO 8601 | Creation timestamp |
+| `updated` | string | ISO 8601 | Last update timestamp |
+| `completed` | string | ISO 8601 | Completion timestamp when status is `done` |
 | `confidence` | number | 0–1 | Confidence in last status transition |
 | `reason` | string | — | Reason for last status change |
 
@@ -230,17 +232,18 @@ clawvault task transitions --json
 
 ## Transition Logging
 
-Every status change is appended to `transitions.jsonl` in your vault root. Each entry records:
+Every status change is appended to `ledger/transitions/YYYY-MM-DD.jsonl`. Each entry records:
 
 ```json
 {
-  "task": "ship-onboarding-flow",
-  "from": "open",
-  "to": "in-progress",
-  "agent": "clawdious",
+  "task_id": "ship-onboarding-flow",
+  "agent_id": "clawdious",
+  "from_status": "open",
+  "to_status": "in-progress",
+  "timestamp": "2026-02-15T10:30:00Z",
   "confidence": 0.9,
+  "cost_tokens": null,
   "reason": "Starting implementation",
-  "timestamp": "2026-02-15T10:30:00Z"
 }
 ```
 
@@ -248,7 +251,7 @@ This ledger is append-only — it's a full audit trail of every task state chang
 
 ## Kanban Board Integration
 
-Tasks integrate with Obsidian's Kanban plugin via the [`kanban`](/docs/commands/kanban) command.
+Tasks integrate with Obsidian's Kanban plugin via the [`kanban`](/commands/kanban) command.
 
 ### Generate a board from tasks
 
@@ -325,5 +328,5 @@ clawvault task list --priority critical
 ```
 
 <Callout type="info">
-For the full CLI reference of task flags, see the [`task` command page](/docs/commands/task).
+For the full CLI reference of task flags, see the [`task` command page](/commands/task).
 </Callout>

@@ -61,19 +61,16 @@ clawvault remember project "User Dashboard Redesign" \
 
 ### Advanced Examples
 
-#### With Tags and Templates
+#### From a File
 ```bash
 clawvault remember decision "API Rate Limiting Strategy" \
- --content "Implement token bucket with Redis backend" \
- --tags "api,performance,redis" \
- --template decision
+ --file ./notes/rate-limit-decision.md
 ```
 
-#### Custom Categories
+#### From Stdin
 ```bash
-clawvault remember fact "Production Database Config" \
- --content "Host: prod-db.company.com, Port: 5432" \
- --category infrastructure
+echo "Host: prod-db.company.com, Port: 5432" | \
+ clawvault remember fact "Production Database Config" --stdin
 ```
 
 #### Wiki-Links in Content
@@ -226,8 +223,7 @@ clawvault capture "Schedule team retro meeting"
 ```bash
 # Store file content as memory
 clawvault remember fact "API Documentation" \
- --content "$(cat api-spec.md)" \
- --tags "api,docs"
+ --file ./api-spec.md
 ```
 
 ## Best Practices
@@ -260,11 +256,10 @@ clawvault remember project "Mobile App v2" \
  --content "Related to [[api-redesign-decision]] and [[react-native-preference]]. Targets Q2 launch."
 ```
 
-### Tag for Discovery
+### Use Descriptive Titles for Better Search
 ```bash
 clawvault remember lesson "Database Connection Pooling" \
- --content "PgBouncer reduced connection overhead by 60%" \
- --tags "database,performance,postgresql,optimization"
+ --content "PgBouncer reduced connection overhead by 60%. PostgreSQL latency dropped under load."
 ```
 
 ## Error Handling

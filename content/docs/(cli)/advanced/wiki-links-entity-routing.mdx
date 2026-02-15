@@ -409,11 +409,12 @@ Move the file manually to the correct category directory. ClawVault uses directo
 
 **Solutions:**
 ```bash
-# Find and fix in bulk
-clawvault link --orphans --fix
+# Find orphaned links
+clawvault link --orphans
 
-# Use link replacement
-clawvault link --replace "old-entity" "new-entity"
+# Preview and re-run auto-linking after manual fixes
+clawvault link --all --dry-run
+clawvault link --all
 
 # Regenerate graph after fixes
 clawvault graph --refresh

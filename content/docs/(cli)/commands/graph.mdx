@@ -136,7 +136,7 @@ Graph index is stored at `.clawvault/graph-index.json`:
 Get machine-readable graph data:
 
 ```bash
-clawvault graph --format json
+clawvault graph --json
 ```
 
 ```json
@@ -192,10 +192,10 @@ clawvault graph --format json
 
 ## Connected Components
 
-View graph connectivity structure:
+View graph connectivity structure from JSON output:
 
 ```bash
-clawvault graph --components
+clawvault graph --json
 ```
 
 ```
@@ -221,10 +221,10 @@ Large connected components indicate good knowledge integration. Small isolated c
 
 ## Orphan Node Analysis
 
-Find unconnected memories:
+Find broken and unresolved wiki-links (a common source of disconnected graph nodes):
 
 ```bash
-clawvault graph --orphans
+clawvault link --orphans
 ```
 
 ```
@@ -379,7 +379,7 @@ clawvault graph
 
 # Monthly orphan cleanup 
 clawvault link --orphans
-clawvault graph --orphans
+clawvault graph
 
 # Quarterly full rebuild
 clawvault graph --refresh

@@ -16,6 +16,7 @@ Projects live in `projects/<slug>.md`:
 ```markdown
 ---
 title: Site Machine
+type: project
 status: active
 owner: pedro
 team: [pedro, clawdious, joao]
@@ -26,6 +27,7 @@ deadline: 2026-03-01
 repo: https://github.com/Versatly/site-machine
 url: https://halepetdoor.com
 created: 2026-02-15T10:00:00Z
+updated: 2026-02-15T10:00:00Z
 ---
 
 Full e-commerce rebuild for Hale Pet Door. Migrating from Shopify to custom Next.js stack.
@@ -36,6 +38,7 @@ Full e-commerce rebuild for Hale Pet Door. Migrating from Shopify to custom Next
 | Field | Type | Values | Description |
 |-------|------|--------|-------------|
 | `title` | string | — | Project name |
+| `type` | string | `project` | Primitive type marker |
 | `status` | string | `active`, `paused`, `completed`, `archived` | Current status |
 | `owner` | string | — | Project owner |
 | `team` | array | — | Team members |
@@ -46,6 +49,7 @@ Full e-commerce rebuild for Hale Pet Door. Migrating from Shopify to custom Next
 | `repo` | string | URL | Repository URL |
 | `url` | string | URL | Production URL |
 | `created` | string | ISO 8601 | Creation timestamp |
+| `updated` | string | ISO 8601 | Last update timestamp |
 
 ## CLI Commands
 
@@ -228,5 +232,5 @@ clawvault project archive acme-redesign --reason "Project delivered"
 ```
 
 <Callout type="info">
-For the full CLI reference, see the [`project` command page](/docs/commands/project).
+For the full CLI reference, see the [`project` command page](/commands/project).
 </Callout>

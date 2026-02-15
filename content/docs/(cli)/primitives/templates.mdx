@@ -62,11 +62,12 @@ clawvault template create person --title "Justin Dukes"
 Add a custom template from an existing file.
 
 ```bash
-clawvault template add ~/my-templates/standup.md
+clawvault template add ~/my-templates/standup.md --name standup
 ```
 
 | Flag | Description |
 |------|-------------|
+| `--name <name>` | Template name (required) |
 | `-v, --vault <path>` | Vault path |
 
 ## Creating Custom Templates

@@ -52,18 +52,17 @@ Thumbs.db
 
 ## Committing on Sleep
 
-The `sleep` command supports automatic Git commits. When the agent ends a session:
+The `sleep` command is the natural checkpoint for committing vault changes:
 
 ```bash
 clawvault sleep "finished auth module" \
-  --next "write tests" \
-  --git-commit
+  --next "write tests"
 ```
 
-This stages all changed vault files and creates a commit with the sleep summary as the message. To also push:
+By default, `sleep` can prompt for a git commit. If you want to skip git integration for a run, use:
 
 ```bash
-clawvault sleep "finished auth module" --git-commit --git-push
+clawvault sleep "finished auth module" --no-git
 ```
 
 ### Automating Commits
@@ -73,7 +72,7 @@ If you prefer commits on every memory write rather than just at session boundari
 ```bash
 #!/bin/bash
 # .clawvault/hooks/post-store.sh
-cd "$(clawvault status --vault-path)"
+cd "${CLAWVAULT_PATH:-/path/to/vault}"
 git add -A
 git commit -m "vault: auto-commit after store" --quiet
 ```
@@ -129,7 +128,7 @@ Resolution: combine both -- the second version has more detail, but verify nothi
 
 The simplest approach: use a single-writer pattern. One machine is the authority for the vault; others are read-only. For multi-writer setups:
 
-- Use `clawvault sleep --git-commit --git-push` at session end
+- Run `clawvault sleep "session summary"` at session end, then `git add -A && git commit -m "..." && git push`
 - Use `git pull --rebase` at session start
 - Assign different categories to different machines when possible
 
