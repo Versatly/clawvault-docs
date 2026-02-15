@@ -8,6 +8,27 @@ description: Release history for ClawVault — every version, every feature, eve
   Subscribe via RSS
 </a>
 
+## v2.4.7 — February 15, 2026
+
+### Added
+- **Dynamic prompt injection** — `clawvault inject` with two-layer matching (deterministic rules + optional LLM classification).
+- **Pluggable compression backends** — observer supports Ollama, Minimax, GLM, and any OpenAI-compatible backend via config.
+- **First-class project primitive** — `clawvault project` for managing project entities with metadata, goals, and team.
+- **Transition logging** — centralized task state transition ledger with edge-case hardening.
+
+### Improved
+- Canvas refactored to single generator (-2,081 lines).
+- LLM matching in inject disabled by default (deterministic-only unless `--llm`).
+- Test suite: **429 tests across 64 files**.
+
+### Fixed
+- Ledger write failures no longer crash task updates.
+- Task list metadata visibility preserved.
+- Docs: 25 URL redirects for broken/guessable links.
+- Docs: Corrected `wake` command flags (`--brief`/`--no-summary` → `--full`).
+
+---
+
 ## v2.4.6 — February 14, 2026
 
 ### Added
