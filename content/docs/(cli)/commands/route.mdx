@@ -1,77 +1,56 @@
 ---
 title: "route"
-description: "Manage custom observation entity routing rules"
+description: "Manage custom entity routing rules used by the observer"
 ---
 
-<span className="cv-version">v2.4.5</span>
+The `route` command lets you manage custom routing rules for observer output.
 
-The `route` command manages custom routing rules that control where observation entities are filed. Routes use pattern matching (substring or regex) to direct entities to specific vault folders.
+Custom routes are evaluated **before** built-in category/entity routing patterns, so explicit rules can override default behavior when needed.
 
 ## Usage
 
 ```bash
-clawvault route list
 clawvault route add <pattern> <target>
 clawvault route remove <pattern>
+clawvault route list
 clawvault route test <text>
 ```
 
-### Common options
+## Commands
 
-| Flag | Description | Default |
-|------|-------------|---------|
-| `-v, --vault <path>` | Vault path | Nearest vault |
+### `route add <pattern> <target>`
 
-## Examples
+Adds a custom route rule.
 
 ```bash
-# List all custom routes
-clawvault route list
-# PRIORITY  PATTERN        TARGET
-# --------  -------        ------
-# 2         /^bug:/i       issues/bugs
-# 1         meeting notes  meetings
-
-# Add a substring route
-clawvault route add "meeting notes" meetings
-# => ✓ Route added
-#      Pattern: meeting notes
-#      Target: meetings
-#      Priority: 1
-
-# Add a regex route
-clawvault route add "/^bug:/i" issues/bugs
-# => ✓ Route added
-#      Pattern: /^bug:/i
-#      Target: issues/bugs
-#      Priority: 2
-
-# Test which route matches a string
-clawvault route test "bug: login form crashes on Safari"
-# => ✓ Route matched
-#      Pattern: /^bug:/i
-#      Target: issues/bugs
-#      Priority: 2
-
-# Test with no match
-clawvault route test "random thought"
-# => No route matched.
-
-# Remove a route by pattern
-clawvault route remove "meeting notes"
-# => ✓ Removed route: meeting notes
+clawvault route add "acme corp" "projects/acme.md"
+clawvault route add "pedro santos" "people/pedro.md"
 ```
 
-## How Routing Works
+### `route remove <pattern>`
 
-Routes are evaluated in **priority order** (highest first). Each route has:
+Removes a custom route rule by pattern.
 
-- **Pattern** — A substring match (case-insensitive) or a regex literal (e.g. `/^bug:/i`).
-- **Target** — A vault-relative folder path where matching entities are stored.
-- **Priority** — Assigned automatically (increments with each new rule).
+```bash
+clawvault route remove "acme corp"
+```
 
-When a new observation is processed, its text is tested against all routes. The first match determines the target folder. If no route matches, the default category-based routing applies.
+### `route list`
 
-## Details
+Lists all custom routes currently configured.
 
-Routes are stored in the `routes` array of `.clawvault.json`. Duplicate patterns are rejected. Regex patterns must use the `/pattern/flags` literal syntax. Target paths are normalized — leading/trailing slashes are stripped, and relative segments (`.`, `..`) are rejected.
+```bash
+clawvault route list
+```
+
+### `route test <text>`
+
+Tests sample text against current routing rules.
+
+```bash
+clawvault route test "Follow up with Pedro Santos on Acme launch readiness."
+```
+
+## Storage
+
+Route rules are stored in `.clawvault.json` under the `routes` array. Because routes are configuration-backed, they can be tracked in git and shared across environments.

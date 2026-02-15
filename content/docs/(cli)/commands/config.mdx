@@ -1,11 +1,9 @@
 ---
 title: "config"
-description: "Read and modify runtime configuration for your vault"
+description: "Read and update runtime ClawVault configuration in .clawvault.json"
 ---
 
-<span className="cv-version">v2.4.5</span>
-
-The `config` command lets you inspect and modify runtime settings stored in `.clawvault.json`. All values use dot-notation keys and are validated against a set of supported configuration options.
+The `config` command manages runtime configuration values stored in your vault's `.clawvault.json` file.
 
 ## Usage
 
@@ -13,78 +11,62 @@ The `config` command lets you inspect and modify runtime settings stored in `.cl
 clawvault config get <key>
 clawvault config set <key> <value>
 clawvault config list
-clawvault config reset [--confirm]
+clawvault config reset
 ```
 
-### `config get` options
+## Commands
 
-| Flag | Description | Default |
-|------|-------------|---------|
-| `-v, --vault <path>` | Vault path | Nearest vault |
+### `config get <key>`
 
-### `config set` options
+Reads a single config value using dot-notation paths.
 
-| Flag | Description | Default |
-|------|-------------|---------|
-| `-v, --vault <path>` | Vault path | Nearest vault |
+```bash
+# Top-level key
+clawvault config get name
 
-### `config list` options
+# Nested key
+clawvault config get context.maxResults
+```
 
-| Flag | Description | Default |
-|------|-------------|---------|
-| `-v, --vault <path>` | Vault path | Nearest vault |
+### `config set <key> <value>`
 
-### `config reset` options
+Writes a config value by key path.
 
-| Flag | Description | Default |
-|------|-------------|---------|
-| `--confirm` | Required to confirm destructive reset | false |
-| `-v, --vault <path>` | Vault path | Nearest vault |
+```bash
+clawvault config set theme neural
+clawvault config set context.defaultProfile planning
+clawvault config set graph.maxHops 3
+```
+
+### `config list`
+
+Prints all current config values in a table for quick inspection.
+
+```bash
+clawvault config list
+```
+
+### `config reset`
+
+Resets all config values back to ClawVault defaults.
+
+```bash
+clawvault config reset
+```
 
 ## Supported Keys
 
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| `name` | string | Vault folder name | Display name for the vault |
-| `categories` | string[] | Default category set | Memory categories (comma-separated when setting) |
-| `theme` | enum | `none` | Canvas theme: `neural`, `minimal`, `none` |
-| `observe.model` | string | `gemini-2.0-flash` | Model used by `observe` command |
-| `observe.provider` | enum | `gemini` | Observation provider: `anthropic`, `openai`, `gemini` |
-| `context.maxResults` | integer | `5` | Max results returned by `context` command |
-| `context.defaultProfile` | enum | `default` | Context profile: `default`, `planning`, `incident`, `handoff`, `auto` |
-| `graph.maxHops` | integer | `2` | Max link traversal depth for graph commands |
-
-## Examples
-
-```bash
-# Read a value
-clawvault config get observe.provider
-# => gemini
-
-# Set a value
-clawvault config set observe.model claude-sonnet-4-20250514
-# => ✓ Updated observe.model
-#      Value: claude-sonnet-4-20250514
-
-# Set categories (comma-separated)
-clawvault config set categories "inbox,decisions,lessons,projects"
-
-# List all config values
-clawvault config list
-# KEY                      VALUE
-# -------                  -----
-# categories               inbox, decisions, patterns, ...
-# context.defaultProfile   default
-# context.maxResults       5
-# ...
-
-# Reset to defaults (requires --confirm)
-clawvault config reset --confirm
-# => ✓ Config reset to defaults
-```
+| Key | Description |
+|-----|-------------|
+| `name` | Vault display name |
+| `categories` | Enabled category list |
+| `theme` | Vault theme preset |
+| `observe.model` | Observer model identifier |
+| `observe.provider` | Observer provider |
+| `context.maxResults` | Maximum context memories returned |
+| `context.defaultProfile` | Default context profile |
+| `graph.maxHops` | Max traversal hops for graph-aware retrieval |
 
 ## Details
 
-Configuration is stored in `.clawvault.json` at the vault root. The `config` commands read and write to this file with type validation and coercion. Array values (like `categories`) can be passed as comma-separated strings and are stored as JSON arrays.
-
-Resetting config restores all managed keys to their defaults but preserves any unmanaged keys in the file. The `--confirm` flag is required to prevent accidental resets.
+Configuration is persisted in `.clawvault.json` at the vault root, so changes made with `config set` are durable and can be versioned with git.

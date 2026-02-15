@@ -8,6 +8,32 @@ description: Release history for ClawVault — every version, every feature, eve
   Subscribe via RSS
 </a>
 
+## v2.4.6 — February 14, 2026
+
+### Added
+- **Enriched task frontmatter** — tasks now support `due`, `tags`, `description`, `estimate`, `parent`, and `depends_on`.
+- **Task filters** — `clawvault task list` now supports `--due`, `--tag`, and `--overdue`.
+- **`clawvault kanban sync`** — generates an Obsidian Kanban board from current task state.
+- **`clawvault kanban import`** — reverse-syncs board edits back into task frontmatter files.
+
+### Improved
+- Test suite expanded to **413 passing tests across 60 files**.
+
+---
+
+## v2.4.5 — February 14, 2026
+
+### Added
+- **`clawvault config get/set/list/reset`** — runtime config management.
+- **`clawvault recover --check`** — non-destructive dirty death flag inspection.
+- **`clawvault recover --list`** — checkpoint history listing.
+- **`clawvault route add/remove/list/test`** — custom entity routing rule management.
+
+### Fixed
+- Strip qmd stdout noise before JSON parsing (PR #14, thanks @jbencook).
+
+---
+
 ## v2.4.4 — February 14, 2026
 
 ### Added

@@ -25,6 +25,12 @@ status: todo
 project: api
 owner: clawdious
 priority: high
+due: 2026-02-20
+tags: [backend, auth]
+description: Add OAuth callback handling and token refresh.
+estimate: 6h
+parent: task-z9y8x7
+depends_on: [task-k3l4m5]
 created: 2026-02-14T13:00:00Z
 ---
 ```
@@ -36,6 +42,7 @@ created: 2026-02-14T13:00:00Z
 | `--project` | Project grouping | `--project api` |
 | `--owner` | Assigned agent or person | `--owner clawdious` |
 | `--priority` | `low`, `medium`, `high`, `critical` | `--priority high` |
+| `--due` | Due date (`YYYY-MM-DD`) | `--due 2026-02-20` |
 | `--tags` | Comma-separated tags | `--tags "backend,urgent"` |
 
 ## Listing & Filtering
@@ -50,11 +57,33 @@ clawvault task list --project api
 # Filter by owner and status
 clawvault task list --owner clawdious --status in-progress
 
+# Filter by due date
+clawvault task list --due 2026-02-20
+
+# Filter by tag
+clawvault task list --tag backend
+
+# Show overdue tasks
+clawvault task list --overdue
+
 # Combine filters
 clawvault task list --project api --priority high --status todo
 ```
 
 Output shows a compact table with ID, title, status, owner, and priority.
+
+## Enriched Task Frontmatter (v2.4.6)
+
+Task files now support richer planning metadata:
+
+| Field | Purpose |
+|-------|---------|
+| `due` | Deadline date for scheduling and overdue detection |
+| `tags` | Topic or domain tags for filtering |
+| `description` | Longer task context beyond the title |
+| `estimate` | Time/effort estimate (for example, `2h`, `1d`) |
+| `parent` | Parent task ID for subtask hierarchy |
+| `depends_on` | Task IDs that must be completed first |
 
 ## Updating Status
 
@@ -146,6 +175,14 @@ When a task moves to `blocked` **3 or more times**, ClawVault automatically sets
 
 Backward transitions (e.g., `review` → `in-progress`, `done` → `todo`) are flagged in the ledger with `"regression": true`. This helps identify tasks that keep bouncing back and may need a different approach.
 
+## Subtasks and Hierarchy
+
+Use the `parent` field to link child tasks to a parent task. This is useful for breaking large efforts into smaller, independently trackable units while preserving a clear hierarchy in frontmatter.
+
+## Task Dependencies
+
+Use `depends_on` to model task prerequisites. Dependencies make blocked work explicit and improve planning when coordinating across multiple agents or parallel streams.
+
 ## Obsidian Integration
 
 ClawVault generates [Obsidian Bases](https://obsidian.md/blog/bases/) views for visual task management:
@@ -161,6 +198,20 @@ ClawVault generates [Obsidian Bases](https://obsidian.md/blog/bases/) views for 
 These are generated during `clawvault init` and `clawvault setup`. Open them in Obsidian for spreadsheet-like views of your tasks.
 
 You can also use the **Kanban plugin** in Obsidian to get a drag-and-drop board view of your tasks, organized by status columns.
+
+### Kanban Sync Workflow
+
+```bash
+# 1) Generate board markdown from task state
+clawvault kanban sync
+
+# 2) Edit lanes/cards in Obsidian Kanban (Board.md)
+
+# 3) Import board changes back into task files
+clawvault kanban import
+```
+
+`kanban import` detects lane changes and updates task frontmatter fields such as status, priority, project, and owner.
 
 ## Multi-Agent Workflows
 
@@ -193,6 +244,7 @@ clawvault task transitions --agent agent-2
 ## Related
 
 - [Task command reference](/commands/task)
+- [Kanban command reference](/commands/kanban)
 - [Backlog command reference](/commands/backlog)
 - [Multi-Agent Guide](./multi-agent)
 - [Obsidian Integration](./obsidian)
