@@ -1,0 +1,32 @@
+---
+title: "clean-exit"
+description: "Mark a session as cleanly exited by clearing the dirty death flag"
+---
+
+Use `clean-exit` when you want to explicitly mark the current session as a clean shutdown.
+
+## Usage
+
+```bash
+clawvault clean-exit [options]
+```
+
+## Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+
+## Examples
+
+```bash
+# Mark current vault as cleanly exited
+clawvault clean-exit
+
+# Target a specific vault
+clawvault clean-exit -v ~/memory
+```
+
+## Details
+
+ClawVault uses a dirty-death marker to detect context death on startup. `clean-exit` clears that marker when a session exits intentionally, so the next `wake`/`recover` run does not report a false crash signal.

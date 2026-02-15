@@ -41,6 +41,19 @@ bun install -g github:tobi/qmd
 
 ## Installation
 
+### Quick 3-step install
+
+```bash
+# 1) Install ClawVault
+npm install -g clawvault
+
+# 2) Register hook with OpenClaw
+openclaw hooks install "$(npm root -g)/clawvault/hooks/clawvault"
+
+# 3) Verify hook registration
+openclaw hooks list
+```
+
 ### Step 1: Install ClawVault
 
 ```bash
@@ -53,7 +66,7 @@ Or via ClawHub (installs the skill, but does **not** auto-register the hook):
 clawhub install clawvault
 ```
 
-### Step 2: Install the Hook
+### Step 2: Register the Hook
 
 Register the hook with OpenClaw by pointing it at the hook directory inside the clawvault package:
 

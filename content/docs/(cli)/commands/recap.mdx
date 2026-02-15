@@ -1,0 +1,43 @@
+---
+title: "recap"
+description: "Generate a concise session recap from recent handoffs"
+---
+
+The `recap` command summarizes recent session continuity data ("who I was") from handoffs.
+
+## Usage
+
+```bash
+clawvault recap [options]
+```
+
+## Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-n, --handoff-limit <n>` | Number of recent handoffs to include | `3` |
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--json` | Output as JSON | `false` |
+| `--markdown` | Output as Markdown | `true` |
+| `--brief` | Minimal output for token savings | `false` |
+
+## Examples
+
+```bash
+# Default markdown recap
+clawvault recap
+
+# Include more handoffs
+clawvault recap --handoff-limit 5
+
+# Compact output for prompt injection
+clawvault recap --brief
+
+# JSON output for automation
+clawvault recap --json
+```
+
+## Related
+
+- [`wake`](/commands/wake) for full startup flow (recover + recap + summary)
+- [`session-recap`](/commands/session-recap) for transcript-based recap from a specific OpenClaw session key

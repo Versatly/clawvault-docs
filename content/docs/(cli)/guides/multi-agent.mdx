@@ -90,14 +90,15 @@ This returns relevant memories regardless of which agent created them, because `
 
 ### Explicit Context Passing
 
-For isolated vaults, use `clawvault sync` to share specific categories:
+For isolated vaults, use `clawvault sync` to publish vault snapshots to a shared path:
 
 ```bash
-# Export decisions from Agent Alpha's vault to a shared location
-clawvault sync /shared/decisions --categories decisions
+# Agent Alpha exports a snapshot
+clawvault sync /shared/agent-alpha-vault
 
-# Agent Beta imports from the shared location
-clawvault sync /shared/decisions --into /agent-beta/vault/shared-decisions
+# Agent Beta queries that snapshot directly
+clawvault search "authentication architecture" -v /shared/agent-alpha-vault
+clawvault context "auth decisions" -v /shared/agent-alpha-vault
 ```
 
 ## Patterns for Agent Orchestration

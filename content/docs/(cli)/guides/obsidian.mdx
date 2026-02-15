@@ -112,8 +112,9 @@ Since the vault is plain Markdown files, any file sync tool works:
 See [Version Control](/guides/git-workflows) for detailed Git workflows.
 
 ```bash
-# Commit and push from the machine running ClawVault
-clawvault sleep "session done" --git-commit
+# End session with a handoff, then commit vault changes
+clawvault sleep "session done"
+git add -A && git commit -m "vault: session done" && git push
 
 # Pull from another machine
 cd vault && git pull

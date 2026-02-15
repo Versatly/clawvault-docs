@@ -234,10 +234,11 @@ Returns structured data for automation:
 
 ### Batch Repair
 ```bash
-# Repair all corrupted sessions
-for session in $(clawvault repair-session --list --corrupted-only); do
- clawvault repair-session --session $session
-done
+# 1) List sessions and identify ones that need repair
+clawvault repair-session --list
+
+# 2) Repair specific sessions by ID
+clawvault repair-session --session <session-id> --agent <agent-id>
 ```
 
 <Callout>

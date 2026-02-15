@@ -9,7 +9,7 @@ import { Callout } from "fumadocs-ui/components/callout";
 
 ClawVault's task system is **file-based and frontmatter-driven**. Every task is a Markdown file with YAML frontmatter, stored in your vault's `tasks/` directory. This means tasks are searchable, version-controlled, and fully compatible with Obsidian.
 
-For complete reference on the task and project data types — all frontmatter fields, CLI flags, and transition logging — see the [Primitives](/docs/primitives/overview) section.
+For complete reference on task and project primitives — schemas, CLI flags, and workflows — see [Primitives](/primitives/overview).
 
 ## Creating Tasks
 
@@ -21,9 +21,8 @@ This creates a Markdown file in `tasks/` with frontmatter:
 
 ```yaml
 ---
-id: task-a1b2c3
 title: Implement auth flow
-status: todo
+status: open
 project: api
 owner: clawdious
 priority: high
@@ -31,9 +30,10 @@ due: 2026-02-20
 tags: [backend, auth]
 description: Add OAuth callback handling and token refresh.
 estimate: 6h
-parent: task-z9y8x7
-depends_on: [task-k3l4m5]
-created: 2026-02-14T13:00:00Z
+parent: null
+depends_on: []
+created: 2026-02-15T10:00:00Z
+updated: 2026-02-15T10:00:00Z
 ---
 ```
 
@@ -59,8 +59,8 @@ clawvault task list --project api
 # Filter by owner and status
 clawvault task list --owner clawdious --status in-progress
 
-# Filter by due date
-clawvault task list --due 2026-02-20
+# Show only tasks with due dates
+clawvault task list --due
 
 # Filter by tag
 clawvault task list --tag backend
@@ -69,7 +69,7 @@ clawvault task list --tag backend
 clawvault task list --overdue
 
 # Combine filters
-clawvault task list --project api --priority high --status todo
+clawvault task list --project api --priority high --status open
 ```
 
 Output shows a compact table with ID, title, status, owner, and priority.
@@ -92,17 +92,17 @@ Task files now support richer planning metadata:
 Every status change requires a reason and supports optional metadata:
 
 ```bash
-clawvault task update a1b2c3 --status in-progress --reason "starting work" --confidence 0.9
+clawvault task update implement-auth-flow --status in-progress --reason "starting work" --confidence 0.9
 ```
 
 ### Available Statuses
 
-`todo` → `in-progress` → `review` → `done`
+`open` → `in-progress` → `done`
 
 You can also set `blocked` from any active status:
 
 ```bash
-clawvault task update a1b2c3 --status blocked --reason "waiting on API keys"
+clawvault task update implement-auth-flow --status blocked --reason "waiting on API keys"
 ```
 
 ### Completing Tasks
@@ -110,7 +110,7 @@ clawvault task update a1b2c3 --status blocked --reason "waiting on API keys"
 The `done` shorthand completes a task in one step:
 
 ```bash
-clawvault task done a1b2c3 --reason "shipped to production"
+clawvault task done implement-auth-flow --reason "shipped to production"
 ```
 
 ## Backlog
@@ -126,7 +126,7 @@ clawvault backlog list
 clawvault backlog list --project infra
 
 # Promote to active task
-clawvault backlog promote b4c5d6 --owner clawdious --priority medium
+clawvault backlog promote refactor-logging-system --owner clawdious --priority medium
 ```
 
 Promoting a backlog item creates a proper task file in `tasks/` and removes it from the backlog.
@@ -149,24 +149,24 @@ Escalated tasks have been blocked 3 or more times. These need human attention �
 
 ## Transition Ledger
 
-Every status change is logged to a JSONL file in `ledger/task-transitions.jsonl`. This gives you a complete audit trail:
+Every status change is logged to `ledger/transitions/YYYY-MM-DD.jsonl`. This gives you a complete audit trail:
 
 ```jsonl
-{"id":"a1b2c3","from":"todo","to":"in-progress","reason":"starting work","agent":"clawdious","confidence":0.9,"ts":"2026-02-14T13:05:00Z"}
-{"id":"a1b2c3","from":"in-progress","to":"done","reason":"shipped","agent":"clawdious","ts":"2026-02-14T15:30:00Z"}
+{"task_id":"implement-auth-flow","agent_id":"clawdious","from_status":"open","to_status":"in-progress","timestamp":"2026-02-15T10:05:00Z","confidence":0.9,"cost_tokens":null,"reason":"starting work"}
+{"task_id":"implement-auth-flow","agent_id":"clawdious","from_status":"in-progress","to_status":"done","timestamp":"2026-02-15T14:30:00Z","confidence":1,"cost_tokens":null,"reason":"shipped"}
 ```
 
 Query transitions:
 
 ```bash
 # All transitions for a task
-clawvault task transitions a1b2c3
+clawvault task transitions implement-auth-flow
 
 # All transitions by an agent
 clawvault task transitions --agent clawdious
 
-# Transitions in a time range
-clawvault task transitions --since 2026-02-01
+# Only regression transitions
+clawvault task transitions --failed
 ```
 
 ### Auto-Escalation
@@ -221,7 +221,6 @@ ClawVault is built for environments where multiple agents (and humans) work on t
 
 - **Owner tracking**: Every task has an `--owner` field. Filter by owner to see each agent's workload.
 - **Agent transitions**: The ledger records which agent made each status change, so you can trace who did what.
-- **Cost metadata**: Attach `--cost` to transitions to track resource usage per task.
 - **Confidence scores**: Use `--confidence` (0.0–1.0) to signal how certain an agent is about a transition.
 
 ```bash

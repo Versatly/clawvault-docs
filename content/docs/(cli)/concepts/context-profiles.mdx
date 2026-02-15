@@ -207,11 +207,11 @@ This helps debug why certain memories surfaced and tune queries.
 Profiles are currently built-in, but you can approximate custom behavior:
 
 ```bash
-# Incident-like behavior manually
-clawvault context "query" --recent-days 2 --types "errors,blockers"
+# Incident-like behavior: tighter graph expansion
+clawvault context "query" --profile incident --max-hops 1
 
-# Planning-like behavior
-clawvault context "query" --graph-depth 3 --types "decisions,projects"
+# Planning-like behavior: broader graph expansion
+clawvault context "query" --profile planning --max-hops 3
 ```
 
 <Callout>

@@ -21,12 +21,12 @@ Every primitive follows the same pattern:
 
 | Primitive | Folder | Purpose | Key Commands |
 |-----------|--------|---------|--------------|
-| [Tasks](/docs/primitives/tasks) | `tasks/` | Track work items with status, priority, ownership | `task add`, `task list`, `task done` |
-| [Projects](/docs/primitives/projects) | `projects/` | Group tasks by project, track team/client/deadline | `project add`, `project list`, `project board` |
-| [Observations](/docs/primitives/observations) | `observations/` | LLM-compressed conversation summaries | `observe`, `reflect` |
-| [Decisions](/docs/primitives/decisions) | `decisions/` | Structured records of choices made | `store --category decisions`, `remember decision` |
-| [Handoffs](/docs/primitives/handoffs) | `handoffs/` | Session transition records for continuity | `sleep`, `wake` |
-| [Templates](/docs/primitives/templates) | `templates/` | Reusable markdown templates with frontmatter schemas | `template list`, `template create` |
+| [Tasks](/primitives/tasks) | `tasks/` | Track work items with status, priority, ownership | `task add`, `task list`, `task done` |
+| [Projects](/primitives/projects) | `projects/` | Group tasks by project, track team/client/deadline | `project add`, `project list`, `project board` |
+| [Observations](/primitives/observations) | `ledger/observations/` | LLM-compressed conversation summaries | `observe`, `reflect` |
+| [Decisions](/primitives/decisions) | `decisions/` | Structured records of choices made | `store --category decisions`, `remember decision` |
+| [Handoffs](/primitives/handoffs) | `handoffs/` | Session transition records for continuity | `sleep`, `wake` |
+| [Templates](/primitives/templates) | `templates/` | Reusable markdown templates with frontmatter schemas | `template list`, `template create` |
 
 ## How Primitives Fit Together
 
@@ -71,4 +71,4 @@ Run `clawvault link --all` to auto-link entity mentions across your vault. Use `
 
 ## Memory Types vs. Primitives
 
-[Memory types](/docs/concepts/memory-types) (fact, feeling, decision, lesson, etc.) classify *what kind of knowledge* something is. Primitives define *how that knowledge is stored and managed*. A decision memory type maps to the decisions primitive. A commitment maps to a task. They work together — types classify, primitives structure.
+[Memory types](/concepts/memory-types) (fact, feeling, decision, lesson, etc.) classify *what kind of knowledge* something is. Primitives define *how that knowledge is stored and managed*. A decision memory type maps to the decisions primitive. A commitment maps to a task. They work together — types classify, primitives structure.

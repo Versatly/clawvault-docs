@@ -39,14 +39,14 @@ This output is designed to be prepended to an LLM system prompt or injected as c
 Context windows are finite. ClawVault's context command respects token budgets:
 
 ```bash
-# Limit context to ~2000 tokens
-clawvault context "OAuth implementation" --max-tokens 2000
+# Limit assembled context with a token budget
+clawvault context "OAuth implementation" --budget 2000
 
 # Use a specific profile for retrieval strategy
-clawvault context "OAuth implementation" --profile compact
+clawvault context "OAuth implementation" --profile planning
 ```
 
-The `--max-tokens` flag controls how much context is returned. ClawVault prioritizes by relevance score and recency, truncating lower-priority memories first.
+The `--budget` flag controls how much context is assembled. ClawVault prioritizes higher-signal memories first when a budget is applied.
 
 ## Context Profiles
 
@@ -54,12 +54,13 @@ Profiles control how context is assembled. See [Context Profiles](/concepts/cont
 
 | Profile | Behavior |
 |---------|----------|
-| `full` | Returns all matching memories up to the token budget |
-| `compact` | Summarizes each memory to a single line |
-| `auto` | Uses the LLM to select and rank the most relevant memories |
-| `recent` | Prioritizes chronologically recent memories |
+| `default` | Balanced retrieval for general work |
+| `planning` | Emphasizes decisions, commitments, and project context |
+| `incident` | Emphasizes recent blockers, errors, and urgent signals |
+| `handoff` | Focuses on continuity context between sessions |
+| `auto` | Infers the best profile from the prompt |
 
-The `auto` profile makes an LLM call to intelligently select which memories matter for the given task. This produces the best results but adds latency and cost:
+The `auto` profile infers the best retrieval strategy from the query:
 
 ```bash
 clawvault context "deploy to production" --profile auto
@@ -70,7 +71,7 @@ clawvault context "deploy to production" --profile auto
 The `observe --compress` command uses an LLM to read raw session transcripts and extract structured observations:
 
 ```bash
-clawvault observe --compress
+clawvault observe --compress ./session-transcript.md
 ```
 
 This produces categorized observations with scored importance using the `[type|c=confidence|i=importance]` format:
@@ -139,7 +140,7 @@ ClawVault is fully functional without LLM access. The following features degrade
 | Feature | With LLM | Without LLM |
 |---------|----------|-------------|
 | `observe` | AI-compressed observations | Rule-based extraction |
-| `context --profile auto` | LLM-ranked relevance | Falls back to `full` profile |
+| `context --profile auto` | Profile inferred from prompt | Falls back to deterministic retrieval |
 | `wake` | AI-generated session summary | Raw handoff + recent memories |
 | Search | Unaffected | Unaffected |
 | Storage | Unaffected | Unaffected |

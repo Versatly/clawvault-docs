@@ -53,21 +53,17 @@ Exit code: 1
 Verify that the OpenClaw hook is correctly installed and functional:
 
 ```bash
-clawvault doctor --ci
+clawvault doctor
 ```
 
-The `--ci` flag outputs machine-readable results and returns a non-zero exit code on failure:
+`doctor` returns a non-zero exit code on failure, which makes it CI-friendly without extra flags:
 
 ```bash
-$ clawvault doctor --ci
-vault_path: /home/agent/.openclaw/workspace/memory
-vault_valid: true
-hook_installed: true
-hook_version: 3
-qmd_available: true
-search_index: valid
-graph_index: valid
-config_valid: true
+$ clawvault doctor
+ClawVault found: /home/agent/.openclaw/workspace/memory
+qmd available: true
+graph index: healthy
+hook compatibility: pass
 ```
 
 ## Automated Vault Health Checks
@@ -79,16 +75,16 @@ Combine multiple checks into a single validation step:
 set -e
 
 # Check vault configuration
-clawvault doctor --ci
+clawvault doctor
 
 # Verify compatibility
 clawvault compat --strict
 
 # Validate search index
-clawvault reindex --dry-run
+clawvault reindex
 
 # Check for orphaned links
-clawvault link --orphans --ci
+clawvault link --orphans
 
 echo "All health checks passed"
 ```
@@ -120,22 +116,22 @@ jobs:
       - name: Validate vault
         run: |
           cd vault
-          clawvault doctor --ci
+          clawvault doctor
           clawvault compat --strict
 
       - name: Check link integrity
         run: |
           cd vault
-          clawvault link --orphans --ci
+          clawvault link --orphans
 
       - name: Verify search index
         run: |
           cd vault
-          clawvault reindex --dry-run
+          clawvault reindex
 ```
 
 <Callout type="info">
-The `--ci` flag is supported by `doctor` and `link`. It suppresses interactive output and returns structured results suitable for parsing in automation scripts.
+ClawVault commands already return meaningful exit codes in non-interactive environments, so they can be used directly in CI pipelines.
 </Callout>
 
 ## Pre-Commit Hooks
@@ -150,7 +146,7 @@ You can also validate vault files before they are committed using Git pre-commit
 changed_files=$(git diff --cached --name-only --diff-filter=ACM -- '*.md')
 
 if [ -n "$changed_files" ]; then
-  clawvault doctor --ci --files-only
+  clawvault doctor
   if [ $? -ne 0 ]; then
     echo "Vault validation failed. Fix issues before committing."
     exit 1
