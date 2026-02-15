@@ -1,0 +1,5 @@
+{
+  "title": "Primitives",
+  "icon": "Blocks",
+  "pages": ["overview", "tasks", "projects", "observations", "decisions", "handoffs", "templates"]
+}

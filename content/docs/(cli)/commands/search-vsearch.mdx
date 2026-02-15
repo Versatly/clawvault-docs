@@ -190,8 +190,8 @@ Both search commands require [qmd](https://github.com/Versatly/qmd) for indexing
 ### Installation
 ```bash
 # Install qmd
-bun install -g qmd
-# or: npm install -g qmd
+bun install -g github:tobi/qmd
+# or: npm install -g github:tobi/qmd
 
 # Verify installation
 qmd --version
@@ -312,7 +312,7 @@ clawvault vsearch "production outage response" -c lessons
 ```bash
 # qmd not installed
 clawvault search "query"
-# Error: qmd not found. Install with: bun install -g qmd
+# Error: qmd not found. Install with: bun install -g github:tobi/qmd
 
 # No index
 clawvault vsearch "query" 

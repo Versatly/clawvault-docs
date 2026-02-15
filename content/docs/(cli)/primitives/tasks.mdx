@@ -1,0 +1,329 @@
+---
+title: "Tasks"
+description: "The task primitive — file-based work tracking with frontmatter, transitions, and Kanban integration"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+# Tasks
+
+Tasks are ClawVault's core work-tracking primitive. Every task is a markdown file in `tasks/` with YAML frontmatter that tracks status, priority, ownership, dependencies, and more.
+
+Why tasks matter for agents: without structured task tracking, work items live only in chat history — which dies with every session. Tasks persist across sessions, are searchable, version-controlled, and visible in Obsidian's Kanban board.
+
+## File Structure
+
+Tasks live in `tasks/<slug>.md`. The slug is auto-generated from the title (lowercased, hyphenated).
+
+```markdown
+---
+title: Ship onboarding flow
+status: in-progress
+priority: high
+owner: clawdious
+project: growth
+due: 2026-02-20
+tags: [ux, v2.5]
+description: Build the new user onboarding wizard
+estimate: 4h
+parent: null
+depends_on: [design-onboarding-screens]
+blocked_by: null
+created: 2026-02-15T10:30:00Z
+confidence: null
+reason: null
+---
+
+## Notes
+
+Working on step 1 of the wizard. Need to confirm copy with Pedro.
+```
+
+## Frontmatter Fields
+
+| Field | Type | Values | Description |
+|-------|------|--------|-------------|
+| `title` | string | — | Task title |
+| `status` | string | `open`, `in-progress`, `blocked`, `done` | Current status |
+| `priority` | string | `critical`, `high`, `medium`, `low` | Priority level |
+| `owner` | string | — | Who owns this task |
+| `project` | string | — | Linked project slug |
+| `due` | string | `YYYY-MM-DD` | Due date |
+| `tags` | array | — | Tags for filtering |
+| `description` | string | — | One-line summary |
+| `estimate` | string | `2h`, `1d`, `1w` | Time estimate |
+| `parent` | string | — | Parent task slug (for subtasks) |
+| `depends_on` | array | — | Task slugs this depends on |
+| `blocked_by` | string | — | What's blocking this task |
+| `created` | string | ISO 8601 | Creation timestamp |
+| `confidence` | number | 0–1 | Confidence in last status transition |
+| `reason` | string | — | Reason for last status change |
+
+## CLI Commands
+
+### `task add`
+
+Create a new task.
+
+```bash
+clawvault task add "Ship onboarding flow" \
+  --priority high \
+  --project growth \
+  --owner clawdious \
+  --due 2026-02-20 \
+  --tags "ux,v2.5" \
+  --description "Build the new user onboarding wizard" \
+  --estimate 4h
+```
+
+| Flag | Description |
+|------|-------------|
+| `-v, --vault <path>` | Vault path |
+| `--owner <owner>` | Task owner |
+| `--project <project>` | Project name |
+| `--priority <priority>` | `critical`, `high`, `medium`, `low` |
+| `--due <date>` | Due date (`YYYY-MM-DD`) |
+| `--tags <tags>` | Comma-separated tags |
+| `--description <text>` | One-line task summary |
+| `--estimate <estimate>` | Time estimate (e.g. `2h`, `1d`, `1w`) |
+| `--parent <slug>` | Parent task slug |
+| `--depends-on <slugs>` | Comma-separated dependency slugs |
+
+### `task list`
+
+List and filter tasks.
+
+```bash
+# All active tasks
+clawvault task list
+
+# Filter by project and owner
+clawvault task list --project growth --owner clawdious
+
+# Show overdue tasks
+clawvault task list --overdue
+
+# Tasks with due dates, sorted by date
+clawvault task list --due
+
+# Filter by tag
+clawvault task list --tag ux
+
+# JSON output for scripting
+clawvault task list --status open --json
+```
+
+| Flag | Description |
+|------|-------------|
+| `-v, --vault <path>` | Vault path |
+| `--owner <owner>` | Filter by owner |
+| `--project <project>` | Filter by project |
+| `--status <status>` | Filter by status (`open`, `in-progress`, `blocked`, `done`) |
+| `--priority <priority>` | Filter by priority |
+| `--due` | Show only tasks with due dates (sorted by due date) |
+| `--tag <tag>` | Filter by tag |
+| `--overdue` | Show overdue tasks that are not done |
+| `--json` | Output as JSON |
+
+### `task update`
+
+Update any task field. Every field has a corresponding `--clear-*` flag.
+
+```bash
+# Change status
+clawvault task update ship-onboarding-flow --status blocked --blocked-by "waiting for design review"
+
+# Update estimate and tags
+clawvault task update ship-onboarding-flow --estimate 6h --tags "ux,v2.5,priority"
+
+# Clear a field
+clawvault task update ship-onboarding-flow --clear-blocked-by
+
+# Record confidence and reason with status change
+clawvault task update ship-onboarding-flow --status in-progress --confidence 0.9 --reason "Design approved"
+```
+
+| Flag | Description |
+|------|-------------|
+| `-v, --vault <path>` | Vault path |
+| `--status <status>` | New status |
+| `--owner <owner>` | New owner |
+| `--clear-owner` | Clear owner |
+| `--project <project>` | New project |
+| `--clear-project` | Clear project |
+| `--priority <priority>` | New priority |
+| `--clear-priority` | Clear priority |
+| `--blocked-by <blocker>` | What is blocking this task |
+| `--clear-blocked-by` | Clear blocked-by |
+| `--due <date>` | New due date |
+| `--clear-due` | Clear due date |
+| `--tags <tags>` | Comma-separated tags |
+| `--clear-tags` | Clear tags |
+| `--description <text>` | One-line task summary |
+| `--clear-description` | Clear description |
+| `--estimate <estimate>` | Time estimate |
+| `--clear-estimate` | Clear estimate |
+| `--parent <slug>` | Parent task slug |
+| `--clear-parent` | Clear parent |
+| `--depends-on <slugs>` | Comma-separated dependency slugs |
+| `--clear-depends-on` | Clear dependencies |
+| `--confidence <value>` | Transition confidence (0–1) |
+| `--reason <reason>` | Reason for status change |
+| `--clear-reason` | Clear reason |
+
+### `task done`
+
+Mark a task as completed.
+
+```bash
+clawvault task done ship-onboarding-flow --reason "Shipped in v2.5.0"
+clawvault task done ship-onboarding-flow --confidence 1.0 --reason "All tests passing"
+```
+
+| Flag | Description |
+|------|-------------|
+| `-v, --vault <path>` | Vault path |
+| `--confidence <value>` | Transition confidence (0–1) |
+| `--reason <reason>` | Reason for completion |
+
+### `task show`
+
+Display full task details.
+
+```bash
+clawvault task show ship-onboarding-flow
+clawvault task show ship-onboarding-flow --json
+```
+
+| Flag | Description |
+|------|-------------|
+| `-v, --vault <path>` | Vault path |
+| `--json` | Output as JSON |
+
+### `task transitions`
+
+View the transition history for tasks. Every status change is logged to `transitions.jsonl`.
+
+```bash
+# All transitions
+clawvault task transitions
+
+# Transitions for a specific task
+clawvault task transitions ship-onboarding-flow
+
+# Filter by agent
+clawvault task transitions --agent clawdious
+
+# Show only regressions (e.g. done → open)
+clawvault task transitions --failed
+
+# JSON output
+clawvault task transitions --json
+```
+
+| Flag | Description |
+|------|-------------|
+| `-v, --vault <path>` | Vault path |
+| `--agent <id>` | Filter by agent |
+| `--failed` | Show only regression transitions |
+| `--json` | Output as JSON |
+
+## Transition Logging
+
+Every status change is appended to `transitions.jsonl` in your vault root. Each entry records:
+
+```json
+{
+  "task": "ship-onboarding-flow",
+  "from": "open",
+  "to": "in-progress",
+  "agent": "clawdious",
+  "confidence": 0.9,
+  "reason": "Starting implementation",
+  "timestamp": "2026-02-15T10:30:00Z"
+}
+```
+
+This ledger is append-only — it's a full audit trail of every task state change. Use `task transitions --failed` to spot regressions (tasks that went backward, e.g. `done` → `open`).
+
+## Kanban Board Integration
+
+Tasks integrate with Obsidian's Kanban plugin via the [`kanban`](/docs/commands/kanban) command.
+
+### Generate a board from tasks
+
+```bash
+# Default board grouped by status
+clawvault kanban sync
+
+# Group by project
+clawvault kanban sync --group-by project
+
+# Filter to one project
+clawvault kanban sync --filter-project growth
+
+# Include completed tasks
+clawvault kanban sync --include-done
+```
+
+### Import changes from the board
+
+If you drag cards around in Obsidian's Kanban view, import those changes back:
+
+```bash
+clawvault kanban import
+```
+
+This reads `Board.md` and updates task frontmatter to match the board's lane assignments.
+
+## Common Workflows
+
+### Creating a task with full context
+
+```bash
+clawvault task add "Implement JWT auth" \
+  --project api-v2 \
+  --owner clawdious \
+  --priority critical \
+  --due 2026-02-18 \
+  --tags "security,auth" \
+  --description "Replace session tokens with JWT" \
+  --estimate 1d \
+  --depends-on "design-auth-flow"
+```
+
+### Blocking and unblocking
+
+```bash
+# Block a task
+clawvault task update implement-jwt-auth --status blocked --blocked-by "waiting for security audit"
+
+# Unblock it
+clawvault task update implement-jwt-auth --status in-progress --clear-blocked-by --reason "Audit passed"
+```
+
+### Subtask hierarchy
+
+```bash
+clawvault task add "Ship auth system" --project api-v2 --priority high
+clawvault task add "Implement JWT" --parent ship-auth-system --priority critical
+clawvault task add "Write auth tests" --parent ship-auth-system --priority high
+clawvault task add "Update auth docs" --parent ship-auth-system --priority medium
+```
+
+### Quick triage
+
+```bash
+# What's overdue?
+clawvault task list --overdue
+
+# What's blocked?
+clawvault blocked
+
+# What's critical?
+clawvault task list --priority critical
+```
+
+<Callout type="info">
+For the full CLI reference of task flags, see the [`task` command page](/docs/commands/task).
+</Callout>

@@ -1,0 +1,111 @@
+---
+title: "Decisions"
+description: "Structured records of choices made — searchable, injectable, auditable"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+# Decisions
+
+Decisions are structured records of choices made during a project or session. They answer the question: **"Why did we do it this way?"** — critical context that's often lost in chat history.
+
+## Why Decisions Matter
+
+Without decision records:
+- You remake the same choice three sessions later because you forgot
+- A new agent joins and doesn't know why the codebase looks the way it does
+- "Why did we pick Postgres?" becomes an archaeology expedition through old chats
+
+With decision records:
+- `clawvault search "database choice"` instantly surfaces the reasoning
+- `clawvault inject "setting up the database"` automatically includes relevant decisions in your prompt
+- The full decision history is browsable in Obsidian
+
+## File Structure
+
+Decisions live in `decisions/` as markdown files:
+
+```markdown
+---
+title: Use JWT tokens for auth
+type: decision
+created: 2026-02-15T10:00:00Z
+tags: [auth, security, api]
+---
+
+## Context
+We needed stateless authentication for the multi-agent API. Session tokens required a shared session store, adding complexity and a single point of failure.
+
+## Decision
+Use JWT with RS256 signing. Refresh tokens stored in httpOnly cookies. Access tokens expire in 15 minutes.
+
+## Alternatives Considered
+- **Session tokens**: Simpler but requires shared Redis store
+- **API keys**: No expiry mechanism, harder to revoke
+- **OAuth2 only**: Overkill for agent-to-agent auth
+
+## Consequences
+- Agents can authenticate without hitting a central session store
+- Need to implement key rotation (every 90 days)
+- Refresh token flow adds complexity to the client SDK
+```
+
+## Creating Decisions
+
+### Manual creation
+
+```bash
+# Using remember
+clawvault remember decision "Use JWT tokens for auth" \
+  --content "Chose JWT with RS256 over session tokens for stateless agent auth. See decisions/use-jwt-tokens-for-auth.md for full reasoning."
+
+# Using store
+clawvault store --category decisions \
+  --title "Use JWT tokens for auth" \
+  --content "Chose JWT with RS256..."
+```
+
+### Auto-routed from observations
+
+When the `observe` pipeline processes a conversation where a decision was made, it automatically routes a summary to `decisions/`. You don't have to do anything — the observer extracts it.
+
+### From a template
+
+```bash
+clawvault template create decision --title "Use JWT tokens for auth"
+```
+
+This creates a file from the built-in decision template with the standard Context / Decision / Alternatives / Consequences structure.
+
+## Retrieving Decisions
+
+### Keyword search
+
+```bash
+clawvault search "JWT auth" --category decisions
+```
+
+### Semantic search
+
+```bash
+clawvault vsearch "why did we choose that authentication method"
+```
+
+### Prompt injection
+
+The `inject` command automatically pulls relevant decisions into prompt context:
+
+```bash
+clawvault inject "implement the auth middleware"
+# → Includes the JWT decision record in the output
+```
+
+The `context` command also surfaces decisions when building task-relevant context:
+
+```bash
+clawvault context "implement JWT middleware"
+```
+
+<Callout type="info">
+Decisions are one of the most valuable memory types for long-running projects. When in doubt about whether to record something as a decision, record it. Future-you will thank present-you.
+</Callout>

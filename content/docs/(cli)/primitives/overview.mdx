@@ -1,0 +1,74 @@
+---
+title: "Primitives Overview"
+description: "ClawVault's typed data primitives — the building blocks of structured agent memory"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+# Primitives
+
+ClawVault organizes agent memory around **typed primitives** — structured data types that each serve a specific role in the observe → store → retrieve cycle.
+
+Every primitive follows the same pattern:
+
+- **YAML frontmatter schema** — structured metadata at the top of a markdown file
+- **File location convention** — stored in a specific folder (`tasks/`, `projects/`, `decisions/`, etc.)
+- **CLI commands for CRUD** — create, read, update, and delete via the `clawvault` CLI
+- **Memory graph integration** — wiki-links (`[[entity]]`) connect primitives to each other
+- **Observer routing** — the `observe` pipeline can auto-create primitives from conversation context
+
+## The Six Primitives
+
+| Primitive | Folder | Purpose | Key Commands |
+|-----------|--------|---------|--------------|
+| [Tasks](/docs/primitives/tasks) | `tasks/` | Track work items with status, priority, ownership | `task add`, `task list`, `task done` |
+| [Projects](/docs/primitives/projects) | `projects/` | Group tasks by project, track team/client/deadline | `project add`, `project list`, `project board` |
+| [Observations](/docs/primitives/observations) | `observations/` | LLM-compressed conversation summaries | `observe`, `reflect` |
+| [Decisions](/docs/primitives/decisions) | `decisions/` | Structured records of choices made | `store --category decisions`, `remember decision` |
+| [Handoffs](/docs/primitives/handoffs) | `handoffs/` | Session transition records for continuity | `sleep`, `wake` |
+| [Templates](/docs/primitives/templates) | `templates/` | Reusable markdown templates with frontmatter schemas | `template list`, `template create` |
+
+## How Primitives Fit Together
+
+```
+Conversation → observe → Observations (auto-routed)
+                              ↓
+                    Decisions, Lessons, Preferences (categorized)
+                              ↓
+User action → task add → Tasks ←→ Projects (linked via --project)
+                              ↓
+Session end → sleep → Handoffs → wake (session continuity)
+```
+
+<Callout type="info">
+Primitives are plain markdown files. You can edit them in Obsidian, VS Code, or any text editor — the CLI is just a convenience layer.
+</Callout>
+
+## The Observe → Store → Retrieve Cycle
+
+1. **Observe**: The `observe` command watches conversation transcripts and compresses them into prioritized observations
+2. **Store**: Observations are auto-routed to the right categories (decisions, lessons, preferences). Tasks and projects are created explicitly via CLI
+3. **Retrieve**: `search`, `vsearch`, `inject`, and `context` pull relevant primitives into prompts
+
+Every primitive participates in this cycle. Tasks show up in `context` results. Decisions get injected by `inject`. Observations feed into `reflect` for weekly summaries.
+
+## Wiki-Links and the Memory Graph
+
+All primitives support wiki-links for cross-referencing:
+
+```markdown
+---
+title: Fix auth bug
+project: site-machine
+owner: clawdious
+---
+
+Related to [[site-machine]] project. Blocked by [[pedro]]'s review.
+See [[decision-use-jwt-tokens]] for context.
+```
+
+Run `clawvault link --all` to auto-link entity mentions across your vault. Use `clawvault graph` to visualize the connections.
+
+## Memory Types vs. Primitives
+
+[Memory types](/docs/concepts/memory-types) (fact, feeling, decision, lesson, etc.) classify *what kind of knowledge* something is. Primitives define *how that knowledge is stored and managed*. A decision memory type maps to the decisions primitive. A commitment maps to a task. They work together — types classify, primitives structure.

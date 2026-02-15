@@ -41,26 +41,50 @@ bun install -g github:tobi/qmd
 
 ## Installation
 
-Install ClawVault as an OpenClaw skill, which registers the hook automatically:
+### Step 1: Install ClawVault
+
+```bash
+npm install -g clawvault
+```
+
+Or via ClawHub (installs the skill, but does **not** auto-register the hook):
 
 ```bash
 clawhub install clawvault
 ```
 
-To verify the hook is registered:
+### Step 2: Install the Hook
+
+Register the hook with OpenClaw by pointing it at the hook directory inside the clawvault package:
+
+```bash
+openclaw hooks install "$(npm root -g)/clawvault/hooks/clawvault"
+```
+
+<Callout type="info">
+The `clawhub install` command installs ClawVault as a skill but does **not** automatically register the OpenClaw hook. You must run `openclaw hooks install` separately.
+</Callout>
+
+### Step 3: Verify
 
 ```bash
 openclaw hooks list
 ```
 
-You should see `clawvault` in the output.
+You should see `clawvault` with status `✓ ready` in the output.
+
+If the hook shows as disabled, enable it:
+
+```bash
+openclaw hooks enable clawvault
+```
 
 ### Manual Installation
 
-If `clawhub` is not available, copy the hook handler directly into your OpenClaw hooks directory:
+Alternatively, copy the hook handler directly into your OpenClaw hooks directory:
 
 ```bash
-cp -r /path/to/clawvault/hooks/clawvault ~/.openclaw/hooks/clawvault
+cp -r "$(npm root -g)/clawvault/hooks/clawvault" ~/.openclaw/hooks/clawvault
 ```
 
 The hook directory must contain a `handler.js` file that exports a default async function.

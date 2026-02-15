@@ -162,7 +162,7 @@ hooks/clawvault/
 ```
 
 **Common issues:**
-- Hook not installed (`openclaw hooks install clawvault`)
+- Hook not installed (`openclaw hooks install "$(npm root -g)/clawvault/hooks/clawvault"`)
 - Hook disabled (`openclaw hooks enable clawvault`)
 - Missing required events in older OpenClaw versions
 
@@ -332,7 +332,7 @@ $ clawvault compat
 # Hook installation: Hook directory not found
 
 # Fix:
-openclaw hooks install clawvault
+openclaw hooks install "$(npm root -g)/clawvault/hooks/clawvault"
 openclaw hooks enable clawvault
 ```
 

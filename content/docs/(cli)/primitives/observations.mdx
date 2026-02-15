@@ -1,0 +1,143 @@
+---
+title: "Observations"
+description: "LLM-compressed conversation summaries with priority routing"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+# Observations
+
+Observations are LLM-compressed summaries of conversation transcripts. They're the bridge between raw chat history and structured memory — the `observe` pipeline reads conversations, extracts what matters, assigns priority, and routes findings to the right vault categories.
+
+## How Observations Work
+
+```
+Conversation transcript
+        ↓
+   observe (LLM compression)
+        ↓
+   Priority assignment (critical / notable / routine)
+        ↓
+   Auto-routing to categories (decisions/, lessons/, preferences/, etc.)
+        ↓
+   Stored in observations/ with scored frontmatter
+```
+
+### The Pipeline
+
+1. **Input**: Raw conversation files (OpenClaw sessions, ChatGPT exports, Claude exports)
+2. **Compression**: An LLM reads the conversation and extracts key information — decisions made, lessons learned, preferences stated, commitments given
+3. **Priority scoring**: Each observation gets a priority level
+4. **Routing**: High-value items are auto-routed to typed categories (decisions, lessons, etc.)
+5. **Storage**: The compressed observation lands in `observations/` with frontmatter
+
+## Priority Levels
+
+| Level | Emoji | Meaning | Examples |
+|-------|-------|---------|---------|
+| Critical | 🔴 | Must not be lost — decisions, commitments, credentials | "We decided to use JWT tokens", "Pedro wants weekly reports" |
+| Notable | 🟡 | Worth remembering — insights, preferences, patterns | "The team prefers async standups", "React Server Components worked well" |
+| Routine | 🟢 | Low-value context — general discussion, debugging steps | "Tried three approaches to fix the bug", "Discussed lunch plans" |
+
+## File Structure
+
+Observations are stored in `observations/` with date-based filenames:
+
+```markdown
+---
+title: "Session 2026-02-15 — Auth system redesign"
+priority: 8
+source: openclaw/clawdious/main
+created: 2026-02-15T14:30:00Z
+tags: [auth, security, jwt]
+---
+
+## Decisions
+- Switching from session tokens to JWT for stateless auth
+- Using RS256 signing with key rotation every 90 days
+
+## Lessons
+- Session-based auth doesn't scale well with multiple agents
+- JWT refresh token flow needs careful error handling
+
+## Action Items
+- Implement JWT middleware (assigned to clawdious)
+- Update auth docs before v2.5 release
+```
+
+## CLI Commands
+
+### `observe`
+
+Run the observation pipeline.
+
+```bash
+# Watch active OpenClaw sessions
+clawvault observe --active
+
+# One-shot compression of a specific file
+clawvault observe --compress ~/transcripts/session-2026-02-15.md
+
+# Watch a directory for new files
+clawvault observe --watch ~/transcripts/
+
+# Dry run — see candidates without compressing
+clawvault observe --active --dry-run
+
+# Run as background daemon
+clawvault observe --daemon
+```
+
+| Flag | Description |
+|------|-------------|
+| `--watch <path>` | Watch a file or directory |
+| `--active` | Observe active OpenClaw sessions incrementally |
+| `--agent <id>` | OpenClaw agent ID (default: `OPENCLAW_AGENT_ID`) |
+| `--min-new <bytes>` | Minimum new-content threshold in bytes |
+| `--sessions-dir <path>` | Override OpenClaw sessions directory |
+| `--dry-run` | Show candidates without compressing |
+| `--threshold <n>` | Compression token threshold (default: 30000) |
+| `--reflect-threshold <n>` | Reflection token threshold (default: 40000) |
+| `--model <model>` | LLM model override |
+| `--compress <file>` | One-shot compression for a single file |
+| `--daemon` | Run in detached background mode |
+| `-v, --vault <path>` | Vault path |
+
+### `reflect`
+
+Promote stable observations into weekly reflections — a higher-level summary of patterns across multiple sessions.
+
+```bash
+clawvault reflect
+clawvault reflect --days 7
+clawvault reflect --dry-run
+```
+
+| Flag | Description |
+|------|-------------|
+| `--days <n>` | Observation window in days (default: 14) |
+| `--dry-run` | Show candidates without writing |
+| `-v, --vault <path>` | Vault path |
+
+## Auto-Routing
+
+When the observer compresses a conversation, it doesn't just dump everything into `observations/`. High-value items are **routed** to typed categories:
+
+- **Decisions** → `decisions/` (e.g. "We decided to use Postgres instead of MongoDB")
+- **Lessons** → `lessons/` (e.g. "Never deploy on Friday without rollback plan")
+- **Preferences** → `preferences/` (e.g. "Pedro prefers dark mode in all tools")
+- **Commitments** → tasks or `commitments/` (e.g. "I'll have the report ready by Monday")
+
+You can customize routing rules with `clawvault route add`:
+
+```bash
+# Route anything mentioning "security" to the decisions category
+clawvault route add "security" decisions
+
+# Test a route
+clawvault route test "We decided to enable 2FA for all users"
+```
+
+<Callout type="info">
+For deeper theory on how observational memory works, see [Observational Memory](/docs/concepts/observational-memory).
+</Callout>

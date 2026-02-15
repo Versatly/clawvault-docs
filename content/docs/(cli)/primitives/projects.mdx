@@ -1,0 +1,232 @@
+---
+title: "Projects"
+description: "The project primitive — group tasks, track teams, clients, and deadlines"
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+# Projects
+
+Projects group related tasks and track team composition, client relationships, and deadlines. Every project is a markdown file in `projects/` with YAML frontmatter.
+
+## File Structure
+
+Projects live in `projects/<slug>.md`:
+
+```markdown
+---
+title: Site Machine
+status: active
+owner: pedro
+team: [pedro, clawdious, joao]
+client: Hale Pet Door
+tags: [client, priority]
+description: E-commerce site rebuild
+deadline: 2026-03-01
+repo: https://github.com/Versatly/site-machine
+url: https://halepetdoor.com
+created: 2026-02-15T10:00:00Z
+---
+
+Full e-commerce rebuild for Hale Pet Door. Migrating from Shopify to custom Next.js stack.
+```
+
+## Frontmatter Fields
+
+| Field | Type | Values | Description |
+|-------|------|--------|-------------|
+| `title` | string | — | Project name |
+| `status` | string | `active`, `paused`, `completed`, `archived` | Current status |
+| `owner` | string | — | Project owner |
+| `team` | array | — | Team members |
+| `client` | string | — | Client name |
+| `tags` | array | — | Tags for filtering |
+| `description` | string | — | One-line summary |
+| `deadline` | string | `YYYY-MM-DD` | Project deadline |
+| `repo` | string | URL | Repository URL |
+| `url` | string | URL | Production URL |
+| `created` | string | ISO 8601 | Creation timestamp |
+
+## CLI Commands
+
+### `project add`
+
+Create a new project.
+
+```bash
+clawvault project add "Site Machine" \
+  --owner pedro \
+  --client "Hale Pet Door" \
+  --team "pedro,clawdious,joao" \
+  --status active \
+  --deadline 2026-03-01 \
+  --repo "https://github.com/Versatly/site-machine" \
+  --url "https://halepetdoor.com" \
+  --tags "client,priority" \
+  --description "E-commerce site rebuild"
+```
+
+| Flag | Description |
+|------|-------------|
+| `-v, --vault <path>` | Vault path |
+| `--owner <name>` | Project owner |
+| `--status <status>` | `active`, `paused`, `completed`, `archived` |
+| `--team <members>` | Comma-separated team members |
+| `--client <name>` | Client name |
+| `--tags <tags>` | Comma-separated tags |
+| `--description <text>` | One-line project summary |
+| `--deadline <date>` | Deadline (`YYYY-MM-DD`) |
+| `--repo <url>` | Repository URL |
+| `--url <url>` | Production URL |
+
+### `project update`
+
+Update project metadata. Accepts the same flags as `add`.
+
+```bash
+clawvault project update site-machine --status paused --deadline 2026-04-01
+clawvault project update site-machine --team "pedro,clawdious,joao,sam"
+```
+
+### `project archive`
+
+Archive a project. Sets status to `archived`.
+
+```bash
+clawvault project archive site-machine --reason "Client paused indefinitely"
+```
+
+| Flag | Description |
+|------|-------------|
+| `-v, --vault <path>` | Vault path |
+| `--reason <reason>` | Reason for archiving |
+
+### `project list`
+
+List projects with optional filters.
+
+```bash
+clawvault project list
+clawvault project list --status active
+clawvault project list --client "Hale Pet Door"
+clawvault project list --owner pedro --json
+clawvault project list --tag client
+```
+
+| Flag | Description |
+|------|-------------|
+| `-v, --vault <path>` | Vault path |
+| `--status <status>` | Filter by status |
+| `--owner <name>` | Filter by owner |
+| `--client <name>` | Filter by client |
+| `--tag <tag>` | Filter by tag |
+| `--json` | Output as JSON |
+
+### `project show`
+
+Display full project details.
+
+```bash
+clawvault project show site-machine
+clawvault project show site-machine --json
+```
+
+| Flag | Description |
+|------|-------------|
+| `-v, --vault <path>` | Vault path |
+| `--json` | Output as JSON |
+
+### `project tasks`
+
+List all tasks linked to a project (via `project` field in task frontmatter).
+
+```bash
+clawvault project tasks site-machine
+clawvault project tasks site-machine --json
+```
+
+| Flag | Description |
+|------|-------------|
+| `-v, --vault <path>` | Vault path |
+| `--json` | Output as JSON |
+
+### `project board`
+
+Generate an Obsidian-compatible Kanban board for all projects.
+
+```bash
+clawvault project board
+clawvault project board --group-by client
+clawvault project board --output ~/vault/Projects-Board.md
+```
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-v, --vault <path>` | Vault path | Nearest vault |
+| `--output <path>` | Board markdown path | `Projects-Board.md` |
+| `--group-by <field>` | Group by `status`, `owner`, or `client` | `status` |
+
+## Linking Tasks to Projects
+
+When creating tasks, use `--project` to associate them:
+
+```bash
+clawvault task add "Rebuild product pages" --project site-machine --owner joao
+clawvault task add "Set up CI pipeline" --project site-machine --owner pedro
+```
+
+Then view all project tasks:
+
+```bash
+clawvault project tasks site-machine
+```
+
+## Common Workflows
+
+### Set up a new client project
+
+```bash
+# Create the project
+clawvault project add "Acme Redesign" \
+  --owner pedro \
+  --client "Acme Corp" \
+  --team "pedro,clawdious" \
+  --deadline 2026-04-15 \
+  --tags "client,design"
+
+# Add initial tasks
+clawvault task add "Discovery call notes" --project acme-redesign --priority high
+clawvault task add "Wireframe homepage" --project acme-redesign --priority high --due 2026-03-01
+clawvault task add "Design system setup" --project acme-redesign --priority medium
+
+# Generate a project board
+clawvault project board --group-by status
+```
+
+### Review project status
+
+```bash
+# See all active projects
+clawvault project list --status active
+
+# Check tasks for a project
+clawvault project tasks acme-redesign
+
+# See overdue tasks across all projects
+clawvault task list --overdue
+```
+
+### Archive a completed project
+
+```bash
+# Mark remaining tasks done
+clawvault task done wireframe-homepage --reason "Client approved"
+clawvault task done design-system-setup --reason "Shipped"
+
+# Archive the project
+clawvault project archive acme-redesign --reason "Project delivered"
+```
+
+<Callout type="info">
+For the full CLI reference, see the [`project` command page](/docs/commands/project).
+</Callout>
