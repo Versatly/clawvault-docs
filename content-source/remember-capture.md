@@ -18,7 +18,7 @@ clawvault remember <type> <title> --content <content> [options]
 | Type | Description | Example Use |
 |------|-------------|-------------|
 | `fact` | Static information | API endpoints, configurations |
-| `feeling` | Emotional context | Meeting sentiment, confidence levels |  
+| `feeling` | Emotional context | Meeting sentiment, confidence levels |
 | `decision` | Choices with reasoning | Architecture choices, tool selections |
 | `lesson` | Learning from experience | What worked/failed, insights |
 | `commitment` | Promises and deadlines | Project deliverables, meeting promises |
@@ -33,7 +33,7 @@ clawvault remember <type> <title> --content <content> [options]
 clawvault remember decision "Use PostgreSQL over SQLite" \
   --content "Need concurrent writes for multi-agent setup. SQLite locks cause bottlenecks under load."
 
-# Learning from experience  
+# Learning from experience
 clawvault remember lesson "Always backup before schema changes" \
   --content "Lost 2 hours of data during migration testing. Automated backups now required."
 
@@ -119,7 +119,7 @@ Capture automatically generates titles from content:
 clawvault capture "TODO: Review PR #156 tomorrow"
 # → Title: "Review PR #156 tomorrow" (strips TODO prefix)
 
-clawvault capture "Client wants dark mode toggle by Friday demo"  
+clawvault capture "Client wants dark mode toggle by Friday demo"
 # → Title: "Client wants dark mode toggle by Friday demo" (first 50 chars)
 ```
 
@@ -215,7 +215,7 @@ clawvault remember decision "Use Redis for Application Cache" \
 ```bash
 # Process multiple quick notes
 clawvault capture "Fix user avatar upload bug"
-clawvault capture "Research competitor pricing"  
+clawvault capture "Research competitor pricing"
 clawvault capture "Schedule team retro meeting"
 ```
 
@@ -236,7 +236,7 @@ clawvault capture "Sarah suggested using Docker for local dev"
 clawvault capture "Client budget increased to 50k"
 clawvault capture "Bug: payment flow fails on Safari"
 
-# Later - process into structured memories  
+# Later - process into structured memories
 clawvault remember preference "Docker for Local Development" \
   --content "[[sarah-chen]] suggested. Standardizes environment across team."
 ```
@@ -272,7 +272,7 @@ clawvault remember decision "Use GraphQL"
 # Error: --content is required
 
 # Invalid memory type
-clawvault remember invalid-type "Title" --content "Content"  
+clawvault remember invalid-type "Title" --content "Content"
 # Error: Unknown memory type. Valid types: fact, feeling, decision, lesson, commitment, preference, relationship, project
 
 # Empty capture

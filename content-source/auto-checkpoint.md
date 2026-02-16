@@ -21,7 +21,7 @@ Restart gateway after enable/install.
 
 ## Why It Matters
 
-Without checkpoint-before-reset, `/new` can drop in-flight context.  
+Without checkpoint-before-reset, `/new` can drop in-flight context.
 With hook automation:
 
 - state is captured pre-reset

@@ -29,7 +29,7 @@ ClawVault uses wiki-links to build a knowledge graph and intelligently route con
 # People
 [[pedro]], [[justin-dukes]], [[engineering-team]]
 
-# Projects  
+# Projects
 [[clawvault]], [[hale-pet-door]], [[api-redesign]]
 
 # Decisions
@@ -48,7 +48,7 @@ ClawVault converts entity names to consistent file paths using slug generation:
 Original Name → Slug → File Path
 
 "Pedro Santos" → pedro-santos → people/pedro-santos.md
-"API Redesign Project" → api-redesign-project → projects/api-redesign-project.md  
+"API Redesign Project" → api-redesign-project → projects/api-redesign-project.md
 "Database Choice Decision" → database-choice-decision → decisions/database-choice-decision.md
 "Q1 2024 Goals" → q1-2024-goals → goals/q1-2024-goals.md
 ```
@@ -62,7 +62,7 @@ Original Name → Slug → File Path
 
 ### Examples
 ```
-Input: "John Smith (Manager)" 
+Input: "John Smith (Manager)"
 Output: john-smith-manager
 
 Input: "API v2.0 Design"
@@ -82,7 +82,7 @@ When you reference an entity that doesn't exist, ClawVault routes it to the appr
 ```markdown
 # These patterns route to people/
 [[pedro]]           → people/pedro.md
-[[Dr. Smith]]       → people/dr-smith.md  
+[[Dr. Smith]]       → people/dr-smith.md
 [[Engineering Team]] → people/engineering-team.md
 
 # Context clues
@@ -109,7 +109,7 @@ The [[infrastructure upgrade]] is complete.
 [[vendor-selection]]    → decisions/vendor-selection.md
 [[architecture-decision]] → decisions/architecture-decision.md
 
-# Context clues  
+# Context clues
 We [[decided to use PostgreSQL]] for better performance.
 The [[choice to migrate]] was based on scalability.
 ```
@@ -156,7 +156,7 @@ For complex entities, ClawVault supports subfolder routing:
 # Simple project
 [[clawvault]] → projects/clawvault.md
 
-# Complex project with subfolder  
+# Complex project with subfolder
 [[clawvault]] → projects/clawvault/index.md
               └─ projects/clawvault/technical-decisions.md
               └─ projects/clawvault/roadmap.md
@@ -181,7 +181,7 @@ The observational memory system uses entity routing for auto-generated content:
 # Content
 ## Interaction with Pedro (2024-01-15)
 - Discussed API design patterns
-- Reviewed performance requirements  
+- Reviewed performance requirements
 - Next meeting scheduled for Friday
 ```
 
@@ -218,7 +218,7 @@ ClawVault can automatically convert entity mentions into wiki-links:
 # Link all files in vault
 clawvault link --all
 
-# Link specific file  
+# Link specific file
 clawvault link memory/2024-01-15.md
 ```
 
@@ -255,7 +255,7 @@ Collaborated on [[database-decision]].
 
 # Creates edges:
 pedro → works_on → clawvault
-pedro → works_on → hale-pet-door  
+pedro → works_on → hale-pet-door
 pedro → participated_in → database-decision
 ```
 
@@ -266,7 +266,7 @@ clawvault graph
 
 Output:
 ```
-📊 Memory Graph Summary
+ Memory Graph Summary
 
 Nodes: 347 entities
   └─ People: 23
@@ -296,7 +296,7 @@ clawvault link --orphans
 
 Output:
 ```
-🔗 Orphaned Wiki-Links Found:
+ Orphaned Wiki-Links Found:
 
 memory/2024-01-10.md:
   Line 15: [[client-onboarding]] → people/client-onboarding.md (missing)
@@ -304,7 +304,7 @@ memory/2024-01-10.md:
 
 Total: 2 orphaned links in 1 file
 
-💡 Suggestions:
+ Suggestions:
   - Create people/client-onboarding.md for client process
   - Create decisions/api-design.md for API decisions
 ```
@@ -316,7 +316,7 @@ clawvault link --backlinks people/pedro.md
 
 Output:
 ```
-🔗 Backlinks to people/pedro.md:
+ Backlinks to people/pedro.md:
 
 decisions/database-choice.md:12    "discussed with [[pedro]]"
 projects/clawvault.md:8           "[[pedro]] leads development"
@@ -333,7 +333,7 @@ Total: 4 files link to pedro
 # Set routing patterns
 clawvault config set entity_routing_rules '{
   "people": ["team", "manager", "client", "dr-", "mrs-"],
-  "projects": ["app", "system", "platform", "website"], 
+  "projects": ["app", "system", "platform", "website"],
   "decisions": ["choice", "decision", "selected", "decided"],
   "lessons": ["learned", "insight", "pattern", "principle"]
 }'

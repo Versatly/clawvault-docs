@@ -12,7 +12,7 @@ Understanding ClawVault's folder structure helps you organize memories effective
 ```
 vault/
 ├── .clawvault/           # Internal state and configuration
-├── decisions/            # Key choices with reasoning  
+├── decisions/            # Key choices with reasoning
 ├── lessons/              # Insights and patterns
 ├── people/               # Person records and relationships
 ├── projects/             # Active work tracking
@@ -56,7 +56,7 @@ lessons/
 ├── technical/
 │   ├── context-death-recovery.md   # System-specific learnings
 │   └── api-rate-limiting.md        # Technical problem patterns
-├── process/  
+├── process/
 │   ├── meeting-facilitation.md     # Workflow improvements
 │   └── code-review-feedback.md     # Team process insights
 └── business/
@@ -165,7 +165,7 @@ The `.clawvault/` directory contains ClawVault's internal state and configuratio
 ```
 .clawvault/
 ├── config.json                 # Vault configuration
-├── graph-index.json            # Memory graph cache  
+├── graph-index.json            # Memory graph cache
 ├── dirty-death.flag            # Context death detection
 ├── last-checkpoint.json        # Latest checkpoint reference
 ├── checkpoints/                # Checkpoint storage
@@ -299,7 +299,7 @@ date: {{date}}
 
 ## Next Week Focus
 1. Priority one
-2. Priority two  
+2. Priority two
 3. If time permits
 
 ## Insights
@@ -345,7 +345,7 @@ people/pedro-santos.md
 people/justin-dukes.md
 
 # Projects (kebab-case)
-projects/clawvault-improvements.md  
+projects/clawvault-improvements.md
 projects/hale-pet-door.md
 
 # Decisions (kebab-case)
@@ -412,7 +412,7 @@ clawvault graph --refresh
 - Single-level categories sufficient
 - Manual organization feasible
 
-### Medium Vault (100-500 files)  
+### Medium Vault (100-500 files)
 - Introduce subcategories
 - Automated linking important
 - Templates become valuable
@@ -429,7 +429,7 @@ clawvault graph --refresh
 clawvault reorganize --dry-run  # Preview changes
 clawvault reorganize            # Apply structure
 
-# Fix links after reorganization  
+# Fix links after reorganization
 clawvault link --all --fix-moved
 ```
 

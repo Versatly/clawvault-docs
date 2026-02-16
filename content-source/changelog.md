@@ -51,8 +51,8 @@ description: "Full release history for ClawVault — every version, every featur
 ## [1.11.1] - 2026-02-11
 
 ### Fixed
-- **Compressor priority enforcement** — Post-processes LLM output to upgrade misclassified priorities (decisions→🔴, preferences→🟡)
-- **Temporal decay in reflector** — 🟢 observations older than 7 days auto-pruned; 🔴 always kept
+- **Compressor priority enforcement** — Post-processes LLM output to upgrade misclassified priorities (decisions→, preferences→)
+- **Temporal decay in reflector** —  observations older than 7 days auto-pruned;  always kept
 - **Exec summary in wake** — Wake command now shows richer context with observation summaries
 - **Dedup normalization** — Strips timestamps, wiki-links, and whitespace before comparing for duplicates
 
@@ -140,7 +140,7 @@ description: "Full release history for ClawVault — every version, every featur
 ### Added
 - **Observational memory system** — Compresses session transcripts into durable observations
 - Observer, Compressor, Reflector, Router, SessionWatcher, SessionParser modules
-- Priority system (🔴 critical, 🟡 notable, 🟢 info) with automatic classification
+- Priority system ( critical,  notable,  info) with automatic classification
 - Vault routing: observations auto-categorize to decisions/, people/, lessons/, etc.
 - File watcher mode for real-time session observation
 - One-shot compression via `--compress` flag
@@ -203,16 +203,16 @@ description: "Full release history for ClawVault — every version, every featur
   - Dry-run mode with `--dry-run` to preview repairs
   - List sessions with `--list` flag
   - JSON output with `--json` for scripting
-  
+
   **Problem solved:** When the Anthropic API rejects with "unexpected tool_use_id found in tool_result blocks", this command fixes the transcript so the session can continue without losing context.
-  
+
   ```bash
   # Analyze without changing
   clawvault repair-session --dry-run
-  
+
   # Repair current main session
   clawvault repair-session
-  
+
   # Repair specific session
   clawvault repair-session --session <id> --agent <agent-id>
   ```

@@ -19,7 +19,7 @@ graph LR
 ```
 
 1. **Observer** - Monitors session files for new content
-2. **Compressor** - LLM extracts key observations with priorities  
+2. **Compressor** - LLM extracts key observations with priorities
 3. **Reflector** - Applies temporal decay and deduplication
 4. **Router** - Auto-categorizes into vault folders
 
@@ -27,7 +27,7 @@ graph LR
 
 Observations use emoji priorities that determine routing and retention:
 
-### 🔴 **Critical**
+### **Critical**
 - **Decisions** with lasting impact
 - **Errors** and blockers that need attention
 - **Deadlines** and urgent commitments
@@ -35,7 +35,7 @@ Observations use emoji priorities that determine routing and retention:
 
 **Retention:** Permanent (never pruned)
 
-### 🟡 **Notable**  
+### **Notable**
 - **Preferences** and working styles
 - **People** interactions and relationship notes
 - **Process** improvements and insights
@@ -43,9 +43,9 @@ Observations use emoji priorities that determine routing and retention:
 
 **Retention:** Long-term (months)
 
-### 🟢 **Info**
+### **Info**
 - **Routine** status updates
-- **Deployments** and standard operations  
+- **Deployments** and standard operations
 - **Meeting** attendance and basic notes
 - **General** progress updates
 
@@ -56,16 +56,16 @@ Observations use emoji priorities that determine routing and retention:
 The router automatically places observations in appropriate vault categories:
 
 ```bash
-🔴 "Decided to use PostgreSQL over SQLite"
+ "Decided to use PostgreSQL over SQLite"
   → decisions/database-choice-2026-02-13.md
 
-🟡 "Sarah prefers Slack over email for quick questions"  
+ "Sarah prefers Slack over email for quick questions"
   → people/sarah-chen/2026-02-13.md
 
-🟡 "Learned that async validation improves UX significantly"
+ "Learned that async validation improves UX significantly"
   → lessons/2026-02-13.md
 
-🟢 "Deployed v2.1.0 to staging"
+ "Deployed v2.1.0 to staging"
   → inbox/2026-02-13.md
 ```
 
@@ -86,7 +86,7 @@ When LLM APIs are unavailable, rule-based classification kicks in:
 // Decision detection
 /\b(decided|chose|going with|selected)\b/i
 
-// Error patterns  
+// Error patterns
 /\b(error|failed|broke|bug|issue)\b/i
 
 // People mentions
@@ -101,7 +101,7 @@ When LLM APIs are unavailable, rule-based classification kicks in:
 # Session transcript auto-processed on sleep
 clawvault sleep "built user auth" --session-transcript ./session.md
 
-# Observations included in wake context  
+# Observations included in wake context
 clawvault wake
 ```
 
@@ -128,7 +128,7 @@ export CLAWVAULT_NO_LLM=1
 
 # Use specific LLM
 export GEMINI_API_KEY="your-key"
-export ANTHROPIC_API_KEY="your-key"  
+export ANTHROPIC_API_KEY="your-key"
 export OPENAI_API_KEY="your-key"
 ```
 
@@ -140,7 +140,7 @@ Observations mentioning people or projects route to entity subfolders:
 # Observation: "Pedro suggested using Railway for deployment"
 # Routes to: people/pedro/2026-02-13.md
 
-# Observation: "ClawVault docs need better examples"  
+# Observation: "ClawVault docs need better examples"
 # Routes to: projects/clawvault/2026-02-13.md
 ```
 
@@ -148,10 +148,10 @@ This creates rich entity histories visible in Obsidian's graph view.
 
 ## Integration with Context
 
-Recent observations (🔴 and 🟡) automatically inject into:
+Recent observations ( and ) automatically inject into:
 
 - **Wake summaries** - What happened recently
-- **Context queries** - Graph-neighbor observations 
+- **Context queries** - Graph-neighbor observations
 - **Executive summaries** - LLM-generated session briefs
 
 :::tip
@@ -172,19 +172,19 @@ The reflector prevents observation spam:
 ```bash
 # Start session
 clawvault wake
-# → Shows recent 🔴🟡 observations in context
+# → Shows recent  observations in context
 
-# Work happens (conversations, decisions, debugging)  
+# Work happens (conversations, decisions, debugging)
 # → Observer watches session file
 
 # End session
 clawvault sleep "fixed auth bug" --session-transcript session.md
-# → Compressor extracts: 
-#   🔴 "Auth token validation fixed"
-#   🟡 "Redis session store performs better than file-based"
-#   🟢 "Updated dependencies to latest versions"
+# → Compressor extracts:
+# "Auth token validation fixed"
+# "Redis session store performs better than file-based"
+# "Updated dependencies to latest versions"
 
-# Next session  
+# Next session
 clawvault wake
 # → Recent critical/notable observations in recap
 ```

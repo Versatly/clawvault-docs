@@ -32,7 +32,7 @@ The repair command detects and fixes several types of transcript corruption:
 - Results from interrupted tool calls that were partially cleaned up
 - Malformed tool call chains after session crashes
 
-### Aborted Tool Calls  
+### Aborted Tool Calls
 - Incomplete tool calls with partial JSON
 - Tool calls interrupted mid-execution
 - Broken function call syntax from API timeouts
@@ -51,7 +51,7 @@ clawvault repair-session --dry-run
 
 Preview what would be fixed without making changes. Shows:
 - Number of corrupted blocks found
-- Types of corruption detected  
+- Types of corruption detected
 - Estimated repair success rate
 
 ### Specific Session Repair
@@ -73,7 +73,7 @@ Show all available sessions across all agents, with status indicators for corrup
 # Skip backup creation (faster, less safe)
 clawvault repair-session --no-backup
 
-# Custom backup location  
+# Custom backup location
 clawvault repair-session --backup-dir /path/to/backups
 ```
 
@@ -83,19 +83,19 @@ clawvault repair-session --backup-dir /path/to/backups
 ```bash
 $ clawvault repair-session --dry-run
 
-🔍 Analyzing session: main/2024-01-15-143052
+ Analyzing session: main/2024-01-15-143052
 
 Transcript: ~/.openclaw/agents/main/sessions/2024-01-15-143052.jsonl
 Messages: 47 total, 12 assistant, 8 tool_use, 6 tool_result
 
-❌ Corruption Found:
-  - 2 orphaned tool_result blocks (tool_use_3f42, tool_use_7a91) 
+ Corruption Found:
+  - 2 orphaned tool_result blocks (tool_use_3f42, tool_use_7a91)
   - 1 aborted tool call with partial JSON (line 23)
   - 1 broken parent chain after tool_use_3f42
 
-✅ Repair Plan:
+ Repair Plan:
   - Remove 2 orphaned tool_result blocks
-  - Remove 1 incomplete tool_use block  
+  - Remove 1 incomplete tool_use block
   - Relink 3 parent chain references
 
 Estimated success rate: 95% (low risk)
@@ -106,17 +106,17 @@ Run without --dry-run to apply fixes.
 ```bash
 $ clawvault repair-session
 
-🔧 Repairing session: main/2024-01-15-143052
+ Repairing session: main/2024-01-15-143052
 
-✅ Backup created: ~/.openclaw/agents/main/backups/2024-01-15-143052.bak.jsonl
+ Backup created: ~/.openclaw/agents/main/backups/2024-01-15-143052.bak.jsonl
 
-🛠️  Applying fixes:
-  ✅ Removed orphaned tool_result block (tool_use_3f42)
-  ✅ Removed orphaned tool_result block (tool_use_7a91)
-  ✅ Removed aborted tool_use block (line 23)
-  ✅ Relinked 3 parent chain references
+  Applying fixes:
+   Removed orphaned tool_result block (tool_use_3f42)
+   Removed orphaned tool_result block (tool_use_7a91)
+   Removed aborted tool_use block (line 23)
+   Relinked 3 parent chain references
 
-✅ Repair complete: 4 fixes applied
+ Repair complete: 4 fixes applied
 Session should now load without API errors.
 ```
 
@@ -124,16 +124,16 @@ Session should now load without API errors.
 ```bash
 $ clawvault repair-session --list
 
-📋 Available Sessions:
+ Available Sessions:
 
 Agent: main
-  ✅ 2024-01-15-090312  (47 messages, healthy)
-  ❌ 2024-01-15-143052  (corrupted, 2 orphaned results)  
-  ✅ 2024-01-14-160821  (23 messages, healthy)
+   2024-01-15-090312  (47 messages, healthy)
+   2024-01-15-143052  (corrupted, 2 orphaned results)
+   2024-01-14-160821  (23 messages, healthy)
 
 Agent: subagent-docs
-  ✅ 2024-01-15-151203  (8 messages, healthy)
-  ⚠️  2024-01-15-134411  (1 aborted tool call)
+   2024-01-15-151203  (8 messages, healthy)
+    2024-01-15-134411  (1 aborted tool call)
 
 Total: 5 sessions, 2 need repair
 ```
@@ -178,7 +178,7 @@ Every repair creates a backup with timestamp:
 
 ### Validation Checks
 - Verifies JSON structure before and after repair
-- Confirms message count consistency  
+- Confirms message count consistency
 - Validates tool call/result pairing
 - Checks parent chain integrity
 
@@ -203,7 +203,7 @@ Use `repair-session` when you see:
 :::tip Prevention
 To reduce corruption risk:
 1. **Checkpoint frequently** during heavy tool use
-2. **Avoid force-killing** OpenClaw during tool execution  
+2. **Avoid force-killing** OpenClaw during tool execution
 3. **Monitor API timeouts** and adjust timeout settings
 4. **Use `clawvault doctor`** to detect early signs
 :::

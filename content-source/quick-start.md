@@ -15,7 +15,7 @@ Make sure you've completed the [Installation](./installation) and have a vault i
 ClawVault follows a natural session lifecycle that mirrors how humans work:
 
 1. **Wake up** - Recover context, check what happened
-2. **Work** - Store memories as you go, checkpoint frequently  
+2. **Work** - Store memories as you go, checkpoint frequently
 3. **Capture** - Quick notes without interrupting flow
 4. **Sleep** - Handoff to future self with clear next steps
 
@@ -31,19 +31,19 @@ clawvault wake
 
 **Example output:**
 ```
-🐘 ClawVault Wake - Session Recovery
+ ClawVault Wake - Session Recovery
 
-📅 Last session: 2024-01-15 14:30 (2 hours ago)
-✅ Clean shutdown - no context death detected
+ Last session: 2024-01-15 14:30 (2 hours ago)
+ Clean shutdown - no context death detected
 
 Recent Context:
-🔴 Decision: Choose database technology (2024-01-15)
+ Decision: Choose database technology (2024-01-15)
    → Decided on PostgreSQL over SQLite for concurrent writes
 
-🟡 Lesson: Context death is survivable (2024-01-14)  
+ Lesson: Context death is survivable (2024-01-14)
    → Always checkpoint before heavy work
 
-📋 Last Handoff:
+ Last Handoff:
    Working on: ClawVault documentation site
    Next: Deploy to production, add authentication
    Blocked: waiting for API keys from DevOps
@@ -57,10 +57,10 @@ Pending Commitments:
 ```
 
 The wake command:
-- ✅ Checks for context death (session crashed unexpectedly)
-- 📚 Shows recent critical/notable observations
-- 🎯 Displays your last handoff context
-- 📋 Lists active projects and commitments
+-  Checks for context death (session crashed unexpectedly)
+-  Shows recent critical/notable observations
+-  Displays your last handoff context
+-  Lists active projects and commitments
 
 ## 2. Work & Store Memories
 
@@ -119,7 +119,7 @@ Find information quickly using keyword or semantic search:
 # Keyword search (fast)
 clawvault search "PostgreSQL decision"
 
-# Semantic search (slower, more accurate)  
+# Semantic search (slower, more accurate)
 clawvault vsearch "what did we decide about the database"
 
 # Filter by category
@@ -128,17 +128,17 @@ clawvault search "Pedro" -c people
 
 **Example search output:**
 ```
-🔍 Found 3 results for "PostgreSQL decision"
+ Found 3 results for "PostgreSQL decision"
 
-📁 decisions/database-technology.md
+ decisions/database-technology.md
    Use PostgreSQL over SQLite
    → Need concurrent writes for multi-agent setup...
-   
-📁 lessons/checkpoint-before-migration.md  
+
+ lessons/checkpoint-before-migration.md
    Always checkpoint before risky operations
    → Lost context during PostgreSQL migration...
 
-📁 people/pedro-franceschi.md
+ people/pedro-franceschi.md
    Pedro Franceschi - CTO
    → Recommended PostgreSQL for scaling...
 ```
@@ -156,11 +156,11 @@ clawvault sleep "Built documentation site structure and content" \
 ```
 
 The sleep command:
-- 📝 Creates a handoff record for next session
-- 🏷️ Tags important decisions made this session  
-- 🚧 Documents blockers clearly
-- 💭 Captures your mental state and momentum
-- ✅ Clears any death detection flags
+-  Creates a handoff record for next session
+-  Tags important decisions made this session
+-  Documents blockers clearly
+-  Captures your mental state and momentum
+-  Clears any death detection flags
 
 ## Advanced Workflows
 
@@ -172,7 +172,7 @@ Get context tailored for specific situations:
 # Planning mode - strategic context
 clawvault context --profile planning "Q1 roadmap review"
 
-# Incident mode - recent issues, blockers  
+# Incident mode - recent issues, blockers
 clawvault context --profile incident "API outage investigation"
 
 # Handoff mode - session transition context
@@ -216,7 +216,7 @@ Here's a complete example session:
 # Start session
 clawvault wake
 
-# Work and capture  
+# Work and capture
 clawvault remember decision "Use Vercel for deployment" --content "Zero config, great DX"
 clawvault capture "TODO: Add custom domain setup docs"
 clawvault checkpoint --working-on "deployment setup" --focus "Vercel integration"
@@ -232,19 +232,19 @@ clawvault sleep "Completed Vercel deployment setup" \
 
 ## Best Practices
 
-1. **🌅 Always wake** - Start every session with `clawvault wake`
-2. **💾 Store by type** - Use `remember <type>` for structured storage  
-3. **🔄 Checkpoint often** - Every 10-15 minutes during heavy work
-4. **🔍 Search first** - Don't reload entire files, search for what you need
-5. **🌙 Sleep clean** - End with clear handoffs using `clawvault sleep`
-6. **🕸️ Link everything** - Use `[[wiki-links]]` to connect concepts
-7. **📝 Capture fast** - Use `capture` for quick thoughts without interruption
+1. ** Always wake** - Start every session with `clawvault wake`
+2. ** Store by type** - Use `remember <type>` for structured storage
+3. ** Checkpoint often** - Every 10-15 minutes during heavy work
+4. ** Search first** - Don't reload entire files, search for what you need
+5. ** Sleep clean** - End with clear handoffs using `clawvault sleep`
+6. ** Link everything** - Use `[[wiki-links]]` to connect concepts
+7. ** Capture fast** - Use `capture` for quick thoughts without interruption
 
 ## What's Next?
 
 You've learned the core workflow! Now explore:
 
 - **[Memory Types](../concepts/memory-types)** - Deep dive into structured storage
-- **[Commands Reference](../commands/wake-sleep)** - Complete command documentation  
+- **[Commands Reference](../commands/wake-sleep)** - Complete command documentation
 - **[OpenClaw Integration](../openclaw/hook-setup)** - Automatic session management
 - **[Advanced Features](../advanced/vault-structure)** - Power user techniques

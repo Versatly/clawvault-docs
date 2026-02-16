@@ -25,7 +25,7 @@ clawvault template add <template-name> <source-file>
 ClawVault ships with 7 carefully designed templates for common memory types:
 
 ### 1. Person Template
-**Template:** `person`  
+**Template:** `person`
 **Path:** `people/`
 
 Creates structured person records with contact info, relationship context, and interaction history.
@@ -40,14 +40,14 @@ created: 2024-01-15
 # Person Name
 
 ## Contact
-- Email: 
-- Phone: 
-- Role/Company: 
+- Email:
+- Phone:
+- Role/Company:
 
 ## Context
-- How we met: 
-- Relationship: 
-- Important notes: 
+- How we met:
+- Relationship:
+- Important notes:
 
 ## Recent Interactions
 - **2024-01-15**: First meeting about...
@@ -56,13 +56,13 @@ created: 2024-01-15
 - [[project-name]] - Role and involvement
 
 ## Preferences & Notes
-- Communication style: 
-- Availability: 
+- Communication style:
+- Availability:
 - Interests:
 ```
 
 ### 2. Project Template
-**Template:** `project`  
+**Template:** `project`
 **Path:** `projects/`
 
 Tracks project status, goals, blockers, and key decisions.
@@ -88,7 +88,7 @@ Brief description of what this project accomplishes.
 ## Current Status
 **Status:** Planning | Active | On Hold | Complete
 **Last Updated:** 2024-01-15
-**Next Steps:** 
+**Next Steps:**
 
 ## Key People
 - **Lead:** [[person-name]]
@@ -102,13 +102,13 @@ Brief description of what this project accomplishes.
 - Dependencies waiting on
 
 ## Resources & Links
-- Repository: 
-- Documentation: 
+- Repository:
+- Documentation:
 - External resources:
 ```
 
-### 3. Decision Template  
-**Template:** `decision`  
+### 3. Decision Template
+**Template:** `decision`
 **Path:** `decisions/`
 
 Documents important choices with reasoning, alternatives, and outcomes.
@@ -137,7 +137,7 @@ Why this decision was needed and the circumstances.
 
 ## Implementation
 - [ ] Step 1
-- [ ] Step 2  
+- [ ] Step 2
 - [ ] Step 3
 
 ## Success Metrics
@@ -155,7 +155,7 @@ Review this decision on: 2024-03-15
 ```
 
 ### 4. Lesson Template
-**Template:** `lesson`  
+**Template:** `lesson`
 **Path:** `lessons/`
 
 Captures insights, patterns, and learnings for future reference.
@@ -197,7 +197,7 @@ Examples, data, or references that support this lesson:
 ```
 
 ### 5. Meeting Template
-**Template:** `meeting`  
+**Template:** `meeting`
 **Path:** `inbox/` (process to appropriate category)
 
 Structured meeting notes with decisions and action items.
@@ -212,8 +212,8 @@ tags: [meetings]
 
 # Meeting - Topic
 
-**Date:** 2024-01-15  
-**Attendees:** [[person-1]], [[person-2]], [[person-3]]  
+**Date:** 2024-01-15
+**Attendees:** [[person-1]], [[person-2]], [[person-3]]
 **Duration:** 1 hour
 
 ## Agenda
@@ -226,7 +226,7 @@ tags: [meetings]
 ### Topic 1
 Key points discussed and any conclusions reached.
 
-### Topic 2  
+### Topic 2
 Important insights or concerns raised.
 
 ## Decisions Made
@@ -243,7 +243,7 @@ Next meeting scheduled for: 2024-01-22
 ```
 
 ### 6. Goal Template
-**Template:** `goal`  
+**Template:** `goal`
 **Path:** `goals/`
 
 Tracks objectives with milestones and progress indicators.
@@ -272,7 +272,7 @@ The motivation and larger purpose behind this goal.
 
 ## Milestones
 - [ ] **Week 1:** First milestone
-- [ ] **Week 4:** Major checkpoint  
+- [ ] **Week 4:** Major checkpoint
 - [ ] **Week 8:** Final milestone
 
 ## Progress Log
@@ -293,7 +293,7 @@ The motivation and larger purpose behind this goal.
 ```
 
 ### 7. Daily Template
-**Template:** `daily`  
+**Template:** `daily`
 **Path:** `memory/`
 
 Structured daily notes with consistent format.
@@ -342,11 +342,11 @@ clawvault template list
 
 Shows all available templates with descriptions:
 ```
-📋 Available Templates:
+ Available Templates:
 
 Built-in:
   person     - Structured person records (→ people/)
-  project    - Project tracking (→ projects/)  
+  project    - Project tracking (→ projects/)
   decision   - Decision documentation (→ decisions/)
   lesson     - Learning capture (→ lessons/)
   meeting    - Meeting notes (→ inbox/)
@@ -365,7 +365,7 @@ Total: 9 templates (7 built-in, 2 custom)
 # Create a new person file
 clawvault template create person john-smith
 
-# Create project documentation  
+# Create project documentation
 clawvault template create project pet-door-app
 
 # Create decision record
@@ -414,7 +414,7 @@ Templates support variable substitution:
 ```bash
 $ clawvault template create person pedro-santos
 
-✅ Created people/pedro-santos.md from person template
+ Created people/pedro-santos.md from person template
 
 Next steps:
   1. Fill in contact information
@@ -426,7 +426,7 @@ Next steps:
 ```bash
 $ clawvault template create daily $(date +%Y-%m-%d)
 
-✅ Created memory/2024-01-15.md from daily template
+ Created memory/2024-01-15.md from daily template
 
 Template filled with:
   - Today's date: Monday, January 15, 2024

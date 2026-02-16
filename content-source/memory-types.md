@@ -12,7 +12,7 @@ ClawVault organizes memories into **8 structured types**, each designed for spec
 
 Examples:
 - API endpoints and their parameters
-- System configurations 
+- System configurations
 - Technical specifications
 - Contact information
 - Process documentation
@@ -38,7 +38,7 @@ clawvault remember feeling "Client Demo Went Well" --content "Team felt confiden
 **Choices made with context and reasoning.**
 
 :::tip
-Decisions automatically get 🔴 **critical** priority in observational memory.
+Decisions automatically get  **critical** priority in observational memory.
 :::
 
 Examples:
@@ -130,7 +130,7 @@ clawvault list commitments
 ### Context-Aware Injection
 Different memory types surface at different times:
 - **Decisions** → Critical for planning sessions
-- **Commitments** → Important for deadline tracking  
+- **Commitments** → Important for deadline tracking
 - **Relationships** → Key for meeting preparation
 
 ### Graph Connections

@@ -34,7 +34,7 @@ clawvault link --all
 Scans all markdown files in your vault and automatically converts entity mentions into wiki-links:
 
 - **People:** `Pedro` → `[[pedro]]`
-- **Projects:** `ClawVault` → `[[clawvault]]`  
+- **Projects:** `ClawVault` → `[[clawvault]]`
 - **Decisions:** `database choice` → `[[database-choice]]`
 
 The linking process is smart about context and avoids linking common words or inappropriate mentions.
@@ -90,7 +90,7 @@ The linking system recognizes several types of entities:
 - Proper names in people/ folder or mentioned in context
 - Converts to slug format: `John Smith` → `[[john-smith]]`
 
-### Projects  
+### Projects
 - Project names from projects/ folder
 - Technology/tool names mentioned frequently
 - Converts to kebab-case: `Pet Door App` → `[[pet-door-app]]`
@@ -107,7 +107,7 @@ ClawVault uses standard Obsidian-style wiki-links:
 # Basic link
 [[entity-name]]
 
-# Link with display text  
+# Link with display text
 [[entity-name|Display Text]]
 
 # Link to specific section
@@ -136,7 +136,7 @@ For people and projects, files may be routed to subfolders:
 
 ### When to Link
 - **Names of people** you interact with
-- **Project names** and major tools/technologies  
+- **Project names** and major tools/technologies
 - **Key decisions** that might be referenced later
 - **Important concepts** that appear across multiple files
 
@@ -160,7 +160,7 @@ clawvault graph --refresh
 
 **Before linking:**
 ```markdown
-Met with Pedro today about the ClawVault improvements. 
+Met with Pedro today about the ClawVault improvements.
 He suggested we focus on the memory graph feature first.
 We decided to use the graph approach for better context.
 ```
@@ -177,7 +177,7 @@ We [[decision-graph-approach|decided to use the graph approach]] for better cont
 ```bash
 $ clawvault link --orphans
 
-🔗 Orphaned Wiki-Links Found:
+ Orphaned Wiki-Links Found:
 
 memory/2024-01-10.md:
   Line 15: [[client-onboarding]] → people/client-onboarding.md (missing)
@@ -185,7 +185,7 @@ memory/2024-01-10.md:
 
 Total: 2 orphaned links in 1 file
 
-💡 Suggestions:
+ Suggestions:
   - Create people/client-onboarding.md for client process documentation
   - Create decisions/api-design.md for API architecture decisions
   - Or update links to point to existing files

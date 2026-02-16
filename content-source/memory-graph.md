@@ -73,11 +73,11 @@ Creates edges:
 - `decisions/database-choice` → `people/pedro` (wiki-link)
 - `decisions/database-choice` → `projects/user-auth` (wiki-link)
 
-### tag  
+### tag
 Created from `#hashtag` syntax.
 
 ```markdown
-# In lessons/auth-patterns.md  
+# In lessons/auth-patterns.md
 #security #authentication patterns work best with JWT tokens.
 ```
 
@@ -91,7 +91,7 @@ Created from YAML metadata relationships.
 ```markdown
 ---
 title: "Database Migration"
-related: ["database-choice", "performance-testing"] 
+related: ["database-choice", "performance-testing"]
 author: "pedro"
 project: "user-dashboard"
 ---
@@ -99,7 +99,7 @@ project: "user-dashboard"
 
 Creates edges:
 - `projects/database-migration` → `decisions/database-choice` (frontmatter)
-- `projects/database-migration` → `people/pedro` (frontmatter) 
+- `projects/database-migration` → `people/pedro` (frontmatter)
 - `projects/database-migration` → `projects/user-dashboard` (frontmatter)
 
 ## Incremental Rebuild
@@ -116,7 +116,7 @@ clawvault graph --refresh
 
 **Incremental logic:**
 1. Check file modification times against last index update
-2. Only reprocess changed files  
+2. Only reprocess changed files
 3. Update affected nodes and edges
 4. Preserve unchanged portions of graph
 
@@ -134,7 +134,7 @@ clawvault context "database performance"
 **Context algorithm:**
 1. **Semantic search** finds relevant documents
 2. **Graph traversal** includes connected nodes
-3. **Type weighting** prioritizes certain relationships  
+3. **Type weighting** prioritizes certain relationships
 4. **Temporal decay** favors recent connections
 
 Example: Querying "database" returns:
@@ -155,7 +155,7 @@ Wiki-links use entity-slug routing for clean URLs:
 
 **Routing rules:**
 - People: `people/{slug}/` (subfolder for relationship history)
-- Projects: `projects/{slug}/` (subfolder for project updates)  
+- Projects: `projects/{slug}/` (subfolder for project updates)
 - Other types: `{category}/{slug}` (single file)
 
 ## Auto-Linking
@@ -215,7 +215,7 @@ Use Obsidian's graph view to visually explore your knowledge network and discove
 # View current graph summary
 clawvault graph
 
-# Rebuild graph index from scratch  
+# Rebuild graph index from scratch
 clawvault graph --refresh
 
 # Check for broken wiki-links

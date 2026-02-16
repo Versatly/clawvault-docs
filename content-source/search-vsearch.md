@@ -40,7 +40,7 @@ clawvault search "PostgreSQL connection"
 # Search only in decisions
 clawvault search "database" -c decisions
 
-# Search in people files  
+# Search in people files
 clawvault search "frontend" -c people
 
 # Search lessons learned
@@ -52,7 +52,7 @@ clawvault search "testing" -c lessons
 ```bash
 $ clawvault search "authentication" -c decisions
 
-🔍 Found 3 results for "authentication" in decisions/
+ Found 3 results for "authentication" in decisions/
 
 ┌─────────────────────────────────────────────┐
 │ Use JWT over Sessions                       │
@@ -65,7 +65,7 @@ $ clawvault search "authentication" -c decisions
 └─────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────┐
-│ OAuth Provider Selection                    │  
+│ OAuth Provider Selection                    │
 │ decisions/oauth-provider.md                 │
 │ Modified: 2026-02-12                        │
 │                                             │
@@ -103,7 +103,7 @@ Semantic search understands related concepts:
 # Query: "database performance"
 # Matches: "PostgreSQL slow queries", "connection pooling", "query optimization"
 
-# Query: "team collaboration"  
+# Query: "team collaboration"
 # Matches: "communication issues", "meeting effectiveness", "async workflows"
 
 # Query: "deployment problems"
@@ -125,7 +125,7 @@ Same as `search`:
 ```bash
 $ clawvault vsearch "how to handle production issues"
 
-🧠 Found 4 semantic matches for "how to handle production issues"
+ Found 4 semantic matches for "how to handle production issues"
 
 ┌─────────────────────────────────────────────┐
 │ Incident Response Checklist                │
@@ -162,7 +162,7 @@ clawvault search "database decisions"
 
 ### OpenClaw memory_search
 ```bash
-memory_search "database decisions"  
+memory_search "database decisions"
 # Searches: only MEMORY.md + memory/**/*.md
 # Powered by: basic text search
 # Scope: Limited to OpenClaw memory structure
@@ -195,7 +195,7 @@ clawvault status
 # Update index after changes
 qmd update && qmd embed
 
-# Rebuild index from scratch  
+# Rebuild index from scratch
 qmd update --force && qmd embed --force
 ```
 
@@ -216,7 +216,7 @@ clawvault init ~/memory --qmd-collection my-memory
 # AND search (both terms)
 clawvault search "database AND performance"
 
-# OR search (either term)  
+# OR search (either term)
 clawvault search "Redis OR Memcached"
 
 # NOT search (exclude term)
@@ -277,7 +277,7 @@ clawvault vsearch "deployment problems" -c lessons
 # Research client background
 clawvault search "Acme Corp" -c people
 
-# Review related decisions  
+# Review related decisions
 clawvault vsearch "user authentication strategy"
 
 # Find project status
@@ -304,7 +304,7 @@ clawvault search "query"
 # Error: qmd not found. Install with: bun install -g qmd
 
 # No index
-clawvault vsearch "query"  
+clawvault vsearch "query"
 # Error: No embeddings found. Run: qmd embed
 
 # Empty collection
@@ -324,7 +324,7 @@ clawvault search "query" -c nonexistent
 
 **Use `vsearch` for:**
 - Conceptual queries ("database problems", "team issues")
-- Cross-cutting concerns ("security", "performance")  
+- Cross-cutting concerns ("security", "performance")
 - Learning from past experiences
 - Research and exploration
 
@@ -348,7 +348,7 @@ clawvault remember lesson "Thing we learned" \
 clawvault vsearch "authentication decisions" -c decisions
 # → Find relevant decision IDs
 
-clawvault context "implement OAuth" --profile planning  
+clawvault context "implement OAuth" --profile planning
 # → Get broader context including graph neighbors
 ```
 

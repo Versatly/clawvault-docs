@@ -60,5 +60,5 @@ clawvault context "urgent production issue" --profile incident --format json
 
 ## AGENTS.md Safety Note
 
-Do not replace your full AGENTS.md when adding ClawVault.  
+Do not replace your full AGENTS.md when adding ClawVault.
 Append a minimal workflow block (wake/checkpoint/sleep/context) to preserve existing agent behavior and constraints.
