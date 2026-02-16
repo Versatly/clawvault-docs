@@ -12,7 +12,7 @@ description: Release history for ClawVault — every version, every feature, eve
 
 Templates are now **schema definitions** — the single source of truth for task, project, and all vault primitives.
 
-### 🏗️ Template Schemas
+### Template Schemas
 
 Templates define YAML schemas with typed fields, defaults, enums, and required markers. `createTask()` and `createProject()` read from templates at runtime — no more hardcoded field lists.
 
@@ -40,11 +40,11 @@ schema:
     description: Time estimate (e.g. 2h, 1d)
 ```
 
-### 🔍 Advisory Validation
+### Advisory Validation
 
 New `validateFrontmatter()` checks required fields and enum values against schemas — warns but never blocks. Agents create tasks fast; validation catches drift.
 
-### 🔄 Vault Templates Override Builtins
+### Vault Templates Override Builtins
 
 Drop a template in your vault's `templates/` directory and it takes precedence over builtins. Full malleability — customize any primitive's schema without forking ClawVault.
 
@@ -87,7 +87,7 @@ Drop a template in your vault's `templates/` directory and it takes precedence o
 
 Two headline features that change how agents interact with their vaults.
 
-### 🧠 Dynamic Prompt Injection
+### Dynamic Prompt Injection
 
 New `clawvault inject` command pulls relevant decisions, preferences, and rules directly into prompt context. Two-layer matching:
 
@@ -99,7 +99,7 @@ clawvault inject "How should we handle the Hale deployment?"
 clawvault inject --enable-llm "What's our pricing strategy?"
 ```
 
-### 📁 First-Class Project Primitive
+### First-Class Project Primitive
 
 `clawvault project` with full lifecycle: `add`, `update`, `archive`, `list`, `show`, `tasks`, `board`.
 
@@ -198,7 +198,7 @@ Projects link to tasks, generate Obsidian Kanban boards, and support filtering b
 
 ### Added
 - **Brain Architecture Canvas** — `clawvault canvas --template brain` generates a 4-quadrant system overview: Hippocampus (vault structure + content flow), Direction (stats + decisions), Agent Workspace (active/blocked/backlog), and Knowledge Graph (stats + top entities + category bars).
-- **Owner-Centric Project Board** — `clawvault canvas --template project-board` redesigned with status columns, priority icons, owner cards (🤖 agents / 👤 humans), and backlog grouped by project.
+- **Owner-Centric Project Board** — `clawvault canvas --template project-board` redesigned with status columns, priority icons, owner cards (agents / humans), and backlog grouped by project.
 - **Canvas Customization** — new flags: `--owner` (filter by owner), `--width`/`--height` (dimensions), `--include-done` (show completed tasks), `--list-templates`.
 - **Setup Command Overhaul** — `clawvault setup` now supports `--theme neural|minimal|none`, `--graph-colors`/`--no-graph-colors`, `--bases`/`--no-bases`, `--canvas [template]`, `--force`, and `-v --vault`.
 - **Init Command Flags** — `--no-bases`, `--no-tasks`, `--no-graph`, `--categories <list>`, `--canvas <template>`, `--theme`, `--minimal` for full customization of new vaults.

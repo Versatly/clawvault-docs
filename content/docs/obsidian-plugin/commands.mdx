@@ -9,14 +9,11 @@ The plugin registers commands in Obsidian's command palette (`Ctrl+P` / `Cmd+P`)
 
 ## Available Commands
 
-| Command | What It Does | Requires CLI |
-|---------|-------------|-------------|
-| **Generate Dashboard** | Runs `clawvault canvas` and opens the `.canvas` file | Yes |
-| **Quick Capture** | Opens a modal to capture a thought → saves to `inbox/` | No |
-| **Add Task** | Modal with title, project, priority → saves to `tasks/` | No |
-| **View Blocked** | Modal listing all blocked tasks with blocker info | No |
-| **Refresh Stats** | Force-refresh the sidebar panel | No |
-| **Open Status Panel** | Opens the sidebar panel | No |
+| Command | What It Does |
+|---------|-------------|
+| **Quick Capture** | Opens a modal to capture a thought, saves to `inbox/` |
+| **Refresh Stats** | Force-refresh the sidebar panel |
+| **Open Status Panel** | Opens the sidebar panel |
 
 ## Quick Capture
 
@@ -34,32 +31,13 @@ type: fact
 Your thought text here.
 ```
 
-## Add Task
+## Task Management
 
-The task modal has three fields:
+Tasks are managed through Kanban boards (`Board.md`) and Obsidian Bases (`.base` files), not through plugin commands. Use the CLI:
 
-- **Title** (required) — becomes the filename and heading
-- **Project** (optional) — links to a project via wiki-link
-- **Priority** (optional) — critical, high, medium, low
-
-Creates a file in `tasks/` with proper frontmatter:
-
-```markdown
----
-status: open
-created: '2026-02-14T08:00:00.000Z'
-updated: '2026-02-14T08:00:00.000Z'
-project: my-project
-priority: high
----
-
-# Build the thing
-
-[[my-project]]
+```bash
+clawvault task add "Title" --priority high --project my-project
+clawvault kanban sync
 ```
 
-## Desktop Only
-
-Commands that run the ClawVault CLI (Generate Dashboard) are desktop-only. On mobile, these commands show a notice explaining they require the CLI.
-
-File-creating commands (Quick Capture, Add Task) work on all platforms since they write directly.
+The plugin's sidebar panel shows task counts from the vault, but creation and updates go through the CLI or by editing task files directly.
