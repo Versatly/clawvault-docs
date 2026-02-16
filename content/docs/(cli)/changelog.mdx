@@ -8,6 +8,54 @@ description: Release history for ClawVault — every version, every feature, eve
   Subscribe via RSS
 </a>
 
+## v2.6.0 — February 15, 2026
+
+Templates are now **schema definitions** — the single source of truth for task, project, and all vault primitives.
+
+### 🏗️ Template Schemas
+
+Templates define YAML schemas with typed fields, defaults, enums, and required markers. `createTask()` and `createProject()` read from templates at runtime — no more hardcoded field lists.
+
+```yaml
+# templates/task.md frontmatter
+schema:
+  status:
+    type: string
+    required: true
+    default: open
+    enum: [open, in-progress, blocked, done]
+  priority:
+    type: string
+    required: true
+    default: medium
+    enum: [critical, high, medium, low]
+  due:
+    type: date
+    description: Target completion date
+  tags:
+    type: list
+    description: Categorization tags
+  estimate:
+    type: string
+    description: Time estimate (e.g. 2h, 1d)
+```
+
+### 🔍 Advisory Validation
+
+New `validateFrontmatter()` checks required fields and enum values against schemas — warns but never blocks. Agents create tasks fast; validation catches drift.
+
+### 🔄 Vault Templates Override Builtins
+
+Drop a template in your vault's `templates/` directory and it takes precedence over builtins. Full malleability — customize any primitive's schema without forking ClawVault.
+
+### Improved
+- `buildTemplateIndex()` scans vault templates first, falls back to builtins
+- 16 builtin templates ship with schema fields
+- `clawvault init` generates `.base` files compatible with new schemas
+- 459 tests passing, typecheck clean
+
+---
+
 ## v2.5.4 — February 15, 2026
 
 ### Fixed
